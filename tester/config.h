@@ -5,12 +5,110 @@
 # include <iostream>
 # include <fstream>
 # include <vector>
-# include <infra/forward.h>
+# include <string>
+# include <chrono>
 
 namespace nll
 {
+
+   namespace impl
+   {
+      /**
+      @ingroup core
+      @brief Define a simple Timer class.
+      */
+      class Timer
+      {
+      public:
+         /**
+         @brief Instanciate the timer and start it
+         */
+         Timer()
+         {
+            start();
+            _end = _start;
+         }
+
+         /**
+         @brief restart the timer
+         */
+         void start()
+         {
+            _start = std::chrono::high_resolution_clock::now();
+         }
+
+         /**
+         @brief end the timer, return the time in seconds spent
+         */
+         void end()
+         {
+            _end = std::chrono::high_resolution_clock::now();
+         }
+
+         /**
+         @brief get the current time since the begining, return the time in seconds spent.
+         */
+         float getElapsedTime() const
+         {
+            auto c = std::chrono::high_resolution_clock::now();
+            return toSeconds( _start, c );
+         }
+
+         /**
+         @brief return the time in seconds spent since between starting and ending the timer. The timer needs to be ended before calling it.
+         */
+         float getTime() const
+         {
+            return toSeconds( _start, _end );
+         }
+
+      private:
+         static float toSeconds( const std::chrono::high_resolution_clock::time_point& start,
+                                 const std::chrono::high_resolution_clock::time_point& end )
+         {
+            const auto c = std::chrono::duration_cast<std::chrono::milliseconds>( end - start ).count();
+            return static_cast<float>( c / 1000.0f );
+         }
+
+      private:
+         std::chrono::high_resolution_clock::time_point _start;
+         std::chrono::high_resolution_clock::time_point _end;
+      };
+
+      /**
+      @ingroup core
+      @brief split a string according to a specific separator.
+
+      The input string is altered: each time the separator is found, it is replaced by a null character.
+      Each entry of the returned vector point to a part of the string. All empty strings are removed.
+      */
+      inline std::vector<const char*> split( std::string& str, char separator = ' ', bool removeEmptyString = true )
+      {
+         std::vector<const char*> s;
+         unsigned last = 0;
+         for ( unsigned n = 0; n < str.size(); ++n )
+         {
+            if ( str[ n ] == separator )
+            {
+               str[ n ] = 0;
+               if ( !removeEmptyString || ( removeEmptyString && std::strlen( &str[ last ] ) ) )
+                  s.push_back( &str[ last ] );
+               last = n + 1;
+            }
+         }
+
+         if ( last < str.size() )
+         {
+            s.push_back( &str[ last ] );
+         }
+         return s;
+      }
+   }
+
 namespace tester
 {
+   
+
    /**
     @brief Save/Load/Modify a simple configuration file for regression testing
     */
@@ -97,7 +195,7 @@ namespace tester
                {
                   directory = std::string( &line[ posStart + 1 ], &line[ posEnd ] );
                } else {
-                  std::vector<const char*> args = nll::core::split( line, '=' );
+                  std::vector<const char*> args = nll::impl::split( line, '=' );
                   if ( args.size() == 2 )
                   {
                      _storage[ directory ][ args[ 0 ] ] = args[ 1 ];

@@ -6,8 +6,7 @@
 # include <vector>
 # include <string>
 # include <iostream>
-
-
+# include <sstream>
 
 # pragma warning( push )
 # pragma warning( disable:4251 ) // std::vector should have dll-interface
@@ -37,6 +36,36 @@ namespace impl
       std::stringstream f;
       f << val;
       f >> res;
+      return res;
+   }
+
+   /**
+   @ingroup core
+   @brief compute a value representing a string
+   */
+   template <class T>
+   T str2val( const std::string& val )
+   {
+      std::stringstream s;
+      s << val;
+      T res;
+      s >> res;
+
+      return res;
+   }
+
+   /**
+   @ingroup core
+   @brief compute a string representing this value
+   */
+   template <class T>
+   std::string val2str( const T& val )
+   {
+      std::stringstream s;
+      s << val;
+      std::string res;
+      s >> res;
+
       return res;
    }
 }
@@ -94,7 +123,6 @@ public:
       const std::string dirTestdata = "nll.testdata." + mode + "." + name;
 
       _config.setDirectory( dirMetadata );
-      _config[ "nll.version" ] = NLL_VERSION;
       _config[ "nll.machine" ] = name;
 
       _config.setDirectory( dirTestdata );
@@ -144,7 +172,7 @@ public:
    void regressionExport() const
    {
       // just export the raw config
-      const std::string name = NLL_TESTER_LOG_PATH + std::string( "nll." ) + nll::core::val2str( time( 0 ) ) + ".log";
+      const std::string name = NLL_TESTER_LOG_PATH + std::string( "nll." ) + nll::impl::val2str( time( 0 ) ) + ".log";
       _config.write( name );
 
       #ifdef NLL_TESTER_WRITE_TIME_SUMMARY_IF_SUCCESSFUL
@@ -156,7 +184,7 @@ public:
       {
          bool isMetadataDirectory = false;
          std::string dir = directory->first;
-         const std::vector<const char*> splits = nll::core::split( dir, '.' );
+         const std::vector<const char*> splits = nll::impl::split( dir, '.' );
          if ( splits.size() >= 3 && splits[ 0 ] == std::string( "nll" ) && splits[ 1 ] == std::string( "metadata" ) )
             isMetadataDirectory = true;
          if ( !isMetadataDirectory )
@@ -165,7 +193,7 @@ public:
                item != directory->second.end();
                ++item )
             {
-               const double v = nll::core::str2val<double>( item->second );
+               const double v = nll::impl::str2val<double>( item->second );
                TESTER_STREAM << "test:" << directory->first << ":" << item->first << " time=" << v << std::endl;
             }
          }
@@ -189,7 +217,7 @@ public:
          // check if it is the metadata directory
          bool isMetadataDirectory = false;
          std::string dir = directory->first;
-         const std::vector<const char*> splits = nll::core::split( dir, '.' );
+         const std::vector<const char*> splits = nll::impl::split( dir, '.' );
          if ( splits.size() >= 3 && splits[ 0 ] == std::string( "nll" ) && splits[ 1 ] == std::string( "metadata" ) )
             isMetadataDirectory = true;
 
@@ -200,8 +228,8 @@ public:
             if ( !isMetadataDirectory && rconfig[ item->first ] != "" )
             {
                // check the timings
-               const double vref = nll::core::str2val<double>( rconfig[ item->first ] );
-               const double v = nll::core::str2val<double>( item->second );
+               const double vref = nll::impl::str2val<double>( rconfig[ item->first ] );
+               const double v = nll::impl::str2val<double>( item->second );
                if ( v > vref * ( 1 + _tolerance ) )
                {
                   if ( v > _regressionMinTime )
@@ -271,7 +299,6 @@ private:
                testSuite instance;                    \
                const char* name = #testSuite;         \
                TESTER_STREAM << "# Runing test suite: " << name << std::endl; \
-               NLL_LOG_TRACE_NAMED( "# Runing test suite: " + std::string( name ) ); \
                
 
 # define TESTER_TEST( func )                          \
@@ -279,8 +306,7 @@ private:
                {                                      \
                   const char* testName = #func;       \
                   TESTER_STREAM << "#  Runing test: " << testName << std::endl; \
-                  NLL_LOG_TRACE_NAMED( "#  Runing test: " + std::string( testName ) );            \
-                  nll::core::Timer startTaskTimer_;   \
+                  nll::impl::Timer startTaskTimer_;   \
                   instance.func();                    \
                   Register::instance().regression( "nll." + std::string( name ) + "." + #func, nll::impl::ftoa( startTaskTimer_.getElapsedTime() ) ); \
                   Register::instance().successful();  \

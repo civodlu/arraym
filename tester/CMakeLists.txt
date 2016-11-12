@@ -15,4 +15,4 @@ generate_export_header( ${LIBNAME}
 	STATIC_DEFINE ${LIBNAME_CAP}_BUILT_AS_STATIC
 )
 
-target_link_libraries(${LIBNAME} infra)
+target_link_libraries(${LIBNAME})

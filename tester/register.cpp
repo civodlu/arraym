@@ -1,4 +1,3 @@
-#include <infra/forward.h>
 #include "register.h"
 #include <iostream>
 
