@@ -3,23 +3,35 @@ cmake_minimum_required(VERSION 2.8)
 set(LIBNAME    "array")
 string(TOUPPER ${LIBNAME} LIBNAME_CAP)
 set(ApiFile    "${CMAKE_BINARY_DIR}/${LIBNAME}/${LIBNAME}-api.h")
-set(Headers    "array.h" "${ApiFile}"
-			      "static-vector.h"
-				   "forward.h"
-               "array-details.h"
-               "index-mapper.h"
-			   "dot.h"
+set(Headers    array.h 
+               ${ApiFile}
+			      array.h
+               array-details.h
+               array-processor.h
+               array-traits.h
+               op.h
+               dummy.cpp
+               forward.h
+               index-mapper.h
+               memory.h
+               static-vector.h
+               static-vector-math.h
+               static-vector-op.h
+               traits.h   
                )
-set(Sources    "dummy.cpp"
-               )
+               
+set(BLAS       wrapper-cblas.cpp
+               wrapper-cblas.h
+               wrapper-common.h)
 
-
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_BINARY_DIR}/${LIBNAME}/config.h)
 source_group(Sources FILES ${Sources} ${Headers})
+source_group(BLAS FILES ${BLAS})
 
 MESSAGE("OpenBLAS=" ${OpenBLAS_LIB})
 
 
-add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${Headers} ${BlasWrappers})
+add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers})
 target_link_libraries(${LIBNAME} ${NLL_EXTERNAL_LIB} ${OpenBLAS_LIB})
 
 
