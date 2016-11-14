@@ -152,6 +152,18 @@ public:
       return _memory;
    }
 
+   bool isEmpty() const
+   {
+      for ( auto s : shape() )
+      {
+         if ( s == 0 )
+         {
+            return true;
+         }
+      }
+      return false;
+   }
+
 private:
    void _move( array_type&& src )
    {

@@ -453,6 +453,71 @@ struct TestArray
       NAMESPACE_NLL::ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator( a1 );
       TESTER_ASSERT( iterator.getVaryingIndexOrder() == core::vector3ui( 2, 1, 0 ) );
    }
+
+
+   void testFill_dummy()
+   {
+      // speed comparsion between hard coded and core::fill and processor
+      const size_t size = 3000 * 4000;
+      std::unique_ptr<int> ptr( new int[ size ] );
+      
+      /*
+      for ( size_t y = 0; y < 4000; ++y )
+      {
+         for ( size_t x = 0; x < 3000; ++x )
+         {
+            const size_t index = x + y * 3000;
+            *( ptr.get() + index ) = x * y;
+         }
+      }
+      */
+
+      for ( size_t x = 0; x < size; ++x )
+      {
+         ptr.get()[ x ] = x * x;
+      }
+      TESTER_ASSERT( ptr.get()[ 0 ] == 0 );
+   }
+
+   void testFill_processor()
+   {
+      // not a real test, just for very simplistic performace test against manual op
+      using array_type = NAMESPACE_NLL::Array_row_major < int, 2 >;
+      bool hasMoreElements = true;
+
+      array_type a1( 3000, 4000 );
+      NAMESPACE_NLL::ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator( a1 );
+      while ( hasMoreElements )
+      {
+         array_type::value_type* ptr = 0;
+         const auto& currentIndex = iterator.getArrayIndex();
+         hasMoreElements = iterator.accessMaxElements( ptr );
+
+         for ( size_t n = 0; n < iterator.getMaxAccessElements(); ++n )
+         {
+            ptr[ n ] = n * n;
+         }
+      }
+
+      TESTER_ASSERT( a1(0, 0) == 0 );
+   }
+
+   void testFill()
+   {
+      // not a real test, just for very simplistic performace test against manual op
+      using array_type = NAMESPACE_NLL::Array_row_major < int, 2 >;
+      array_type a1( 3000, 4000 );
+
+      auto functor = []( const NAMESPACE_NLL::StaticVector<ui32, 2>& index )
+      {
+         return (int)(index[ 0 ] * index[ 1 ]);
+      };
+
+      NAMESPACE_NLL::fill( a1, functor );
+      
+      TESTER_ASSERT( a1( 2, 3 ) == 2 * 3 );
+      TESTER_ASSERT( a1( 1, 2) == 1 * 2 );
+   }
 };
 
 TESTER_TEST_SUITE( TestArray );
@@ -467,4 +532,7 @@ TESTER_TEST( testArray_processor );
 TESTER_TEST( testArray_processor_stride );
 TESTER_TEST( testIteratorByDim );
 TESTER_TEST( testIteratorByLocality );
+TESTER_TEST( testFill );
+TESTER_TEST( testFill_dummy );
+TESTER_TEST( testFill_processor );
 TESTER_TEST_SUITE_END();

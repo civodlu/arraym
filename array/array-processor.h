@@ -217,4 +217,32 @@ public:
    {}
 };
 
+/**
+@brief Generic fill of an array. The index order is defined by memory locality
+@param functor will be called using functor(index_type(x, y, z, ...)), i.e., each coordinate components
+*/
+template <class T, int N, class Config, class Functor>
+void fill( Array<T, N, Config>& array, Functor& functor )
+{
+   using functor_return = typename function_traits<Functor>::return_type;
+   static_assert( std::is_same<functor_return, T>::value, "functor return type must be the same as array type" );
+
+   if ( array.isEmpty() )
+   {
+      return;
+   }
+
+   using array_type = Array < T, N, Config > ;
+   bool hasMoreElements = true;
+
+   ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator( array );
+   while ( hasMoreElements )
+   {
+      typename array_type::value_type* ptr = 0;
+      const auto& currentIndex = iterator.getArrayIndex();
+      hasMoreElements = iterator.accessSingleElement( ptr );
+      *ptr = functor( currentIndex );
+   }
+}
+
 DECLARE_NAMESPACE_END
