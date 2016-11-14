@@ -22,7 +22,11 @@ set(Headers    array.h
                
 set(BLAS       wrapper-cblas.cpp
                wrapper-cblas.h
-               wrapper-common.h)
+               wrapper-common.h
+               blas-dispatcher.h
+               blas-dispatcher.cpp
+               blas-wrapper.h
+               blas-wrapper.cpp)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_BINARY_DIR}/${LIBNAME}/config.h)
 source_group(Sources FILES ${Sources} ${Headers})

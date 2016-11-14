@@ -204,7 +204,7 @@ class ArrayProcessor_contiguous_byDimension : public details::ArrayProcessor_con
    static index_type getIndexes( const Array& )
    {
       index_type indexes;
-      for ( size_t n = 0; n < Array::RANK; ++n )
+      for ( ui32 n = 0; n < Array::RANK; ++n )
       {
          indexes[ n ] = n;
       }

@@ -1,3 +1,5 @@
+#pragma warning(disable:4244)
+
 #include <array/blas-dispatcher.h>
 #include <tester/register.h>
 
@@ -31,7 +33,7 @@ struct TestBlasDispatcher
 
       dispatcher.registerFunction<BlasFunction::daxpy>( daxpy_1, "daxpy_1" );
       auto functions_daxpy = dispatcher.get<BlasFunction::daxpy>();
-      TESTER_ASSERT( functions_daxpy.size() == 1, "expected 1 function!" );
+      TESTER_ASSERT( functions_daxpy.size() == 1 );
 
       {
          dispatcher.call<BlasFunction::saxpy>( float( 0 ), float( 0 ), (const float*)( nullptr ), int( 0 ), (float*)( nullptr ), int( 0 ) );

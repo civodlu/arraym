@@ -72,6 +72,13 @@
 # define NLL_FAST_ASSERT(xxx, msg)  NLL_ASSERT_IMPL(xxx, msg)
 #endif
 
+#include <sstream>
+#include <vector>
+#include <array>
+#include <functional>
+#include <memory>
+#include <iostream>
+
 // see ref http://stackoverflow.com/questions/7090998/portable-unused-parameter-macro-used-on-function-signature-for-c-and-c
 
 /**
@@ -88,7 +95,7 @@
 #  define UNUSED(x) x
 #endif
 
-
+      
 //
 // Annoying warnings...
 //
