@@ -1,12 +1,5 @@
 #pragma once
 
-#include <type_traits>
-#include <iostream>
-#include <vector>
-#include <memory>
-#include <array>
-#include <stdint.h>
-
 #include <array/config.h>
 
 DECLARE_NAMESPACE_NLL

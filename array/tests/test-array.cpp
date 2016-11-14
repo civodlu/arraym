@@ -312,7 +312,7 @@ struct TestArray
 
       Array covered( size, 0 );
 
-      NAMESPACE_NLL::ArrayIterator_contiguous_base<Array> processor( m1, []( const Array& )
+      NAMESPACE_NLL::details::ArrayProcessor_contiguous_base<Array> processor( m1, []( const Array& )
       {
          return NAMESPACE_NLL::vector3ui( 0, 1, 2 );
       } );
@@ -391,7 +391,7 @@ struct TestArray
       Array covered( size_m2, 0 );
 
       // single access
-      NAMESPACE_NLL::ArrayIterator_contiguous_base<Array> processor( m2, functor );
+      NAMESPACE_NLL::details::ArrayProcessor_contiguous_base<Array> processor( m2, functor );
       bool has_more = true;
       while ( has_more )
       {
@@ -403,7 +403,7 @@ struct TestArray
       }
 
       // multiple accesses
-      NAMESPACE_NLL::ArrayIterator_contiguous_byMemoryLocality<Array> processor2( m2 );
+      NAMESPACE_NLL::ArrayProcessor_contiguous_byMemoryLocality<Array> processor2( m2 );
       has_more = true;
       while ( has_more )
       {
@@ -437,6 +437,22 @@ struct TestArray
          }
       }
    }
+
+   void testIteratorByDim()
+   {
+      using array_type = NAMESPACE_NLL::Array_column_major < float, 3 > ;
+      array_type a1( 4, 5, 6 );
+      NAMESPACE_NLL::ArrayProcessor_contiguous_byDimension<array_type> iterator( a1 );
+      TESTER_ASSERT( iterator.getVaryingIndexOrder() == core::vector3ui( 0, 1, 2 ) );
+   }
+
+   void testIteratorByLocality()
+   {
+      using array_type = NAMESPACE_NLL::Array_column_major < float, 3 >;
+      array_type a1( 4, 5, 6 );
+      NAMESPACE_NLL::ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator( a1 );
+      TESTER_ASSERT( iterator.getVaryingIndexOrder() == core::vector3ui( 2, 1, 0 ) );
+   }
 };
 
 TESTER_TEST_SUITE( TestArray );
@@ -449,5 +465,6 @@ TESTER_TEST( testMatrix_construction2 );
 TESTER_TEST( testArray_directional_index );
 TESTER_TEST( testArray_processor );
 TESTER_TEST( testArray_processor_stride );
-
+TESTER_TEST( testIteratorByDim );
+TESTER_TEST( testIteratorByLocality );
 TESTER_TEST_SUITE_END();
