@@ -471,13 +471,7 @@ struct TestArray
          }
       }
       
-
-      /*
-      for ( size_t x = 0; x < size; ++x )
-      {
-         ptr.get()[ x ] = int(x * x);
-      }*/
-      //TESTER_ASSERT( ptr.get()[ 0 ] == 0 );
+      TESTER_ASSERT( ptr.get()[ 0 ] == 0 );
    }
 
    void testFill_processor()
@@ -497,14 +491,9 @@ struct TestArray
          {
             ptr[ n ] = n * n;
          }
-         /*
-         for (NAMESPACE_NLL::ui32 n = 0; n < iterator.getMaxAccessElements(); ++n)
-         {
-            ptr[n] += 2 * n * n;
-         }*/
       }
 
-      //TESTER_ASSERT( a1(0, 0) == 0 );
+      TESTER_ASSERT( a1(0, 0) == 0 );
    }
 
    void testFill()
@@ -520,15 +509,15 @@ struct TestArray
 
       NAMESPACE_NLL::fill( a1, functor );
       
-      //TESTER_ASSERT( a1( 2, 3 ) == 2 * 3 );
-      //TESTER_ASSERT( a1( 1, 2) == 1 * 2 );
+      TESTER_ASSERT( a1( 2, 3 ) == 2 * 3 );
+      TESTER_ASSERT( a1( 1, 2) == 1 * 2 );
    }
 
    void testArray_subArray()
    {
       testArray_subArray_impl<NAMESPACE_NLL::Array_row_major<int, 3>>();
-      //testArray_subArray_impl<NAMESPACE_NLL::Array_column_major<int, 3>>();
-      //testArray_subArray_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 3>>();
+      testArray_subArray_impl<NAMESPACE_NLL::Array_column_major<int, 3>>();
+      testArray_subArray_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 3>>();
    }
 
    template <class array_type>
@@ -561,7 +550,6 @@ struct TestArray
 };
 
 TESTER_TEST_SUITE( TestArray );
-/*
 TESTER_TEST( testVolumeConstruction_slices );
 TESTER_TEST( testVolumeConstruction_slices_ref );
 TESTER_TEST( testVolumeMove );
@@ -572,10 +560,9 @@ TESTER_TEST( testArray_directional_index );
 TESTER_TEST( testArray_processor );
 TESTER_TEST( testArray_processor_stride );
 TESTER_TEST( testIteratorByDim );
-TESTER_TEST( testIteratorByLocality );*/
+TESTER_TEST( testIteratorByLocality );
 TESTER_TEST( testFill );
 TESTER_TEST( testFill_dummy );
 TESTER_TEST( testFill_processor );
-/*
-TESTER_TEST(testArray_subArray);*/
+TESTER_TEST(testArray_subArray);
 TESTER_TEST_SUITE_END();
