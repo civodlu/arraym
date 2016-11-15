@@ -222,7 +222,7 @@ public:
 @param functor will be called using functor(index_type(x, y, z, ...)), i.e., each coordinate components
 */
 template <class T, int N, class Config, class Functor>
-void fill( Array<T, N, Config>& array, Functor& functor )
+void fill( Array<T, N, Config>& array, Functor functor )
 {
    using functor_return = typename function_traits<Functor>::return_type;
    static_assert( std::is_same<functor_return, T>::value, "functor return type must be the same as array type" );

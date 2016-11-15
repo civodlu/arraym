@@ -458,25 +458,26 @@ struct TestArray
    void testFill_dummy()
    {
       // speed comparsion between hard coded and core::fill and processor
-      const size_t size = 3000 * 4000;
+      const size_t size = 6000 * 4000;
       std::unique_ptr<int> ptr( new int[ size ] );
       
-      /*
-      for ( size_t y = 0; y < 4000; ++y )
+      
+      for (int y = 0; y < 6000; ++y)
       {
-         for ( size_t x = 0; x < 3000; ++x )
+         for (int x = 0; x < 4000; ++x)
          {
             const size_t index = x + y * 3000;
             *( ptr.get() + index ) = x * y;
          }
       }
-      */
+      
 
+      /*
       for ( size_t x = 0; x < size; ++x )
       {
-         ptr.get()[ x ] = x * x;
-      }
-      TESTER_ASSERT( ptr.get()[ 0 ] == 0 );
+         ptr.get()[ x ] = int(x * x);
+      }*/
+      //TESTER_ASSERT( ptr.get()[ 0 ] == 0 );
    }
 
    void testFill_processor()
@@ -485,28 +486,32 @@ struct TestArray
       using array_type = NAMESPACE_NLL::Array_row_major < int, 2 >;
       bool hasMoreElements = true;
 
-      array_type a1( 3000, 4000 );
+      array_type a1( 6000, 4000 );
       NAMESPACE_NLL::ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator( a1 );
       while ( hasMoreElements )
       {
          array_type::value_type* ptr = 0;
-         const auto& currentIndex = iterator.getArrayIndex();
          hasMoreElements = iterator.accessMaxElements( ptr );
 
-         for ( size_t n = 0; n < iterator.getMaxAccessElements(); ++n )
+         for (NAMESPACE_NLL::ui32 n = 0; n < iterator.getMaxAccessElements(); ++n)
          {
             ptr[ n ] = n * n;
          }
+         /*
+         for (NAMESPACE_NLL::ui32 n = 0; n < iterator.getMaxAccessElements(); ++n)
+         {
+            ptr[n] += 2 * n * n;
+         }*/
       }
 
-      TESTER_ASSERT( a1(0, 0) == 0 );
+      //TESTER_ASSERT( a1(0, 0) == 0 );
    }
 
    void testFill()
    {
       // not a real test, just for very simplistic performace test against manual op
       using array_type = NAMESPACE_NLL::Array_row_major < int, 2 >;
-      array_type a1( 3000, 4000 );
+      array_type a1( 6000, 4000 );
 
       auto functor = []( const NAMESPACE_NLL::StaticVector<ui32, 2>& index )
       {
@@ -515,12 +520,48 @@ struct TestArray
 
       NAMESPACE_NLL::fill( a1, functor );
       
-      TESTER_ASSERT( a1( 2, 3 ) == 2 * 3 );
-      TESTER_ASSERT( a1( 1, 2) == 1 * 2 );
+      //TESTER_ASSERT( a1( 2, 3 ) == 2 * 3 );
+      //TESTER_ASSERT( a1( 1, 2) == 1 * 2 );
+   }
+
+   void testArray_subArray()
+   {
+      testArray_subArray_impl<NAMESPACE_NLL::Array_row_major<int, 3>>();
+      //testArray_subArray_impl<NAMESPACE_NLL::Array_column_major<int, 3>>();
+      //testArray_subArray_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 3>>();
+   }
+
+   template <class array_type>
+   void testArray_subArray_impl()
+   {
+      array_type a1(20, 30, 40);
+
+      int index = 0;
+      NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&){return index++; });
+
+      const NAMESPACE_NLL::vector3ui min_index(4, 5, 6);
+      const NAMESPACE_NLL::vector3ui max_index(8, 10, 16);
+      auto ref_a1 = a1(min_index, max_index);
+
+      const auto expected_size = max_index - min_index + NAMESPACE_NLL::vector3ui(1);
+
+
+      const NAMESPACE_NLL::vector3ui min_index2(8, 10, 15);
+      auto ref_a2 = a1(min_index2, min_index2 + expected_size - 1);
+
+
+      TESTER_ASSERT(expected_size == ref_a1.shape());
+      TESTER_ASSERT(ref_a1(0, 0, 0) == a1(min_index));
+      TESTER_ASSERT(ref_a1(max_index - min_index) == a1(max_index));
+   
+      TESTER_ASSERT(ref_a2.shape() == ref_a1.shape());
+
+      ref_a2 = ref_a1;
    }
 };
 
 TESTER_TEST_SUITE( TestArray );
+/*
 TESTER_TEST( testVolumeConstruction_slices );
 TESTER_TEST( testVolumeConstruction_slices_ref );
 TESTER_TEST( testVolumeMove );
@@ -531,8 +572,10 @@ TESTER_TEST( testArray_directional_index );
 TESTER_TEST( testArray_processor );
 TESTER_TEST( testArray_processor_stride );
 TESTER_TEST( testIteratorByDim );
-TESTER_TEST( testIteratorByLocality );
+TESTER_TEST( testIteratorByLocality );*/
 TESTER_TEST( testFill );
 TESTER_TEST( testFill_dummy );
 TESTER_TEST( testFill_processor );
+/*
+TESTER_TEST(testArray_subArray);*/
 TESTER_TEST_SUITE_END();

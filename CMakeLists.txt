@@ -29,7 +29,7 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/build")
 set(LIBRARY_OUTPUT_PATH "${EXECUTABLE_OUTPUT_PATH}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})  # output all binaries in the same folder
 
-include_directories(${PROJECT_SOURCE_DIR} # in project headers
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} # in project headers
                     ${CMAKE_BINARY_DIR}   # configuration headers
 					)
                
@@ -53,3 +53,17 @@ add_definitions(-DBOOST_ALL_DYN_LINK) #BOOST_ALL_DYN_LINK use the dynamic lib fo
 
 add_subdirectory (array)
 add_subdirectory (tester)
+
+if (${BUILD_DOCUMENTATION})
+	find_package(Doxygen)
+	if(NOT DOXYGEN_FOUND)
+         message(FATAL_ERROR "Doxygen is needed to build the documentation.")
+    endif()
+	set(doxyfile ${CMAKE_CURRENT_SOURCE_DIR}/array.doxygen)
+		
+	add_custom_target(doxygen
+                      COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                      COMMENT "Generating API documentation with Doxygen"
+                      VERBATIM)
+endif()

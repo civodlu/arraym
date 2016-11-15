@@ -55,6 +55,7 @@
 #define NAMESPACE_NLL nll::core
 #endif
 
+#ifndef NLL_ASSERT_IMPL
 # define NLL_ASSERT_IMPL( _e, _s ) \
           if ( ( _e ) == 0 ) {                                      \
             std::stringstream ss_impl;                              \
@@ -64,6 +65,7 @@
 	         std::cout << "  Location : " << __FILE__ << std::endl;  \
 	         std::cout << "  Line     : " << __LINE__ << std::endl;  \
             throw std::runtime_error( ss_impl.str() ); } 0    // 0 to force the ";"
+#endif
 
 #ifdef NDEBUG
 # define NLL_FAST_ASSERT(xxx, msg) (void*)0
@@ -71,6 +73,8 @@
 /// to be used only for assert checked in debug builds
 # define NLL_FAST_ASSERT(xxx, msg)  NLL_ASSERT_IMPL(xxx, msg)
 #endif
+
+#define ensure( _e, _s ) NLL_ASSERT_IMPL(_e, _s)
 
 #include <sstream>
 #include <vector>

@@ -231,13 +231,6 @@ public:
       return _buffer + SIZE;
    }
 
-   /*
-   StaticVector<T, SIZE>& operator=( const T& value )
-   {
-      std::fill_n( begin(), SIZE, value );
-      return *this;
-   }*/
-
 protected:
    T     _buffer[ SIZE ];
 };

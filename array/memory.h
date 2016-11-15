@@ -168,6 +168,7 @@ public:
          // since we are creating a reference, create a shared state holding the original memory and not to be destroyed until all references
          // are destroyed
          _sharedView = std::shared_ptr<SharedView>( new SharedView{ _slices, _allocator, ref._inSliceSize() } );
+         ref._sharedView = _sharedView;
          ref._slicesAllocated = false; // now delegate the memory management to the shared ptr
       }
    }
@@ -525,6 +526,7 @@ public:
          // since we are creating a reference, create a shared state holding the original memory and not to be destroyed until all references
          // are destroyed
          _sharedView = std::shared_ptr<SharedView>( new SharedView{ _data, _allocator, ref._linearSize() } );
+         ref._sharedView = _sharedView;
          ref._dataAllocated = false; // now delegate the memory management to the shared ptr
       }
    }

@@ -5,12 +5,11 @@ string(TOUPPER ${LIBNAME} LIBNAME_CAP)
 set(ApiFile    "${CMAKE_BINARY_DIR}/${LIBNAME}/${LIBNAME}-api.h")
 set(Headers    array.h 
                ${ApiFile}
-			      array.h
+               array.h
                array-details.h
                array-processor.h
                array-traits.h
                op.h
-               dummy.cpp
                forward.h
                index-mapper.h
                memory.h
