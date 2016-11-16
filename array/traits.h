@@ -124,7 +124,7 @@ struct function_traits<F&&> : public function_traits<F>
 {};
 
 namespace details
-{
+{  
    struct can_call_test
    {
       template<typename F, typename... A>

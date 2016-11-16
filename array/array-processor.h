@@ -2,6 +2,13 @@
 
 DECLARE_NAMESPACE_NLL
 
+/**
+ @file
+
+ This file defines "processors", which allow to iterate an array or multiple arrays in the most efficient manner considering
+ the memory locality of the arrays
+ */
+
 namespace details
 {
    /**
@@ -10,6 +17,8 @@ namespace details
    The only assumption for this iterator is that we have the fastest varying index has at
    least <maxAccessElements> contiguous memory elements. So this handle <Memory_contiguous>
    and <Memory_multislice> Memories
+
+   @todo if fastest varying dimension size = 1 -> skip this dimension for contiguous memory only
    */
    template <class Array>
    class ArrayProcessor_contiguous_base

@@ -276,23 +276,31 @@ using Array_column_major = Array < T, N,
    ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, IndexMapper_contiguous_column_major<N>, Allocator>>
 >;
 
+/**
+ @brief ArrayRef has a different semantic (reference based) from array (i.e., value based)
+
+ When an ArrayRef is modified, it modifies the referenced array instead of creating a copy
+ */
 template <class T, int N, class Config>
 class ArrayRef : public Array<T, N, Config>
 {
 public:
    using array_type = Array<T, N, Config>;
 
+   /**
+    @brief Construct an array ref from an array
+    */
+   explicit ArrayRef(Array& array) : array_type(array, index_type(), array.shape(), index_type(1))
+   {}
+
+   /**
+   @brief Construct an array ref from a sub-array
+   */
    ArrayRef(array_type& array, const index_type& origin, const index_type& shape, const index_type& stride) :
       array_type(array, origin, shape, stride)
    {}
 
    ArrayRef& operator=(const array_type& array)
-   {
-      ensure(array.shape() == this->shape(), "must have the same shape!");
-      return *this;
-   }
-
-   ArrayRef& operator=(const array_type_ref& array)
    {
       ensure(array.shape() == this->shape(), "must have the same shape!");
       return *this;

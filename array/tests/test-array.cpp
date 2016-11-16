@@ -454,48 +454,6 @@ struct TestArray
       TESTER_ASSERT( iterator.getVaryingIndexOrder() == core::vector3ui( 2, 1, 0 ) );
    }
 
-
-   void testFill_dummy()
-   {
-      // speed comparsion between hard coded and core::fill and processor
-      const size_t size = 6000 * 4000;
-      std::unique_ptr<int> ptr( new int[ size ] );
-      
-      
-      for (int y = 0; y < 6000; ++y)
-      {
-         for (int x = 0; x < 4000; ++x)
-         {
-            const size_t index = x + y * 3000;
-            *( ptr.get() + index ) = x * y;
-         }
-      }
-      
-      TESTER_ASSERT( ptr.get()[ 0 ] == 0 );
-   }
-
-   void testFill_processor()
-   {
-      // not a real test, just for very simplistic performace test against manual op
-      using array_type = NAMESPACE_NLL::Array_row_major < int, 2 >;
-      bool hasMoreElements = true;
-
-      array_type a1( 6000, 4000 );
-      NAMESPACE_NLL::ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator( a1 );
-      while ( hasMoreElements )
-      {
-         array_type::value_type* ptr = 0;
-         hasMoreElements = iterator.accessMaxElements( ptr );
-
-         for (NAMESPACE_NLL::ui32 n = 0; n < iterator.getMaxAccessElements(); ++n)
-         {
-            ptr[ n ] = n * n;
-         }
-      }
-
-      TESTER_ASSERT( a1(0, 0) == 0 );
-   }
-
    void testFill()
    {
       // not a real test, just for very simplistic performace test against manual op
@@ -562,7 +520,5 @@ TESTER_TEST( testArray_processor_stride );
 TESTER_TEST( testIteratorByDim );
 TESTER_TEST( testIteratorByLocality );
 TESTER_TEST( testFill );
-TESTER_TEST( testFill_dummy );
-TESTER_TEST( testFill_processor );
 TESTER_TEST(testArray_subArray);
 TESTER_TEST_SUITE_END();
