@@ -7,7 +7,7 @@ DECLARE_NAMESPACE_NLL
 
 Value based semantics, except when using sub-memory blocks which keeps a reference of the memory.
 
-When a sub-block is created, a <SharedView> structure is used to prevent memory deallocation even though the source block is out of scope
+A sub-block must NOT be accessed when the original memory has been destroyed: dangling pointer!
 
 index_mapper::Z_INDEX defines the indexes where the slices are created, all other dimensions are stored in a contiguous array
 */
@@ -159,17 +159,14 @@ public:
       // handle memory references
       //
 
-      if ( ref._sharedView.get() )
+      if ( ref._sharedView )
       {
          // there is already a reference, just increase the refcount
          _sharedView = ref._sharedView;
       } else
       {
-         // since we are creating a reference, create a shared state holding the original memory and not to be destroyed until all references
-         // are destroyed
-         _sharedView = std::shared_ptr<SharedView>( new SharedView{ _slices, _allocator, ref._inSliceSize() } );
-         ref._sharedView = _sharedView;
-         ref._slicesAllocated = false; // now delegate the memory management to the shared ptr
+         // create a reference
+         _sharedView = &ref;
       }
    }
 
@@ -241,7 +238,7 @@ private:
          }
       }
 
-      _sharedView.reset();
+      _sharedView = nullptr;
    }
 
    void _deepCopy( const Memory_multislice& other )
@@ -260,10 +257,10 @@ private:
 
       // now deep copy...
       ui32 in_slice_size = 0;
-      if ( other._sharedView.get() )
+      if ( other._sharedView )
       {
          // do not use the actual size of the reference, it may be a sub-memory!
-         in_slice_size = other._sharedView->inSliceSize;
+         in_slice_size = other._sharedView->_inSliceSize();
       } else
       {
          // there is no reference so it can't be a sub-memory and _size is its actual size
@@ -292,7 +289,7 @@ private:
          other._slicesAllocated = false;
 
          _slices = std::move( other._slices );
-         _sharedView = std::move( other._sharedView );
+         _sharedView = other._sharedView;
       }
    }
 
@@ -389,7 +386,7 @@ private:
    allocator_type   _allocator;
    bool             _slicesAllocated = true;
 
-   std::shared_ptr<SharedView> _sharedView;  /// when we reference an existing view, we must shared the memory...
+   Memory_multislice* _sharedView = nullptr;  /// the original array
 };
 
 /**
@@ -397,9 +394,7 @@ private:
 
 Value based semantics, except when using sub-memory blocks which keeps a reference of the memory.
 
-When a sub-block is created, a <SharedView> structure is used to prevent memory deallocation even though the source block is out of scope
-
-index_mapper::Z_INDEX defines the indexes where the slices are created, all other dimensions are stored in a contiguous array
+A sub-block must NOT be accessed when the original memory has been destroyed: dangling pointer!
 */
 template <class T, size_t N, class IndexMapper = IndexMapper_contiguous<N>, class Allocator = std::allocator<T>>
 class Memory_contiguous : public memory_layout_contiguous
@@ -421,46 +416,46 @@ public:
       typedef typename Base::pointer            pointer;
 
    public:
-      diterator_t() : _p( nullptr )
+      diterator_t() : _p(nullptr)
       {}
 
-      diterator_t( T* p, size_t stride ) : _p( p ), _stride( stride )
+      diterator_t(T* p, size_t stride) : _p(p), _stride(stride)
       {}
 
-      diterator_t( const diterator_t<typename std::remove_const<T>::type>& other ) : diterator_t( other._p, other._stride )
+      diterator_t(const diterator_t<typename std::remove_const<T>::type>& other) : diterator_t(other._p, other._stride)
       {}
 
-      diterator_t& operator++( )
+      diterator_t& operator++()
       {
          _p += _stride;
          return *this;
       }
 
-      diterator_t& add( int step = 1 )
+      diterator_t& add(int step = 1)
       {
          _p += _stride * step;
          return *this;
       }
 
-      bool operator==( const diterator_t& rhs ) const
+      bool operator==(const diterator_t& rhs) const
       {
-         NLL_FAST_ASSERT( _stride == rhs._stride, "non matching <D> iterator" );
+         NLL_FAST_ASSERT(_stride == rhs._stride, "non matching <D> iterator");
          return rhs._p == _p;
       }
 
-      bool operator!=( const diterator_t& rhs ) const
+      bool operator!=(const diterator_t& rhs) const
       {
-         NLL_FAST_ASSERT( _stride == rhs._stride, "non matching <D> iterator" );
+         NLL_FAST_ASSERT(_stride == rhs._stride, "non matching <D> iterator");
          return rhs._p != _p;
       }
 
-      difference_type operator-( const diterator_t& rhs ) const
+      difference_type operator-(const diterator_t& rhs) const
       {
-         NLL_FAST_ASSERT( _stride == rhs._stride, "non matching <D> iterator" );
-         return ( _p - rhs._p ) / _stride;
+         NLL_FAST_ASSERT(_stride == rhs._stride, "non matching <D> iterator");
+         return (_p - rhs._p) / _stride;
       }
 
-      reference operator*( )
+      reference operator*()
       {
          return *_p;
       }
@@ -474,16 +469,16 @@ public:
    using const_diterator = diterator_t<const T>;
 
 
-   Memory_contiguous( const allocator_type& allocator = allocator_type() ) :
-      _allocator( allocator )
+   Memory_contiguous(const allocator_type& allocator = allocator_type()) :
+      _allocator(allocator)
    {}
 
    /// New memory block
-   Memory_contiguous( const Vectorui& shape, T default_value = T(), const allocator_type& allocator = allocator_type() ) :
-      _shape( shape ), _allocator( allocator )
+   Memory_contiguous(const Vectorui& shape, T default_value = T(), const allocator_type& allocator = allocator_type()) :
+      _shape(shape), _allocator(allocator)
    {
-      _indexMapper.init( 0, shape );
-      _allocateSlices( default_value, _linearSize() );
+      _indexMapper.init(0, shape);
+      _allocateSlices(default_value, _linearSize());
    }
 
    /**
@@ -491,10 +486,10 @@ public:
    for deallocation
    @param slicesAllocated if true, <allocator> will be used to deallocate the memory. Else the user is responsible for the slice's memory
    */
-   Memory_contiguous( const Vectorui& shape, const T* data, const allocator_type& allocator = allocator_type(), bool dataAllocated = false ) :
-      _shape( size ), _allocator( allocator )
+   Memory_contiguous(const Vectorui& shape, const T* data, const allocator_type& allocator = allocator_type(), bool dataAllocated = false) :
+      _shape(size), _allocator(allocator)
    {
-      _indexMapper.init( 0, shape );
+      _indexMapper.init(0, shape);
       _data = data;
       _dataAllocated = dataAllocated;
    }
@@ -506,101 +501,95 @@ public:
    @param shape the size of the actual memory
    @param min_index the index in <ref> to be used as the first data element
    */
-   Memory_contiguous( Memory_contiguous& ref, const Vectorui& min_index, const Vectorui& shape, const Vectorui& strides ) :
-      _shape( shape )
+   Memory_contiguous(Memory_contiguous& ref, const Vectorui& min_index, const Vectorui& shape, const Vectorui& strides) :
+      _shape(shape)
    {
       _data = ref._data;
       _dataAllocated = false; // we create a reference on existing slices
-      _indexMapper = ref.getIndexMapper().submap( min_index, shape, strides );
+      _indexMapper = ref.getIndexMapper().submap(min_index, shape, strides);
 
-      //
-      // handle memory references
-      //
-
-      if ( ref._sharedView.get() )
+      if (ref._sharedView)
       {
-         // there is already a reference, just increase the refcount
+         // there is already a reference, keep it
          _sharedView = ref._sharedView;
-      } else
+      }
+      else
       {
-         // since we are creating a reference, create a shared state holding the original memory and not to be destroyed until all references
-         // are destroyed
-         _sharedView = std::shared_ptr<SharedView>( new SharedView{ _data, _allocator, ref._linearSize() } );
-         ref._sharedView = _sharedView;
-         ref._dataAllocated = false; // now delegate the memory management to the shared ptr
+         // new reference
+         _sharedView = &ref;
       }
    }
 
-   diterator beginDim( ui32 dim, const Vectorui& indexN )
+   diterator beginDim(ui32 dim, const Vectorui& indexN)
    {
-      auto p = this->at( indexN );
-      return diterator( p, _indexMapper._getPhysicalStrides()[ dim ] );
+      auto p = this->at(indexN);
+      return diterator(p, _indexMapper._getPhysicalStrides()[dim]);
    }
 
-   const_diterator beginDim( ui32 dim, const Vectorui& indexN ) const
+   const_diterator beginDim(ui32 dim, const Vectorui& indexN) const
    {
-      auto p = this->at( indexN );
-      return const_diterator( p, _indexMapper._getPhysicalStrides()[ dim ] );
+      auto p = this->at(indexN);
+      return const_diterator(p, _indexMapper._getPhysicalStrides()[dim]);
    }
 
-   diterator endDim( ui32 dim, const Vectorui& indexN )
+   diterator endDim(ui32 dim, const Vectorui& indexN)
    {
       Vectorui index_cpy = indexN;
-      index_cpy[ dim ] = this->_shape[ dim ];
+      index_cpy[dim] = this->_shape[dim];
 
-      auto p = this->at( index_cpy );
-      return diterator( p, _indexMapper._getPhysicalStrides()[ dim ] );
+      auto p = this->at(index_cpy);
+      return diterator(p, _indexMapper._getPhysicalStrides()[dim]);
    }
 
-   const_diterator endDim( ui32 dim, const Vectorui& indexN ) const
+   const_diterator endDim(ui32 dim, const Vectorui& indexN) const
    {
       Vectorui index_cpy = indexN;
-      index_cpy[ dim ] = this->_shape[ dim ];
+      index_cpy[dim] = this->_shape[dim];
 
-      auto p = this->at( index_cpy );
-      return const_diterator( p, _indexMapper._getPhysicalStrides()[ dim ] );
+      auto p = this->at(index_cpy);
+      return const_diterator(p, _indexMapper._getPhysicalStrides()[dim]);
    }
 
 private:
    ui32 _linearSize() const
    {
       ui32 size = 1;
-      for ( size_t n = 0; n < N; ++n )
+      for (size_t n = 0; n < N; ++n)
       {
-         size *= _shape[ n ];
+         size *= _shape[n];
       }
       return size;
    }
 
-   void _allocateSlices( T default_value, ui32 linear_size )
+   void _allocateSlices(T default_value, ui32 linear_size)
    {
-      auto p = allocator_trait::allocate( _allocator, linear_size );
-      for ( size_t nn = 0; nn < linear_size; ++nn )
+      auto p = allocator_trait::allocate(_allocator, linear_size);
+      for (size_t nn = 0; nn < linear_size; ++nn)
       {
-         allocator_trait::construct( _allocator, p + nn, default_value );
+         allocator_trait::construct(_allocator, p + nn, default_value);
       }
       _data = p;
    }
 
    void _deallocateSlices()
    {
-      if ( _dataAllocated )
+      if (_dataAllocated)
       {
          const auto linear_size = _linearSize();
-         for ( size_t nn = 0; nn < linear_size; ++nn )
+         for (size_t nn = 0; nn < linear_size; ++nn)
          {
-            allocator_trait::destroy( _allocator, _data + nn );
+            allocator_trait::destroy(_allocator, _data + nn);
          }
-         allocator_trait::deallocate( _allocator, _data, linear_size );
+         allocator_trait::deallocate(_allocator, _data, linear_size);
       }
 
       _data = nullptr;
-      _sharedView.reset();
+      _sharedView = nullptr;
    }
 
-   void _moveCopy( Memory_contiguous&& other )
+   void _moveCopy(Memory_contiguous&& other)
    {
-      if ( this != &other )
+      if (this != &other)
       {
          _indexMapper = other._indexMapper;
          _shape = other._shape;
@@ -612,11 +601,11 @@ private:
          _data = other._data;
          other._data = nullptr;
 
-         _sharedView = std::move( other._sharedView );
+         _sharedView = other._sharedView;
       }
    }
 
-   void _deepCopy( const Memory_contiguous& other )
+   void _deepCopy(const Memory_contiguous& other)
    {
       //
       // TODO: we do NOT want to copy the full base memory, we SHOULD revert to stride = 1, 1, 1
@@ -632,45 +621,46 @@ private:
 
       // now deep copy...
       ui32 linear_size = 0;
-      if ( other._sharedView.get() )
+      if (other._sharedView)
       {
          // do not use the actual size of the reference, it may be a sub-memory!
-         linear_size = other._sharedView->linear_size;
-      } else
+         linear_size = other._sharedView->_linearSize();
+      }
+      else
       {
          // there is no reference so it can't be a sub-memory and _size is its actual size
          linear_size = _linearSize();
       }
-      const auto size_bytes = sizeof( T ) * linear_size;
-      _allocateSlices( T(), linear_size );
+      const auto size_bytes = sizeof(T) * linear_size;
+      _allocateSlices(T(), linear_size);
 
-      static_assert( std::is_standard_layout<T>::value, "must have standard layout!" );
+      static_assert(std::is_standard_layout<T>::value, "must have standard layout!");
       const auto src = other._data;
       const auto dst = _data;
-      memcpy( dst, src, size_bytes );
+      memcpy(dst, src, size_bytes);
    }
 
 public:
-   Memory_contiguous( const Memory_contiguous& other )
+   Memory_contiguous(const Memory_contiguous& other)
    {
-      _deepCopy( other );
+      _deepCopy(other);
    }
 
-   Memory_contiguous& operator=( const Memory_contiguous& other )
+   Memory_contiguous& operator=(const Memory_contiguous& other)
    {
-      _deepCopy( other );
+      _deepCopy(other);
       return *this;
    }
 
 
-   Memory_contiguous( Memory_contiguous&& other )
+   Memory_contiguous(Memory_contiguous&& other)
    {
-      _moveCopy( std::forward<Memory_contiguous>( other ) );
+      _moveCopy(std::forward<Memory_contiguous>(other));
    }
 
-   Memory_contiguous& operator=( Memory_contiguous&& other )
+   Memory_contiguous& operator=(Memory_contiguous&& other)
    {
-      _moveCopy( std::forward<Memory_contiguous>( other ) );
+      _moveCopy(std::forward<Memory_contiguous>(other));
       return *this;
    }
 
@@ -679,15 +669,15 @@ public:
       _deallocateSlices();
    }
 
-   const T* at( const Vectorui& index ) const
+   const T* at(const Vectorui& index) const
    {
-      const auto offset = _indexMapper.offset( index );
+      const auto offset = _indexMapper.offset(index);
       return _data + offset;
    }
 
-   T* at( const Vectorui& index )
+   T* at(const Vectorui& index)
    {
-      const auto offset = _indexMapper.offset( index );
+      const auto offset = _indexMapper.offset(index);
       return _data + offset;
    }
 
@@ -715,11 +705,11 @@ private:
 
       ~SharedView()
       {
-         for ( size_t nn = 0; nn < linear_size; ++nn )
+         for (size_t nn = 0; nn < linear_size; ++nn)
          {
-            allocator_trait::destroy( allocator, data + nn );
+            allocator_trait::destroy(allocator, data + nn);
          }
-         allocator_trait::deallocate( allocator, data, linear_size );
+         allocator_trait::deallocate(allocator, data, linear_size);
          data = nullptr;
       }
    };
@@ -730,7 +720,7 @@ private:
    allocator_type   _allocator;
    bool             _dataAllocated = true;
 
-   std::shared_ptr<SharedView> _sharedView;  /// when we reference an existing view, we must shared the memory...
+   Memory_contiguous* _sharedView = nullptr;  /// the original array
 };
 
 template <class T, int N, class Allocator = std::allocator<T>>

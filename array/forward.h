@@ -17,3 +17,4 @@ DECLARE_NAMESPACE_END
 #include "array-traits.h"
 #include "array.h"
 #include "array-processor.h"
+#include "array-exp.h"
