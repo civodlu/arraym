@@ -6,9 +6,9 @@ set(ApiFile    "${CMAKE_BINARY_DIR}/${LIBNAME}/${LIBNAME}-api.h")
 set(Headers    array.h 
                ${ApiFile}
                array.h
-               array-details.h
                array-processor.h
                array-traits.h
+			   array-exp.h
                op.h
                forward.h
                index-mapper.h
@@ -25,7 +25,8 @@ set(BLAS       wrapper-cblas.cpp
                blas-dispatcher.h
                blas-dispatcher.cpp
                blas-wrapper.h
-               blas-wrapper.cpp)
+               blas-wrapper.cpp
+			   blas-wrapper-default.cpp)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_BINARY_DIR}/${LIBNAME}/config.h)
 source_group(Sources FILES ${Sources} ${Headers})

@@ -22,18 +22,24 @@ public:
       return x;
    }
 
+   operator value_type() const
+   {
+      return value;
+   }
+
 private:
    T _value;
 };
 
 template <class A>
-class Expr {
+class Expr
+{
+   A _a;
+
 public:
    using expression_type = A;
    using result_type = typename A::result_type;
 
-   Expr() : _a()
-   {}
 
    Expr(const A& x) :_a(x)
    {}
@@ -57,19 +63,20 @@ public:
    {
       return _a();
    }
-
-private:
-   A _a;
 };
 
 template <class A, class B, class Op>
-class ExprBinOp {
+class ExprBinOp 
+{
+   const A& _left;
+   const B& _right;
+
 public:
    using left_type = A;
    using right_type = B;
    using operator_type = Op;
-   using result_type = typename ReturnType<left_type, right_type, operator_type>::result_type;
-
+   using result_type = decltype( operator_type::apply( A(), B() ) );
+      
    ExprBinOp(const A& left, const B& right) : _left(left), _right(right)
    {}
 
@@ -83,15 +90,40 @@ public:
       return _right;
    }
 
-   auto operator()() const -> decltype(operator_type::apply(a_, b_))
+   auto operator()() const -> decltype(operator_type::apply(_left, _right))
    {
       return operator_type::apply(_left, _right);
    }
-
-private:
-   const A& _left;
-   const B& _right;
 };
+
+class OpAdd;
+class OpSub;
+class OpMul;
+
+
+template <class T, int N, class Config>
+using ArrayArrayAdd = Expr < ExprBinOp<Array<T, N, Config>, Array<T, N, Config>, OpAdd> >;
+
+class OpAdd
+{
+public:
+   template <class T, int N, class Config>
+   static Array<T, N, Config> apply( const Array<T, N, Config>& lhs, const Array<T, N, Config>& rhs )
+   {
+      NLL_FAST_ASSERT( lhs.shape() == rhs.shape(), "must have the same shape!" );
+      Array<T, N, Config> r( lhs );
+      blas::axpy<T>( lhs.size(), 1, &rhs( 0 ), 1, &r( 0 ), 1 );
+      return r;
+   }
+};
+
+template <class T, int N, class Config>
+Expr<ExprBinOp<Array<T, N, Config>, Array<T, N, Config>, OpAdd> >
+operator+( const Array<T, N, Config>& a, const Array<T, N, Config>& b )
+{
+   using ExprT = ExprBinOp<Array<T, N, Config>, Array<T, N, Config>, OpAdd>;
+   return Expr<ExprT>( ExprT( a, b ) );
+}
 
 // https://github.com/guyz/cpp-array/blob/master/array/expr.hpp
 // https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Expression-template

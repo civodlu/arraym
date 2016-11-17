@@ -5,6 +5,9 @@ DECLARE_NAMESPACE_NLL
 template <class T, int N, class Config>
 class ArrayRef;
 
+template <class A>
+class Expr;
+
 template <class T, int N, class ConfigT = ArrayTraitsConfig<T, N>>
 class Array : public ArrayTraits<Array< T, N, ConfigT >, ConfigT>
 {
@@ -18,6 +21,7 @@ public:
    using traits_type = ArrayTraits<Array< T, N, ConfigT >, ConfigT>;
    using pointer_type = T*;
    using reference_type = T&;
+   using const_reference_type = const T&;
    using const_pointer_type = const T*;
    using index_type = core::StaticVector < ui32, N >;
    using diterator = typename Memory::diterator;
@@ -93,6 +97,19 @@ public:
       _move( std::forward<Array>( other ) );
    }
 
+   template <class A>
+   Array( const Expr<A>& expr )
+   {
+      *this = expr();
+   }
+
+   template <class A>
+   Array& operator=( const Expr<A>& expr )
+   {
+      *this = expr();
+      return *this;
+   }
+
    const index_type& shape() const
    {
       return _memory.getShape();
@@ -116,6 +133,16 @@ public:
       ensure( 0, "TODO implement" );
    }
 
+   size_t size() const
+   {
+      size_t s = 1;
+      for ( int n = 0; n < N; ++n )
+      {
+         s *= _memory.getShape()[ n ];
+      }
+      return s;
+   }
+
    template <typename... Values, typename = typename std::enable_if<is_unpacked_arguments<Values...>::value>::type>
    reference_type operator()( const Values&... values )
    {
@@ -124,13 +151,13 @@ public:
    }
 
    template <typename... Values, typename = typename std::enable_if<is_unpacked_arguments<Values...>::value>::type>
-   const reference_type operator()( const Values&... values ) const
+   const_reference_type operator()( const Values&... values ) const
    {
       index_type index = { values... };
       return operator()( index );
    }
 
-   T& operator()( const index_type& index )
+   reference_type operator()( const index_type& index )
    {
 #ifndef NDEBUG
       for (int n = 0; n < N; ++n)
@@ -141,7 +168,7 @@ public:
       return *_memory.at( index );
    }
 
-   const T& operator()(const index_type& index) const
+   const_reference_type operator()( const index_type& index ) const
    {
 #ifndef NDEBUG
       for (int n = 0; n < N; ++n)
@@ -149,7 +176,7 @@ public:
          NLL_FAST_ASSERT(index[n] < this->shape()[n], "out of bounds!");
       }
 #endif
-      return *_memory.at(index);
+      return *_memory.at( index );
    }
 
    array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive)
