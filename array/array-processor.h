@@ -245,11 +245,15 @@ void fill( Array<T, N, Config>& array, Functor functor )
    bool hasMoreElements = true;
 
    ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator( array );
-   while ( hasMoreElements )
+   while ( 1 )
    {
       typename array_type::value_type* ptr = 0;
       const auto& currentIndex = iterator.getArrayIndex();
       hasMoreElements = iterator.accessSingleElement( ptr );
+      if ( !hasMoreElements )
+      {
+         break;
+      }
       *ptr = functor( currentIndex );
    }
 }

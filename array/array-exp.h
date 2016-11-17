@@ -2,9 +2,9 @@
 
 DECLARE_NAMESPACE_NLL
 
-template <typename... Params>
-struct ReturnType;
-
+//
+// TODO only for contiguous arrays...
+//
 
 template <typename T>
 class ExprConstant
@@ -110,9 +110,10 @@ public:
    template <class T, int N, class Config>
    static Array<T, N, Config> apply( const Array<T, N, Config>& lhs, const Array<T, N, Config>& rhs )
    {
+      // TODO handle sub-array! need a processor
       NLL_FAST_ASSERT( lhs.shape() == rhs.shape(), "must have the same shape!" );
       Array<T, N, Config> r( lhs );
-      blas::axpy<T>( lhs.size(), 1, &rhs( 0 ), 1, &r( 0 ), 1 );
+      blas::axpy<T>( static_cast<blas::BlasInt>(lhs.size()), 1, &rhs( 0 ), 1, &r( 0 ), 1 );
       return r;
    }
 };
