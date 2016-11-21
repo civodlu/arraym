@@ -8,6 +8,39 @@ class ArrayRef;
 template <class A>
 class Expr;
 
+/**
+ @brief Represents a multi-dimensional array with value based semantic
+
+ @tparam T the type to be stored by the array
+ @tparam N the number of dimensions for the array
+ @tparam ConfigT a configuration parameter, specifying e.g., how the array's memory is stored internally (e.g., @ref ArrayTraitsConfig)
+
+ The array can simply be accessed using subscripting or indices:
+ @code
+ Array<float, 2> array(2, 3);
+ array(0, 0) = 1;
+ array({1, 1}) = 2;
+ @endcode
+
+ The array has a value based semantics, meaning that we prefer copying the value of the array
+ rather than sharing the memory between arrays.
+ 
+ @code
+ Array<float, 2> array1(2, 3);
+ Array<float, 2> array2(1, 1)
+ array2 = array1; // the array2 current memory is released and the content of array1 is copied
+ @endcode
+
+ Although for performance and convenience it is useful to reference a portion of the array and modify
+ it as required (@ref ArrayRef). This can be done using a min and max (inclusive) index:
+ @code
+ Array<float, 2> array(10, 10);
+ auto sub_array = array({2, 2}, {5, 5});  // this points to min=(2, 2) to max=(5, 5) of array
+ sub_array = 42;  // the referenced array will be updated
+ @endcode
+
+ while a @ref ArrayRef is in use, the original @ref Array must be kept alive.
+ */
 template <class T, int N, class ConfigT = ArrayTraitsConfig<T, N>>
 class Array : public ArrayTraits<Array< T, N, ConfigT >, ConfigT>
 {

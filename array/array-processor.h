@@ -14,6 +14,8 @@ namespace details
    /**
    @brief Abstract the array traversal. This is based on knwown structure of Array::Memory
 
+   @tparam Array an array
+
    The only assumption for this iterator is that we have the fastest varying index has at
    least <maxAccessElements> contiguous memory elements. So this handle <Memory_contiguous>
    and <Memory_multislice> Memories
