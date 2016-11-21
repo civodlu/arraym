@@ -5,7 +5,7 @@ DECLARE_NAMESPACE_NLL
 /**
  @file
 
- This file defines "processors", which allow to iterate an array or multiple arrays in the most efficient manner considering
+ This file defines "processors", which allow to iterate over an array or multiple arrays in the most efficient manner considering
  the memory locality of the arrays
  */
 
