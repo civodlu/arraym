@@ -52,10 +52,11 @@ namespace details
          return strides;
       }
 
+      
       template <size_t dim, size_t NEW_Z_INDEX>
       struct rebind
       {
-         using other = Mapper_stride_row_major<dim, NEW_Z_INDEX>;
+         using other = Mapper_multisplice_stride_row_major<dim, NEW_Z_INDEX>;
       };
    };
 
@@ -217,17 +218,17 @@ using IndexMapper_contiguous_matrix_column_major = IndexMapper_contiguous_matrix
 template <size_t N, size_t Z_INDEX_, class Mapper = details::Mapper_multisplice_stride_row_major<N, Z_INDEX_>>
 class IndexMapper_multislice : public memory_layout_multislice_z
 {
-   // if we rebind the Z dimension, we end up with full contiguous memory to default to a contiguous mapper!
+   // if we rebind the Z dimension, we end up with full contiguous memory so default to a contiguous mapper!
    template <size_t dim>
    struct rebind_z
    {
-      using other = IndexMapper_contiguous<dim, Mapper_stride_row_major<dim>>;
+      using other = IndexMapper_contiguous<dim, details::Mapper_stride_row_major<dim>>;
    };
 
    template <size_t dim, size_t NEW_Z_INDEX>
    struct rebind_notz
    {
-      using other = IndexMapper_multislice<dim, typename Mapper::template rebind<dim, NEW_Z_INDEX>::other>;
+      using other = IndexMapper_multislice<dim, NEW_Z_INDEX, typename Mapper::template rebind < dim, NEW_Z_INDEX >::other>;
    };
 
 public:
@@ -235,8 +236,8 @@ public:
    static const size_t Z_INDEX = Z_INDEX_;
    using IndexMapper = IndexMapper_multislice<N, Z_INDEX, Mapper>;
 
-   //template <size_t dim, size_t NEW_Z_INDEX>
-   //using std::conditional<
+   template <size_t dim, size_t NEW_Z_INDEX>
+   using rebind = typename std::conditional < NEW_Z_INDEX == Z_INDEX_, rebind_z<dim>, rebind_notz<dim, NEW_Z_INDEX>::type;
 
    /**
    @param shape the size of the area to map
