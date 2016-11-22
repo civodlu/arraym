@@ -361,25 +361,6 @@ public:
    }
 
 private:
-   struct SharedView
-   {
-      std::vector<T*>  slices;
-      allocator_type   allocator;
-      ui32             inSliceSize;
-
-      ~SharedView()
-      {
-         for ( auto ptr : slices )
-         {
-            for ( size_t nn = 0; nn < inSliceSize; ++nn )
-            {
-               allocator_trait::destroy( allocator, ptr + nn );
-            }
-            allocator_trait::deallocate( allocator, ptr, inSliceSize );
-         }
-      }
-   };
-
    IndexMapper      _indexMapper;
    Vectorui         _shape;
    std::vector<T*>  _slices;
@@ -404,6 +385,15 @@ public:
    using allocator_type = Allocator;
    using allocator_trait = std::allocator_traits<allocator_type>;
    using index_mapper = IndexMapper;
+
+   template <class T2, size_t N2>
+   struct rebind
+   {
+     // using other = int;
+      using other = Memory_contiguous < T2, N2,
+         typename IndexMapper::template rebind<N2>::other,
+         typename Allocator::template rebind<T2>::other>;
+   };
 
    template <class T>
    class diterator_t : public std::iterator < std::random_access_iterator_tag, T >
@@ -492,6 +482,33 @@ public:
       _indexMapper.init(0, shape);
       _data = data;
       _dataAllocated = dataAllocated;
+   }
+
+
+   
+   /**
+    @brief Slice the memory such that we keep only the slice along dimension <dimension> passing through <point>
+    
+    Create a reference of <this>, so do NOT destroy the memory while using the sliced mempory
+    */
+   template <size_t dimension>
+   typename rebind<T, N - 1>::other slice(const Vectorui& point) const
+   {
+      using Other = typename rebind<T, N - 1>::other;
+      Other memory;
+      memory._indexMapper = _indexMapper.slice<dimension>(point);
+      memory._data = const_cast<T*>(at(point));
+      memory._dataAllocated = false; // this is a "reference"
+
+      size_t current_dim = 0;
+      for (size_t n = 0; n < N; ++n)
+      {
+         if (n != dimension)
+         {
+            memory._shape[current_dim++] = _shape[n];
+         }
+      }
+      return memory;  
    }
 
    /**
@@ -696,24 +713,7 @@ public:
       return _indexMapper;
    }
 
-private:
-   struct SharedView
-   {
-      T*               data;
-      allocator_type   allocator;
-      ui32             linear_size;
-
-      ~SharedView()
-      {
-         for (size_t nn = 0; nn < linear_size; ++nn)
-         {
-            allocator_trait::destroy(allocator, data + nn);
-         }
-         allocator_trait::deallocate(allocator, data, linear_size);
-         data = nullptr;
-      }
-   };
-
+//private:
    IndexMapper      _indexMapper;
    Vectorui         _shape;
    T*               _data = nullptr;

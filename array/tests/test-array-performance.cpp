@@ -90,17 +90,11 @@ struct TestArrayPerformance
       ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(a);
       
       bool hasMoreElements = true;
-      while (1)
+      while (hasMoreElements)
       {
          array_type::value_type* ptr = 0;
          hasMoreElements = iterator.accessSingleElement(ptr);
-         if (hasMoreElements)
-         { 
-            *ptr = *ptr * *ptr;
-         }
-         else {
-            break;
-         }
+         *ptr = *ptr * *ptr;
       }
 
       std::cout << "Single=" << timer.getElapsedTime() - constructionTime << std::endl;
@@ -117,19 +111,13 @@ struct TestArrayPerformance
       std::cout << "ConstructionTime=" << constructionTime << std::endl;
 
       bool hasMoreElements = true;
-      while (1)
+      while (hasMoreElements)
       {
          array_type::value_type* ptr = 0;
          hasMoreElements = iterator.accessMaxElements(ptr);
-         if (hasMoreElements)
+         for (NAMESPACE_NLL::ui32 n = 0; n < iterator.getMaxAccessElements(); ++n)
          {
-            for (NAMESPACE_NLL::ui32 n = 0; n < iterator.getMaxAccessElements(); ++n)
-            {
-               ptr[n] = ptr[n] * ptr[n];
-            }
-         }
-         else {
-            break;
+            ptr[n] = ptr[n] * ptr[n];
          }
       }
 

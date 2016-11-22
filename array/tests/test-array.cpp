@@ -7,6 +7,8 @@ using ui32 = NAMESPACE_NLL::ui32;
 
 DECLARE_NAMESPACE_NLL
 using vector3ui = StaticVector < ui32, 3 > ;
+using vector2ui = StaticVector < ui32, 2 >;
+using vector1ui = StaticVector < ui32, 1 >;
 
 namespace details
 {
@@ -458,7 +460,7 @@ struct TestArray
    {
       // not a real test, just for very simplistic performace test against manual op
       using array_type = NAMESPACE_NLL::Array_row_major < int, 2 >;
-      array_type a1( 6000, 4000 );
+      array_type a1( 60, 40 );
 
       auto functor = []( const NAMESPACE_NLL::StaticVector<ui32, 2>& index )
       {
@@ -505,6 +507,63 @@ struct TestArray
 
       ref_a2 = ref_a1;
    }
+
+   void testInitializerList()
+   {
+      testInitializerList_impl<NAMESPACE_NLL::Array_column_major<int, 2>>();
+      testInitializerList_impl<NAMESPACE_NLL::Array_row_major<int, 2>>();
+   }
+
+   template <class Array>
+   void testInitializerList_impl()
+   {
+      Array m(3, 2);
+      m = { 1, 2, 3, 4, 5, 6 };
+      TESTER_ASSERT(m(0, 0) == 1);
+      TESTER_ASSERT(m(1, 0) == 2);
+      TESTER_ASSERT(m(2, 0) == 3);
+      TESTER_ASSERT(m(0, 1) == 4);
+      TESTER_ASSERT(m(1, 1) == 5);
+      TESTER_ASSERT(m(2, 1) == 6);
+   }
+
+   void testIndeMapperRebind()
+   {
+      using Array = NAMESPACE_NLL::Array_column_major<int, 3>;
+      using NewIndexMapper = Array::Memory::index_mapper::rebind<2>::other;
+      static_assert(std::is_same<NewIndexMapper, NAMESPACE_NLL::IndexMapper_contiguous_column_major<2>>::value, "must be the same!");
+  
+      //using MemoryRebind = Array::Memory::rebind<int, 2>;
+   }
+
+   void testArraySlice()
+   {
+      testArraySlice_impl<NAMESPACE_NLL::Array_row_major<short, 2>>();
+      testArraySlice_impl<NAMESPACE_NLL::Array_column_major<float, 2>>();
+   }
+
+   template <class Array>
+   void testArraySlice_impl()
+   {
+      Array m(2, 3);
+      m = { 1, 2, 3, 4, 5, 6 };
+
+      {
+         auto sliced = m.getMemory().slice<0>({ 1, 0 });
+         TESTER_ASSERT(sliced.getShape() == NAMESPACE_NLL::vector1ui{ 3 });
+         TESTER_ASSERT(*sliced.at({ 0 }) == 2);
+         TESTER_ASSERT(*sliced.at({ 1 }) == 4);
+         TESTER_ASSERT(*sliced.at({ 2 }) == 6);
+      }
+
+      {
+         auto sliced = m.getMemory().slice<1>({ 0, 2 });
+         TESTER_ASSERT(sliced.getShape() == NAMESPACE_NLL::vector1ui{ 2 });
+         TESTER_ASSERT(*sliced.at({ 0 }) == 5);
+         TESTER_ASSERT(*sliced.at({ 1 }) == 6);
+      }
+
+   }
 };
 
 TESTER_TEST_SUITE( TestArray );
@@ -521,4 +580,7 @@ TESTER_TEST( testIteratorByDim );
 TESTER_TEST( testIteratorByLocality );
 TESTER_TEST( testFill );
 TESTER_TEST(testArray_subArray);
+TESTER_TEST(testInitializerList);
+TESTER_TEST(testIndeMapperRebind);
+TESTER_TEST(testArraySlice);
 TESTER_TEST_SUITE_END();

@@ -143,6 +143,28 @@ public:
       return *this;
    }
 
+   /**
+    @brief The array will be filled with a list of values. The array will be filled by dimension order (first dim[0], then dim[1] and so on)
+    
+    It is not the fastest filling order for e.g., column major memory, but typically this is just a convenience function.
+    */
+   Array& operator=(const std::initializer_list<T>& list)
+   {
+      ensure(list.size() == this->size(), "initializer and current array must have the same size!");
+      auto ptr_initializer = list.begin();
+
+      bool hasMoreElements = true;
+      ArrayProcessor_contiguous_byDimension<Array> iterator(*this);
+      while (hasMoreElements)
+      {
+         pointer_type ptr_array = 0;
+         hasMoreElements = iterator.accessSingleElement(ptr_array);
+         *ptr_array = *(ptr_initializer++);
+      }
+
+      return *this;
+   }
+
    const index_type& shape() const
    {
       return _memory.getShape();

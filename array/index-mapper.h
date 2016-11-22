@@ -4,29 +4,6 @@ DECLARE_NAMESPACE_NLL
 
 namespace details
 {
-   /// helper to compute the strides for index mapper of a multislice memory block
-   template <size_t N, size_t Z_INDEX_>
-   struct Mapper_multisplice_stride_row_major
-   {
-   public:
-      using Vectorui = core::StaticVector<ui32, N>;
-
-      Vectorui operator()( const Vectorui& shape ) const
-      {
-         Vectorui strides;
-         ui32 stride = 1;
-         for ( size_t n = 0; n < N; ++n )
-         {
-            if ( n != Z_INDEX_ )
-            {
-               strides[ n ] = stride;
-               stride *= shape[ n ];
-            }
-         }
-         return strides;
-      }
-   };
-
    /// helper to compute the strides for index mapper of a contiguous memory block, row major
    template <size_t N>
    struct Mapper_stride_row_major
@@ -45,6 +22,41 @@ namespace details
          }
          return strides;
       }
+
+      template <size_t dim>
+      struct rebind
+      {
+         using other = Mapper_stride_row_major<dim>;
+      };
+   };
+
+   /// helper to compute the strides for index mapper of a multislice memory block
+   template <size_t N, size_t Z_INDEX_>
+   struct Mapper_multisplice_stride_row_major
+   {
+   public:
+      using Vectorui = core::StaticVector<ui32, N>;
+
+      Vectorui operator()(const Vectorui& shape) const
+      {
+         Vectorui strides;
+         ui32 stride = 1;
+         for (size_t n = 0; n < N; ++n)
+         {
+            if (n != Z_INDEX_)
+            {
+               strides[n] = stride;
+               stride *= shape[n];
+            }
+         }
+         return strides;
+      }
+
+      template <size_t dim, size_t NEW_Z_INDEX>
+      struct rebind
+      {
+         using other = Mapper_stride_row_major<dim, NEW_Z_INDEX>;
+      };
    };
 
    /// helper to compute the strides for index mapper of a contiguous memory block, column major
@@ -66,6 +78,12 @@ namespace details
          }
          return strides;
       }
+
+      template <size_t dim>
+      struct rebind
+      {
+         using other = Mapper_stride_column_major<dim>;
+      };
    };
 }
 
@@ -99,6 +117,12 @@ class IndexMapper_contiguous : public memory_layout_contiguous
 public:
    using Vectorui = core::StaticVector<ui32, N>;
    using IndexMapper = IndexMapper_contiguous<N, Mapper>;
+
+   template <size_t dim>
+   struct rebind
+   {
+      using other = IndexMapper_contiguous<dim, typename Mapper::template rebind<dim>::other>;
+   };
 
    /**
    @param shape the size of the area to map
@@ -135,7 +159,28 @@ public:
       return _physicalStrides;
    }
 
-private:
+   /**
+    @brief slice an array following <dimension> at the position <index>
+    */
+   template <size_t dimension>
+   typename rebind<N-1>::other slice(const Vectorui& UNUSED(index)) const
+   {
+      typename rebind<N - 1>::other sliced_index;
+      //sliced_index._origin = offset(index);
+      sliced_index._origin = 0; // the <_data> will be set to index so start from 0
+      
+      size_t current_dim = 0;
+      for (size_t n = 0; n < N; ++n)
+      {
+         if (n != dimension)
+         {
+            sliced_index._physicalStrides[current_dim++] = _physicalStrides[n];
+         }
+      }
+      return sliced_index;
+   }
+
+//private:
    ui32     _origin;
    Vectorui _physicalStrides;
 };
@@ -172,10 +217,26 @@ using IndexMapper_contiguous_matrix_column_major = IndexMapper_contiguous_matrix
 template <size_t N, size_t Z_INDEX_, class Mapper = details::Mapper_multisplice_stride_row_major<N, Z_INDEX_>>
 class IndexMapper_multislice : public memory_layout_multislice_z
 {
+   // if we rebind the Z dimension, we end up with full contiguous memory to default to a contiguous mapper!
+   template <size_t dim>
+   struct rebind_z
+   {
+      using other = IndexMapper_contiguous<dim, Mapper_stride_row_major<dim>>;
+   };
+
+   template <size_t dim, size_t NEW_Z_INDEX>
+   struct rebind_notz
+   {
+      using other = IndexMapper_multislice<dim, typename Mapper::template rebind<dim, NEW_Z_INDEX>::other>;
+   };
+
 public:
    using Vectorui = core::StaticVector<ui32, N>;
    static const size_t Z_INDEX = Z_INDEX_;
    using IndexMapper = IndexMapper_multislice<N, Z_INDEX, Mapper>;
+
+   //template <size_t dim, size_t NEW_Z_INDEX>
+   //using std::conditional<
 
    /**
    @param shape the size of the area to map
