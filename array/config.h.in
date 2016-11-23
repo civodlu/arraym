@@ -82,6 +82,10 @@
 #include <functional>
 #include <memory>
 #include <iostream>
+#include <limits>
+#include <cmath>
+#include <numeric>
+#include <algorithm>
 
 // see ref http://stackoverflow.com/questions/7090998/portable-unused-parameter-macro-used-on-function-signature-for-c-and-c
 

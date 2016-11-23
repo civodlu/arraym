@@ -64,13 +64,13 @@ class ArrayTraits<ArrayT, Config, typename std::enable_if< Config::RANK != 2 >::
 
 // any other type: no particular specialization
 template <class ArrayT, class Config>
-class ArrayTraits<ArrayT, Config, typename std::enable_if< Config::RANK == 2 && !is_matrix<ArrayT>::value>::type> : public ArrayTraitsDefault < ArrayT, Config >
+class ArrayTraits<ArrayT, Config, typename std::enable_if< Config::RANK == 2 && (!is_matrix<ArrayT>::value)>::type> : public ArrayTraitsDefault < ArrayT, Config >
 {};
 
 
 // matrix type: create additional API
 template <class Array, class Config>
-class ArrayTraits<Array, Config, typename std::enable_if< Config::RANK == 2 && is_matrix<Array>::value>::type> : public ArrayTraitsDefault < Array, Config >
+class ArrayTraits<Array, Config, typename std::enable_if< Config::RANK == 2 && (is_matrix<Array>::value)>::type> : public ArrayTraitsDefault < Array, Config >
 {
 public:
    size_t rows() const

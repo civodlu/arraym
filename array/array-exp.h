@@ -19,12 +19,12 @@ public:
    template <typename... Args>
    value_type operator()(Args... params) const
    {
-      return x;
+      return _value;
    }
 
    operator value_type() const
    {
-      return value;
+      return _value;
    }
 
 private:

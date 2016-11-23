@@ -8,6 +8,9 @@ class ArrayRef;
 template <class A>
 class Expr;
 
+template <class Array>
+class ArrayProcessor_contiguous_byDimension;
+
 /**
  @brief Represents a multi-dimensional array with value based semantic
 
@@ -373,11 +376,12 @@ class ArrayRef : public Array<T, N, Config>
 {
 public:
    using array_type = Array<T, N, Config>;
+    using index_type = typename array_type::index_type;
 
    /**
     @brief Construct an array ref from an array
     */
-   explicit ArrayRef(Array& array) : array_type(array, index_type(), array.shape(), index_type(1))
+   explicit ArrayRef(array_type& array) : array_type(array, index_type(), array.shape(), index_type(1))
    {}
 
    /**

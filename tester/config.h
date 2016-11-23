@@ -7,6 +7,8 @@
 # include <vector>
 # include <string>
 # include <chrono>
+# include <cstring>
+# include <cstdlib>
 
 namespace nll
 {
@@ -91,7 +93,7 @@ namespace nll
             if ( str[ n ] == separator )
             {
                str[ n ] = 0;
-               if ( !removeEmptyString || ( removeEmptyString && std::strlen( &str[ last ] ) ) )
+               if ( !removeEmptyString || ( removeEmptyString && strlen( &str[ last ] ) ) )
                   s.push_back( &str[ last ] );
                last = n + 1;
             }

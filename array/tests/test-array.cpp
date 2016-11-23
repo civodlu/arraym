@@ -572,9 +572,10 @@ struct TestArray
       Array a1(2, 3, 10);
 
       //using Sliced = Array::Memory::SliceImpl_z;
-      //Sliced::slice<2>(a1.getMemory(), NAMESPACE_NLL::vector3ui{ 0, 0, 5 });
+      using Sliced = Array::Memory::SliceImpl<2>;
+      Sliced::slice<2>(a1.getMemory(), NAMESPACE_NLL::vector3ui{ 0, 0, 5 });
 
-      auto sliced = a1.getMemory().slice<2>(NAMESPACE_NLL::vector3ui{ 0, 0, 5 });
+      //auto sliced = a1.getMemory().slice<2>(NAMESPACE_NLL::vector3ui{ 0, 0, 5 });
 
       std::cout << "D" << std::endl;
    }

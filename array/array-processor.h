@@ -54,7 +54,7 @@ namespace details
       // this is the specific view index reordered by <functor>
       const index_type& getIteratorIndex() const
       {
-         return _current_index;
+         return _iterator_index;
       }
 
       const index_type getArrayIndex() const
@@ -152,7 +152,7 @@ namespace details
       {
          if ( v == 0 )
          {
-            v = std::numeric_limits<index_type::value_type>::max();
+            v = std::numeric_limits<typename index_type::value_type>::max();
          }
       }
 
@@ -179,8 +179,11 @@ template <class Array>
 class ArrayProcessor_contiguous_byMemoryLocality : public details::ArrayProcessor_contiguous_base<Array>
 {
 public:
+    using base = details::ArrayProcessor_contiguous_base<Array>;
+    using pointer_type = typename base::pointer_type;
+
    ArrayProcessor_contiguous_byMemoryLocality( Array& array ) :
-      ArrayProcessor_contiguous_base<Array>( array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config> )
+      base( array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config> )
    {}
 
    ui32 getMaxAccessElements() const
@@ -190,7 +193,7 @@ public:
 
    ui32 stride() const
    {
-      return _array.getMemory().getIndexMapper()._getPhysicalStrides()[ getVaryingIndex() ];
+      return this->_array.getMemory().getIndexMapper()._getPhysicalStrides()[ this->getVaryingIndex() ];
    }
 
    /**
@@ -202,7 +205,7 @@ public:
    */
    bool accessMaxElements( pointer_type& ptrToValue )
    {
-      return this->_accessElements( ptrToValue, _maxAccessElements );
+      return this->_accessElements( ptrToValue, this->_maxAccessElements );
    }
 };
 
@@ -212,6 +215,8 @@ public:
 template <class Array>
 class ArrayProcessor_contiguous_byDimension : public details::ArrayProcessor_contiguous_base < Array >
 {
+    using base = details::ArrayProcessor_contiguous_base < Array >;
+    using index_type  = typename base::index_type;
    static index_type getIndexes( const Array& )
    {
       index_type indexes;
@@ -224,7 +229,7 @@ class ArrayProcessor_contiguous_byDimension : public details::ArrayProcessor_con
 
 public:
    ArrayProcessor_contiguous_byDimension( Array& array ) :
-      ArrayProcessor_contiguous_base<Array>( array, &getIndexes )
+      details::ArrayProcessor_contiguous_base<Array>( array, &getIndexes )
    {}
 };
 

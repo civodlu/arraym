@@ -183,12 +183,12 @@ public:
 
    void write( std::ostream& f ) const
    {
-      f.write( (i8*)_buffer, sizeof( T ) * SIZE );
+      f.write( (char*)_buffer, sizeof( T ) * SIZE );
    }
 
    void read( std::istream& f )
    {
-      f.read( (i8*)_buffer, sizeof( T ) * SIZE );
+      f.read( (char*)_buffer, sizeof( T ) * SIZE );
    }
 
    FORCE_INLINE bool equal( const StaticVector& r, T eps = ( T )1e-5 ) const

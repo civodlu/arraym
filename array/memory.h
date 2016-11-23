@@ -27,11 +27,11 @@ public:
          typename Allocator::template rebind<T2>::other>;
    };
 
-   template <class T>
-   class diterator_t : public std::iterator < std::random_access_iterator_tag, T >
+   template <class TT>
+   class diterator_t : public std::iterator < std::random_access_iterator_tag, TT >
    {
-      friend class diterator_t < const T >;
-      typedef std::iterator<std::random_access_iterator_tag, T> Base;
+      friend class diterator_t < const TT >;
+      typedef std::iterator<std::random_access_iterator_tag, TT> Base;
 
       typedef typename Base::difference_type    difference_type;
       typedef typename Base::reference          reference;
@@ -41,10 +41,10 @@ public:
       diterator_t() : _p(nullptr)
       {}
 
-      diterator_t(T* p, size_t stride) : _p(p), _stride(stride)
+      diterator_t(TT* p, size_t stride) : _p(p), _stride(stride)
       {}
 
-      diterator_t(const diterator_t<typename std::remove_const<T>::type>& other) : diterator_t(other._p, other._stride)
+      diterator_t(const diterator_t<typename std::remove_const<TT>::type>& other) : diterator_t(other._p, other._stride)
       {}
 
       diterator_t& operator++()
@@ -348,11 +348,6 @@ public:
       return _shape;
    }
 
-   ui32 getOrigin() const
-   {
-      return _origin;
-   }
-
    const IndexMapper& getIndexMapper() const
    {
       return _indexMapper;
@@ -387,11 +382,11 @@ public:
    using index_mapper = IndexMapper;
    static const size_t Z_INDEX = index_mapper::Z_INDEX; /// this is the index where the slices will be created (i.e., all others will be in contiguous memory)
 
-   template <class T>
-   class diterator_t : public std::iterator < std::random_access_iterator_tag, T >
+   template <class TT>
+   class diterator_t : public std::iterator < std::random_access_iterator_tag, TT >
    {
-      friend class diterator_t < const T >;
-      typedef std::iterator<std::random_access_iterator_tag, T> Base;
+      friend class diterator_t < const TT >;
+      typedef std::iterator<std::random_access_iterator_tag, TT> Base;
 
       typedef typename Base::difference_type    difference_type;
       typedef typename Base::reference          reference;
@@ -401,12 +396,12 @@ public:
       diterator_t() : _p( nullptr ), _slices( nullptr )
       {}
 
-      diterator_t( ui32 slice, ui32 offset, size_t stride, T** slices ) : _slice( slice ), _offset( offset ), _stride( stride ), _slices( slices )
+      diterator_t( ui32 slice, ui32 offset, size_t stride, TT** slices ) : _slice( slice ), _offset( offset ), _stride( stride ), _slices( slices )
       {
          _p = slices[ slice ] + offset;
       }
 
-      diterator_t( const diterator_t<typename std::remove_const<T>::type>& other ) : diterator_t( other._slice, other._offset, other._stride, other._slices )
+      diterator_t( const diterator_t<typename std::remove_const<TT>::type>& other ) : diterator_t( other._slice, other._offset, other._stride, other._slices )
       {
          _p = other._p;
       }
@@ -470,8 +465,8 @@ public:
       ui32    _slice;
       ui32    _offset;
       size_t  _stride;
-      T**     _slices;
-      T*      _p;
+      TT**    _slices;
+      TT*     _p;
    };
 
    using diterator = diterator_t<T>;
@@ -495,7 +490,7 @@ public:
    @param slicesAllocated if true, <allocator> will be used to deallocate the memory. Else the user is responsible for the slice's memory
    */
    Memory_multislice( const Vectorui& shape, const std::vector<T*>& slices, const allocator_type& allocator = allocator_type(), bool slicesAllocated = false ) :
-      _shape( size ), _allocator( allocator )
+      _shape( shape ), _allocator( allocator )
    {
       _indexMapper.init( 0, shape );
       _slices = slices;
@@ -588,8 +583,8 @@ public:
          const auto z_index = index[Z_INDEX];
          T* ptr = array.at(index);
 
-         other::Vectorui shape;
-         other::Vectorui physicalStride;
+         typename other::Vectorui shape;
+         typename other::Vectorui physicalStride;
          size_t current_index = 0;
          for (size_t n = 0; n < N; ++n)
          {
@@ -608,6 +603,9 @@ public:
    template <size_t slice_dim>
    using SliceImpl = typename std::conditional<slice_dim == Z_INDEX, SliceImpl_z, SliceImpl_notz>::type;
 
+   //template <size_t slice_dim>
+   //using SliceImpl = SliceImpl_z;
+
 
 public:
    /**
@@ -618,7 +616,7 @@ public:
    template <size_t dimension>
    typename SliceImpl<dimension>::other slice(const Vectorui& point)
    {
-      return SliceImpl<dimension>::slice<dimension>(*this, point);
+      return SliceImpl<dimension>::template slice<dimension>(*this, point);
    }
 
 private:
@@ -775,11 +773,6 @@ public:
    const Vectorui& getShape() const
    {
       return _shape;
-   }
-
-   ui32 getOrigin() const
-   {
-      return _origin;
    }
 
    const IndexMapper& getIndexMapper() const
