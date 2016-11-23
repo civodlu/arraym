@@ -301,6 +301,11 @@ public:
       return _memory;
    }
 
+   Memory& getMemory()
+   {
+      return _memory;
+   }
+
    bool isEmpty() const
    {
       for ( auto s : shape() )

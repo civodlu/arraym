@@ -138,6 +138,12 @@ public:
       _physicalStrides = strides;
    }
 
+   void init(const Vectorui& physicalStrides)
+   {
+      _origin = 0;
+      _physicalStrides = physicalStrides;
+   }
+
    ui32 offset( const Vectorui& index ) const
    {
       return core::dot( index, _physicalStrides ) + _origin;
@@ -236,8 +242,9 @@ public:
    static const size_t Z_INDEX = Z_INDEX_;
    using IndexMapper = IndexMapper_multislice<N, Z_INDEX, Mapper>;
 
+   // if NEW_Z_INDEX < 0, this means we have destroyed the Z_INDEX
    template <size_t dim, size_t NEW_Z_INDEX>
-   using rebind = typename std::conditional < NEW_Z_INDEX == Z_INDEX_, rebind_z<dim>, rebind_notz<dim, NEW_Z_INDEX>::type;
+   using rebind = typename std::conditional < NEW_Z_INDEX < 0, rebind_z<dim>, rebind_notz<dim, NEW_Z_INDEX>>::type;
 
    /**
    @param shape the size of the area to map

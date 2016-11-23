@@ -562,11 +562,26 @@ struct TestArray
          TESTER_ASSERT(*sliced.at({ 0 }) == 5);
          TESTER_ASSERT(*sliced.at({ 1 }) == 6);
       }
+   }
 
+   void testArraySliceNonContiguous()
+   {
+      using Array = NAMESPACE_NLL::Array_row_major_multislice<short, 3>;
+
+      //Array::Memory::SliceImpl<1>::other other(2, 3);
+      Array a1(2, 3, 10);
+
+      //using Sliced = Array::Memory::SliceImpl_z;
+      //Sliced::slice<2>(a1.getMemory(), NAMESPACE_NLL::vector3ui{ 0, 0, 5 });
+
+      auto sliced = a1.getMemory().slice<2>(NAMESPACE_NLL::vector3ui{ 0, 0, 5 });
+
+      std::cout << "D" << std::endl;
    }
 };
 
 TESTER_TEST_SUITE( TestArray );
+TESTER_TEST(testArraySliceNonContiguous);
 TESTER_TEST( testVolumeConstruction_slices );
 TESTER_TEST( testVolumeConstruction_slices_ref );
 TESTER_TEST( testVolumeMove );
