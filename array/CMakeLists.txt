@@ -13,7 +13,8 @@ set(Headers    array.h
                op.h
                forward.h
                index-mapper.h
-               memory.h
+               memory-contiguous.h
+               memory-slice.h
                static-vector.h
                static-vector-math.h
                static-vector-op.h
