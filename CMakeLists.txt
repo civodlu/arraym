@@ -38,6 +38,10 @@ if (${WITH_OPENBLAS})
    include_directories(${OpenBLAS_INCLUDE_DIR})
 endif()
 
+if (${WITH_CLANG})
+   find_package(ClangTools REQUIRED)
+endif()
+
 # platform configuration
 if(UNIX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp")
@@ -63,6 +67,18 @@ if (${BUILD_DOCUMENTATION})
 		
 	add_custom_target(doxygen
                       COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                      COMMENT "Generating API documentation with Doxygen"
+                      VERBATIM)
+endif()
+
+if (${CLANG_FORMAT_FOUND})
+   file(GLOB_RECURSE  FILES_FORMAT ${CMAKE_CURRENT_SOURCE_DIR}/array/*.h ${CMAKE_CURRENT_SOURCE_DIR}/array/*.cpp)
+   message(${FILES_FORMAT})
+
+   #set(FILES_FORMAT ${CMAKE_CURRENT_SOURCE_DIR}/array/memory.h ${CMAKE_CURRENT_SOURCE_DIR}/array/array.h)
+   add_custom_target(clang_format
+                      COMMAND "${CLANG_FORMAT_BIN}" -i -style=file ${FILES_FORMAT}
                       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                       COMMENT "Generating API documentation with Doxygen"
                       VERBATIM)

@@ -45,53 +45,50 @@ class ArrayProcessor_contiguous_byDimension;
  while a @ref ArrayRef is in use, the original @ref Array must be kept alive.
  */
 template <class T, int N, class ConfigT = ArrayTraitsConfig<T, N>>
-class Array : public ArrayTraits<Array< T, N, ConfigT >, ConfigT>
+class Array : public ArrayTraits<Array<T, N, ConfigT>, ConfigT>
 {
 public:
-   using Config = ConfigT;
-   using Memory = typename Config::Memory;
-   using allocator_type = typename Config::allocator_type;
-   using value_type = T;
-   using array_type = Array < T, N, Config >;
-   using array_type_ref = ArrayRef<T, N, Config>;
-   using traits_type = ArrayTraits<Array< T, N, ConfigT >, ConfigT>;
-   using pointer_type = T*;
-   using reference_type = T&;
+   using Config               = ConfigT;
+   using Memory               = typename Config::Memory;
+   using allocator_type       = typename Config::allocator_type;
+   using value_type           = T;
+   using array_type           = Array<T, N, Config>;
+   using array_type_ref       = ArrayRef<T, N, Config>;
+   using traits_type          = ArrayTraits<Array<T, N, ConfigT>, ConfigT>;
+   using pointer_type         = T*;
+   using reference_type       = T&;
    using const_reference_type = const T&;
-   using const_pointer_type = const T*;
-   using index_type = StaticVector < ui32, N >;
-   using diterator = typename Memory::diterator;
-   using const_diterator = typename Memory::const_diterator;
+   using const_pointer_type   = const T*;
+   using index_type           = StaticVector<ui32, N>;
+   using diterator            = typename Memory::diterator;
+   using const_diterator      = typename Memory::const_diterator;
 
    static const size_t RANK = N;
 
    template <class... Values>
    struct is_unpacked_arguments
    {
-      static const bool value =
-         sizeof...( Values ) == RANK &&
-         is_same<Values...>::value &&
-         std::is_integral<typename first<Values...>::type>::value &&
-         !std::is_same<array_type, typename remove_cvr<typename first<Values...>::type>>::value;
+      static const bool value = sizeof...(Values) == RANK && is_same<Values...>::value && std::is_integral<typename first<Values...>::type>::value &&
+                                !std::is_same<array_type, typename remove_cvr<typename first<Values...>::type>>::value;
    };
 
    // is this an example of: https://connect.microsoft.com/VisualStudio/feedback/details/1571800/false-positive-warning-c4520-multiple-default-constructors-specified
    template <typename... Values, typename = typename std::enable_if<is_unpacked_arguments<Values...>::value>::type>
-   Array( Values&&... values ) : _memory( index_type{ values... } )
-   {}
+   Array(Values&&... values) : _memory(index_type{values...})
+   {
+   }
 
-   Array( const index_type& shape, T default_value = T(), const allocator_type& allocator = allocator_type() ) :
-      _memory( shape, default_value, allocator )
-   {}
+   Array(const index_type& shape, T default_value = T(), const allocator_type& allocator = allocator_type()) : _memory(shape, default_value, allocator)
+   {
+   }
 
    /**
    @brief create a shared sub-block
    */
-   Array( Array& array, const index_type& origin, const index_type& shape, const index_type& stride ) :
-      _memory( array._memory, origin, shape, stride )
+   Array(Array& array, const index_type& origin, const index_type& shape, const index_type& stride) : _memory(array._memory, origin, shape, stride)
    {
 #ifndef NDEBUG
-      for ( int n = 0; n < N; ++n)
+      for (int n = 0; n < N; ++n)
       {
          NLL_FAST_ASSERT(origin[n] < array.shape()[n], "out of bounds!");
          NLL_FAST_ASSERT(origin[n] + shape[n] <= array.shape()[n], "out of bounds!");
@@ -99,48 +96,48 @@ public:
 #endif
    }
 
-   Array( const allocator_type& allocator = allocator_type() ) :
-      _memory( allocator )
-   {}
-
-   Array( const Memory& memory ) :
-      _memory( memory )
-   {}
-
-   Array( Memory&& memory ) :
-      _memory( std::forward<Memory>( memory ) )
-   {}
-
-   Array& operator=( const Array& other )
+   Array(const allocator_type& allocator = allocator_type()) : _memory(allocator)
    {
-      _copy( other );
+   }
+
+   Array(const Memory& memory) : _memory(memory)
+   {
+   }
+
+   Array(Memory&& memory) : _memory(std::forward<Memory>(memory))
+   {
+   }
+
+   Array& operator=(const Array& other)
+   {
+      _copy(other);
       return *this;
    }
 
-   Array( const Array& other )
+   Array(const Array& other)
    {
-      _copy( other );
+      _copy(other);
    }
 
-   Array& operator=( Array&& other )
+   Array& operator=(Array&& other)
    {
-      _move( std::forward<Array>( other ) );
+      _move(std::forward<Array>(other));
       return *this;
    }
 
-   Array( Array&& other )
+   Array(Array&& other)
    {
-      _move( std::forward<Array>( other ) );
+      _move(std::forward<Array>(other));
    }
 
    template <class A>
-   Array( const Expr<A>& expr )
+   Array(const Expr<A>& expr)
    {
       *this = expr();
    }
 
    template <class A>
-   Array& operator=( const Expr<A>& expr )
+   Array& operator=(const Expr<A>& expr)
    {
       *this = expr();
       return *this;
@@ -161,8 +158,8 @@ public:
       while (hasMoreElements)
       {
          pointer_type ptr_array = 0;
-         hasMoreElements = iterator.accessSingleElement(ptr_array);
-         *ptr_array = *(ptr_initializer++);
+         hasMoreElements        = iterator.accessSingleElement(ptr_array);
+         *ptr_array             = *(ptr_initializer++);
       }
 
       return *this;
@@ -181,41 +178,41 @@ public:
       return N;
    }
 
-   void write( std::ostream& f ) const
+   void write(std::ostream& f) const
    {
-      ensure( 0, "TODO implement" );
+      ensure(0, "TODO implement");
    }
 
-   void read( std::istream& f )
+   void read(std::istream& f)
    {
-      ensure( 0, "TODO implement" );
+      ensure(0, "TODO implement");
    }
 
    size_t size() const
    {
       size_t s = 1;
-      for ( int n = 0; n < N; ++n )
+      for (int n = 0; n < N; ++n)
       {
-         s *= _memory.shape()[ n ];
+         s *= _memory.shape()[n];
       }
       return s;
    }
 
    template <typename... Values, typename = typename std::enable_if<is_unpacked_arguments<Values...>::value>::type>
-   reference_type operator()( const Values&... values )
+   reference_type operator()(const Values&... values)
    {
-      index_type index = { values... };
-      return operator()( index );
+      index_type index = {values...};
+      return operator()(index);
    }
 
    template <typename... Values, typename = typename std::enable_if<is_unpacked_arguments<Values...>::value>::type>
-   const_reference_type operator()( const Values&... values ) const
+   const_reference_type operator()(const Values&... values) const
    {
-      index_type index = { values... };
-      return operator()( index );
+      index_type index = {values...};
+      return operator()(index);
    }
 
-   reference_type operator()( const index_type& index )
+   reference_type operator()(const index_type& index)
    {
 #ifndef NDEBUG
       for (int n = 0; n < N; ++n)
@@ -223,10 +220,10 @@ public:
          NLL_FAST_ASSERT(index[n] < this->shape()[n], "out of bounds!");
       }
 #endif
-      return *_memory.at( index );
+      return *_memory.at(index);
    }
 
-   const_reference_type operator()( const index_type& index ) const
+   const_reference_type operator()(const index_type& index) const
    {
 #ifndef NDEBUG
       for (int n = 0; n < N; ++n)
@@ -234,7 +231,7 @@ public:
          NLL_FAST_ASSERT(index[n] < this->shape()[n], "out of bounds!");
       }
 #endif
-      return *_memory.at( index );
+      return *_memory.at(index);
    }
 
    array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive)
@@ -251,7 +248,7 @@ public:
       return array_type_ref(*this, min_index_inclusive, size, index_type(1));
    }
 
-   diterator beginDim( ui32 dim, const index_type& indexN )
+   diterator beginDim(ui32 dim, const index_type& indexN)
    {
 #ifndef NDEBUG
       NLL_FAST_ASSERT(dim < N, "out of bound!");
@@ -260,10 +257,10 @@ public:
          NLL_FAST_ASSERT(indexN[n] < this->shape()[n], "out of bounds!");
       }
 #endif
-      return _memory.beginDim( dim, indexN );
+      return _memory.beginDim(dim, indexN);
    }
 
-   const_diterator beginDim( ui32 dim, const index_type& indexN ) const
+   const_diterator beginDim(ui32 dim, const index_type& indexN) const
    {
 #ifndef NDEBUG
       NLL_FAST_ASSERT(dim < N, "out of bound!");
@@ -272,10 +269,10 @@ public:
          NLL_FAST_ASSERT(indexN[n] < this->shape()[n], "out of bounds!");
       }
 #endif
-      return _memory.beginDim( dim, indexN );
+      return _memory.beginDim(dim, indexN);
    }
 
-   diterator endDim( ui32 dim, const index_type& indexN )
+   diterator endDim(ui32 dim, const index_type& indexN)
    {
 #ifndef NDEBUG
       NLL_FAST_ASSERT(dim < N, "out of bound!");
@@ -284,10 +281,10 @@ public:
          NLL_FAST_ASSERT(indexN[n] < this->shape()[n], "out of bounds!");
       }
 #endif
-      return _memory.endDim( dim, indexN );
+      return _memory.endDim(dim, indexN);
    }
 
-   const_diterator endDim( ui32 dim, const index_type& indexN ) const
+   const_diterator endDim(ui32 dim, const index_type& indexN) const
    {
 #ifndef NDEBUG
       NLL_FAST_ASSERT(dim < N, "out of bound!");
@@ -296,7 +293,7 @@ public:
          NLL_FAST_ASSERT(indexN[n] < this->shape()[n], "out of bounds!");
       }
 #endif
-      return _memory.endDim( dim, indexN );
+      return _memory.endDim(dim, indexN);
    }
 
    const Memory& getMemory() const
@@ -311,9 +308,9 @@ public:
 
    bool isEmpty() const
    {
-      for ( auto s : shape() )
+      for (auto s : shape())
       {
-         if ( s == 0 )
+         if (s == 0)
          {
             return true;
          }
@@ -325,9 +322,8 @@ public:
    using SlicingMemory = decltype(array_type().getMemory().slice<slicing_dimension>(index_type()));
 
    template <size_t slicing_dimension>
-   using SlicingArray = Array < T, N - 1, ArrayTraitsConfig<T, N - 1, allocator_type, SlicingMemory<slicing_dimension>>>;
-   
-   
+   using SlicingArray = Array<T, N - 1, ArrayTraitsConfig<T, N - 1, allocator_type, SlicingMemory<slicing_dimension>>>;
+
    template <size_t slicing_dimension>
    SlicingArray<slicing_dimension> slice(const index_type& index) const
    {
@@ -335,49 +331,40 @@ public:
    }
 
 private:
-   void _move( array_type&& src )
+   void _move(array_type&& src)
    {
-      if ( this != &src )
+      if (this != &src)
       {
-         static_cast<traits_type&>( *this ) = std::move( src );
-         _memory = std::move( src._memory );
+         static_cast<traits_type&>(*this) = std::move(src);
+         _memory                          = std::move(src._memory);
       }
    }
 
-   void _copy( const array_type& src )
+   void _copy(const array_type& src)
    {
-      static_cast<traits_type&>( *this ) = src;  // make sure th base class is copied
-      _memory = src._memory;
+      static_cast<traits_type&>(*this) = src; // make sure th base class is copied
+      _memory                          = src._memory;
    }
 
 protected:
-   Memory   _memory;
+   Memory _memory;
 };
-
 
 /**
 @brief Default matrix type, following Fortran column-major style
 @note If the default is changed, this means we need to update all the BLAS function calls having (LDA, LDB, ...) arguments
 */
-template <class T, class Mapper = IndexMapper_contiguous_matrix_column_major, class Allocator = std::allocator<T> >
-using Matrix = Array < T, 2,
-   ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous<T, 2, Mapper, Allocator>>
->;
+template <class T, class Mapper = IndexMapper_contiguous_matrix_column_major, class Allocator = std::allocator<T>>
+using Matrix = Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous<T, 2, Mapper, Allocator>>>;
 
-template <class T, size_t N, class Allocator = std::allocator<T> >
-using Array_row_major = Array < T, N,
-   ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, IndexMapper_contiguous_row_major<N>, Allocator>>
->;
+template <class T, size_t N, class Allocator = std::allocator<T>>
+using Array_row_major = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, IndexMapper_contiguous_row_major<N>, Allocator>>>;
 
-template <class T, size_t N, class Allocator = std::allocator<T> >
-using Array_row_major_multislice = Array < T, N,
-   ArrayTraitsConfig<T, N, Allocator, Memory_multislice<T, N, IndexMapper_multislice<N, N - 1>, Allocator>>
->;
+template <class T, size_t N, class Allocator = std::allocator<T>>
+using Array_row_major_multislice = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_multislice<T, N, IndexMapper_multislice<N, N - 1>, Allocator>>>;
 
-template <class T, size_t N, class Allocator = std::allocator<T> >
-using Array_column_major = Array < T, N,
-   ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, IndexMapper_contiguous_column_major<N>, Allocator>>
->;
+template <class T, size_t N, class Allocator = std::allocator<T>>
+using Array_column_major = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, IndexMapper_contiguous_column_major<N>, Allocator>>>;
 
 /**
  @brief ArrayRef has a different semantic (reference based) from array (i.e., value based)
@@ -389,20 +376,21 @@ class ArrayRef : public Array<T, N, Config>
 {
 public:
    using array_type = Array<T, N, Config>;
-    using index_type = typename array_type::index_type;
+   using index_type = typename array_type::index_type;
 
    /**
     @brief Construct an array ref from an array
     */
    explicit ArrayRef(array_type& array) : array_type(array, index_type(), array.shape(), index_type(1))
-   {}
+   {
+   }
 
    /**
    @brief Construct an array ref from a sub-array
    */
-   ArrayRef(array_type& array, const index_type& origin, const index_type& shape, const index_type& stride) :
-      array_type(array, origin, shape, stride)
-   {}
+   ArrayRef(array_type& array, const index_type& origin, const index_type& shape, const index_type& stride) : array_type(array, origin, shape, stride)
+   {
+   }
 
    ArrayRef& operator=(const array_type& array)
    {

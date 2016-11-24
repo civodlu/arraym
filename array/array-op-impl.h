@@ -9,7 +9,6 @@ DECLARE_NAMESPACE_NLL
 
 namespace details
 {
-
 }
 
 DECLARE_NAMESPACE_END

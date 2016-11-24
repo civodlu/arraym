@@ -8,4 +8,5 @@ option(WITH_OPENBLAS "Activate modules using OpenBLAS. It requires the OpenBLAS 
 option(WITH_CPPCHECK "Activate static code analysis with cppcheck" ON)
 option(WITH_BOOSTSIMD "Enable Boost.SIMD for vectorization" ON)
 option(WITH_NUMPY "Enables numpy to and from conversions" ON)
+option(WITH_CLANG "Enables clang-format and clang-tidy" ON)
 option(BUILD_DOCUMENTATION "create the doxygen documentation" ON)

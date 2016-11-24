@@ -1,4 +1,4 @@
-#pragma warning(disable:4244)
+#pragma warning(disable : 4244)
 
 #include <array/forward.h>
 #include <tester/register.h>
@@ -6,7 +6,7 @@
 using namespace NAMESPACE_NLL;
 
 using array_type = Array_row_major<float, 3>;
-static const array_type::index_type shape{ 512, 513, 700 };
+static const array_type::index_type shape{512, 513, 700};
 
 class Timer
 {
@@ -54,8 +54,7 @@ public:
    }
 
 private:
-   static float toSeconds(const std::chrono::high_resolution_clock::time_point& start,
-      const std::chrono::high_resolution_clock::time_point& end)
+   static float toSeconds(const std::chrono::high_resolution_clock::time_point& start, const std::chrono::high_resolution_clock::time_point& end)
    {
       const auto c = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
       return static_cast<float>(c / 1000.0f);
@@ -72,10 +71,7 @@ struct TestArrayPerformance
    {
       array_type array(shape);
 
-      auto functor = [](const array_type::index_type&)
-      {
-         return array_type::value_type(rand() % 1000);
-      };
+      auto functor = [](const array_type::index_type&) { return array_type::value_type(rand() % 1000); };
 
       //fill(array, functor);
       return array;
@@ -84,17 +80,17 @@ struct TestArrayPerformance
    void test_iterator_single()
    {
       Timer timer;
-      auto a = create(shape);
+      auto a                       = create(shape);
       const float constructionTime = timer.getElapsedTime();
       std::cout << "ConstructionTime=" << constructionTime << std::endl;
       ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(a);
-      
+
       bool hasMoreElements = true;
       while (hasMoreElements)
       {
          array_type::value_type* ptr = 0;
-         hasMoreElements = iterator.accessSingleElement(ptr);
-         *ptr = *ptr * *ptr;
+         hasMoreElements             = iterator.accessSingleElement(ptr);
+         *ptr                        = *ptr * *ptr;
       }
 
       std::cout << "Single=" << timer.getElapsedTime() - constructionTime << std::endl;
@@ -114,7 +110,7 @@ struct TestArrayPerformance
       while (hasMoreElements)
       {
          array_type::value_type* ptr = 0;
-         hasMoreElements = iterator.accessMaxElements(ptr);
+         hasMoreElements             = iterator.accessMaxElements(ptr);
          for (NAMESPACE_NLL::ui32 n = 0; n < iterator.getMaxAccessElements(); ++n)
          {
             ptr[n] = ptr[n] * ptr[n];
@@ -143,7 +139,7 @@ struct TestArrayPerformance
             for (ui32 x = 0; x < a.shape()[0]; ++x)
             {
                auto ptr_v = ptr + x + y * y_stride + z * z_stride;
-               *ptr_v = *ptr_v * *ptr_v;
+               *ptr_v     = *ptr_v * *ptr_v;
             }
          }
       }
