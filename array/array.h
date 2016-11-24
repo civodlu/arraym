@@ -59,7 +59,7 @@ public:
    using reference_type = T&;
    using const_reference_type = const T&;
    using const_pointer_type = const T*;
-   using index_type = core::StaticVector < ui32, N >;
+   using index_type = StaticVector < ui32, N >;
    using diterator = typename Memory::diterator;
    using const_diterator = typename Memory::const_diterator;
 
@@ -70,9 +70,9 @@ public:
    {
       static const bool value =
          sizeof...( Values ) == RANK &&
-         core::is_same<Values...>::value &&
-         std::is_integral<typename core::first<Values...>::type>::value &&
-         !std::is_same<array_type, typename core::remove_cvr<typename core::first<Values...>::type>>::value;
+         is_same<Values...>::value &&
+         std::is_integral<typename first<Values...>::type>::value &&
+         !std::is_same<array_type, typename remove_cvr<typename first<Values...>::type>>::value;
    };
 
    // is this an example of: https://connect.microsoft.com/VisualStudio/feedback/details/1571800/false-positive-warning-c4520-multiple-default-constructors-specified
@@ -170,7 +170,7 @@ public:
 
    const index_type& shape() const
    {
-      return _memory.getShape();
+      return _memory.shape();
    }
 
    /**
@@ -196,7 +196,7 @@ public:
       size_t s = 1;
       for ( int n = 0; n < N; ++n )
       {
-         s *= _memory.getShape()[ n ];
+         s *= _memory.shape()[ n ];
       }
       return s;
    }

@@ -63,7 +63,7 @@ public:
    }
 
          
-   template <typename T2, typename... Args, typename = typename std::enable_if<sizeof...(Args) + 1 == SIZE>::type /*, typename = typename std::enable_if<core::is_same<Args...>::value>::type*/>
+   template <typename T2, typename... Args, typename = typename std::enable_if<sizeof...(Args) + 1 == SIZE>::type>
    StaticVector( const T2& arg1, const Args&... args ) // avoid "shadowing" the default constructor with an initia argument
    {
       begin()[ 0 ] = static_cast<T>( arg1 );
@@ -195,7 +195,7 @@ public:
    {
       for ( size_t n = 0; n < SIZE; ++n )
       {
-         if ( !core::equal<T>( _buffer[ n ], r[ n ], eps ) )
+         if ( !NAMESPACE_NLL::equal<T>( _buffer[ n ], r[ n ], eps ) )
             return false;
       }
       return true;

@@ -13,7 +13,7 @@ template <class T, size_t N, class IndexMapper = IndexMapper_contiguous<N>, clas
 class Memory_contiguous : public memory_layout_contiguous
 {
 public:
-   using Vectorui = core::StaticVector<ui32, N>;
+   using Vectorui = StaticVector<ui32, N>;
    using allocator_type = Allocator;
    using allocator_trait = std::allocator_traits<allocator_type>;
    using index_mapper = IndexMapper;
@@ -349,7 +349,7 @@ public:
       return _data + offset;
    }
 
-   const Vectorui& getShape() const
+   const Vectorui& shape() const
    {
       return _shape;
    }
@@ -387,7 +387,7 @@ template <class T, size_t N, class IndexMapper = IndexMapper_multislice<N, N - 1
 class Memory_multislice : public memory_layout_multislice_z
 {
 public:
-   using Vectorui = core::StaticVector<ui32, N>;
+   using Vectorui = StaticVector<ui32, N>;
    using allocator_type = Allocator;
    using allocator_trait = std::allocator_traits<allocator_type>;
    using index_mapper = IndexMapper;
@@ -599,13 +599,13 @@ private:
          {
             if (n != slice_dim)
             {
-               shape[current_index] = array.getShape()[n];
+               shape[current_index] = array.shape()[n];
                physicalStride[current_index] = array.getIndexMapper()._getPhysicalStrides()[n];
                ++current_index;
             }
          }
 
-         const size_t nb_slices = array.getShape()[Z_INDEX];
+         const size_t nb_slices = array.shape()[Z_INDEX];
          std::vector<T*> slices(nb_slices);
          Vectorui origin;
          origin[slice_dim] = index[slice_dim];
@@ -641,7 +641,7 @@ private:
          {
             if (n != Z_INDEX)
             {
-               shape[current_index] = array.getShape()[n];
+               shape[current_index] = array.shape()[n];
                physicalStride[current_index] = array.getIndexMapper()._getPhysicalStrides()[n];
                ++current_index;
             }
@@ -821,7 +821,7 @@ public:
    //
    //
 
-   const Vectorui& getShape() const
+   const Vectorui& shape() const
    {
       return _shape;
    }

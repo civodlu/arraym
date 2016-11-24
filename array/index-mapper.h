@@ -9,7 +9,7 @@ namespace details
    struct Mapper_stride_row_major
    {
    public:
-      using Vectorui = core::StaticVector<ui32, N>;
+      using Vectorui = StaticVector<ui32, N>;
 
       Vectorui operator()( const Vectorui& shape ) const
       {
@@ -35,7 +35,7 @@ namespace details
    struct Mapper_multisplice_stride_row_major
    {
    public:
-      using Vectorui = core::StaticVector<ui32, N>;
+      using Vectorui = StaticVector<ui32, N>;
 
       Vectorui operator()(const Vectorui& shape) const
       {
@@ -65,7 +65,7 @@ namespace details
    struct Mapper_stride_column_major
    {
    public:
-      using Vectorui = core::StaticVector<ui32, N>;
+      using Vectorui = StaticVector<ui32, N>;
 
       Vectorui operator()( const Vectorui& shape ) const
       {
@@ -116,7 +116,7 @@ template < size_t N, class Mapper = details::Mapper_stride_row_major<N>>
 class IndexMapper_contiguous : public memory_layout_contiguous
 {
 public:
-   using Vectorui = core::StaticVector<ui32, N>;
+   using Vectorui = StaticVector<ui32, N>;
    using IndexMapper = IndexMapper_contiguous<N, Mapper>;
 
    template <size_t dim>
@@ -146,7 +146,7 @@ public:
 
    ui32 offset( const Vectorui& index ) const
    {
-      return core::dot( index, _physicalStrides ) + _origin;
+      return dot( index, _physicalStrides ) + _origin;
    }
 
    IndexMapper submap( const Vectorui& origin, const Vectorui& shape, const Vectorui& strides ) const
@@ -237,7 +237,7 @@ class IndexMapper_multislice : public memory_layout_multislice_z
    };
 
 public:
-   using Vectorui = core::StaticVector<ui32, N>;
+   using Vectorui = StaticVector<ui32, N>;
    static const size_t Z_INDEX = Z_INDEX_;
    using IndexMapper = IndexMapper_multislice<N, Z_INDEX, Mapper>;
 
@@ -268,7 +268,7 @@ public:
 
    ui32 offset( const Vectorui& index ) const
    {
-      return core::dot( index, _physicalStrides ) + _origin;
+      return dot( index, _physicalStrides ) + _origin;
    }
 
    IndexMapper submap( const Vectorui& origin, const Vectorui& shape, const Vectorui& strides ) const

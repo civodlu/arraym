@@ -185,7 +185,7 @@ namespace blas
          using functions_t = typename std::tuple_element<F, Functions>::type;
 
          template <int F>
-         using function_return_t = typename core::function_traits<function_t<F>>::return_type;
+         using function_return_t = typename function_traits<function_t<F>>::return_type;
 
 
       public:
@@ -207,7 +207,7 @@ namespace blas
          function_return_t<F> call( Args&&... args )
          {
             NLL_FAST_ASSERT( std::get<F>( _functions ).size() > 0, "no registered BLAS wrapper!" );
-            static_assert( core::is_callable_with<function_t<F>, Args...>::value, "Expected arguments do not match the provided arguments" );
+            static_assert( is_callable_with<function_t<F>, Args...>::value, "Expected arguments do not match the provided arguments" );
             return std::get<F>( _functions )[ 0 ]( std::forward<Args>( args )... ); // TODO find best dispatch!
          }
 

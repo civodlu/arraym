@@ -98,7 +98,7 @@ namespace details
       template <int I, bool B>
       struct Increment
       {
-         FORCE_INLINE static bool run( core::StaticVector<ui32, Array::RANK>& index, const core::StaticVector<ui32, Array::RANK>& size, bool& recomputeIterator, ui32 nbElements )
+         FORCE_INLINE static bool run( StaticVector<ui32, Array::RANK>& index, const StaticVector<ui32, Array::RANK>& size, bool& recomputeIterator, ui32 nbElements )
          {
             index[ I ] += nbElements;
             if ( index[ I ] == size[ I ] )
@@ -117,7 +117,7 @@ namespace details
       template <int I>
       struct Increment < I, true >
       {
-         FORCE_INLINE static bool run( core::StaticVector<ui32, Array::RANK>&, const core::StaticVector<ui32, Array::RANK>&, bool&, ui32 )
+         FORCE_INLINE static bool run( StaticVector<ui32, Array::RANK>&, const StaticVector<ui32, Array::RANK>&, bool&, ui32 )
          {
             return false;
          }
@@ -136,7 +136,7 @@ namespace details
    };
 
    template <class T, ui32 N, class ConfigT>
-   core::StaticVector<ui32, N> getFastestVaryingIndexes( const Array<T, N, ConfigT>& array )
+   StaticVector<ui32, N> getFastestVaryingIndexes( const Array<T, N, ConfigT>& array )
    {
       using array_type = Array<T, N, ConfigT>;
       using index_type = typename array_type::index_type;

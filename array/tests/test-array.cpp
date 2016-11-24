@@ -155,14 +155,14 @@ struct TestArray
       // Test copy
       //
       Memory memory_cpy = memory_ref2;
-      TESTER_ASSERT( memory_cpy.getShape() == memory_ref2.getShape() );
+      TESTER_ASSERT( memory_cpy.shape() == memory_ref2.shape() );
       for ( size_t n = 0; n < 500; ++n )
       {
          const NAMESPACE_NLL::vector3ui displacement =
          {
-            NAMESPACE_NLL::generateUniformDistribution<ui32>( 0, memory_ref2.getShape()[ 0 ] - 1 ),
-            NAMESPACE_NLL::generateUniformDistribution<ui32>( 0, memory_ref2.getShape()[ 1 ] - 1 ),
-            NAMESPACE_NLL::generateUniformDistribution<ui32>( 0, memory_ref2.getShape()[ 2 ] - 1 )
+            NAMESPACE_NLL::generateUniformDistribution<ui32>( 0, memory_ref2.shape()[ 0 ] - 1 ),
+            NAMESPACE_NLL::generateUniformDistribution<ui32>( 0, memory_ref2.shape()[ 1 ] - 1 ),
+            NAMESPACE_NLL::generateUniformDistribution<ui32>( 0, memory_ref2.shape()[ 2 ] - 1 )
          };
          TESTER_ASSERT( *memory_cpy.at( displacement ) == *memory_ref2.at( displacement ) );
       }
@@ -445,7 +445,7 @@ struct TestArray
       using array_type = NAMESPACE_NLL::Array_column_major < float, 3 > ;
       array_type a1( 4, 5, 6 );
       NAMESPACE_NLL::ArrayProcessor_contiguous_byDimension<array_type> iterator( a1 );
-      TESTER_ASSERT( iterator.getVaryingIndexOrder() == core::vector3ui( 0, 1, 2 ) );
+      TESTER_ASSERT( iterator.getVaryingIndexOrder() == NAMESPACE_NLL::vector3ui( 0, 1, 2 ) );
    }
 
    void testIteratorByLocality()
@@ -453,7 +453,7 @@ struct TestArray
       using array_type = NAMESPACE_NLL::Array_column_major < float, 3 >;
       array_type a1( 4, 5, 6 );
       NAMESPACE_NLL::ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator( a1 );
-      TESTER_ASSERT( iterator.getVaryingIndexOrder() == core::vector3ui( 2, 1, 0 ) );
+      TESTER_ASSERT( iterator.getVaryingIndexOrder() == NAMESPACE_NLL::vector3ui( 2, 1, 0 ) );
    }
 
    void testFill()
@@ -550,7 +550,7 @@ struct TestArray
 
       {
          auto sliced = m.getMemory().slice<0>({ 1, 0 });
-         TESTER_ASSERT(sliced.getShape() == NAMESPACE_NLL::vector1ui{ 3 });
+         TESTER_ASSERT(sliced.shape() == NAMESPACE_NLL::vector1ui{ 3 });
          TESTER_ASSERT(*sliced.at({ 0 }) == 2);
          TESTER_ASSERT(*sliced.at({ 1 }) == 4);
          TESTER_ASSERT(*sliced.at({ 2 }) == 6);
@@ -558,7 +558,7 @@ struct TestArray
 
       {
          auto sliced = m.getMemory().slice<1>({ 0, 2 });
-         TESTER_ASSERT(sliced.getShape() == NAMESPACE_NLL::vector1ui{ 2 });
+         TESTER_ASSERT(sliced.shape() == NAMESPACE_NLL::vector1ui{ 2 });
          TESTER_ASSERT(*sliced.at({ 0 }) == 5);
          TESTER_ASSERT(*sliced.at({ 1 }) == 6);
       }
