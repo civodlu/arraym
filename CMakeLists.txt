@@ -76,9 +76,19 @@ if (${CLANG_FORMAT_FOUND})
    file(GLOB_RECURSE  FILES_FORMAT ${CMAKE_CURRENT_SOURCE_DIR}/array/*.h ${CMAKE_CURRENT_SOURCE_DIR}/array/*.cpp)
    message(${FILES_FORMAT})
 
-   #set(FILES_FORMAT ${CMAKE_CURRENT_SOURCE_DIR}/array/memory.h ${CMAKE_CURRENT_SOURCE_DIR}/array/array.h)
    add_custom_target(clang_format
                       COMMAND "${CLANG_FORMAT_BIN}" -i -style=file ${FILES_FORMAT}
+                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                      COMMENT "Generating API documentation with Doxygen"
+                      VERBATIM)
+endif()
+
+if (${CLANG_TIDY_FOUND})
+   file(GLOB  FILES_FORMAT ${CMAKE_CURRENT_SOURCE_DIR}/array/*.cpp)
+   message(${FILES_FORMAT})
+
+   add_custom_target(clang_tidy
+                      COMMAND "${CLANG_TIDY_BIN}" ${FILES_FORMAT} -checks=*,-clang-diagnostic-inconsistent-dllimport,-google-readability-namespace-comments,-llvm-namespace-comment,-google-readability-casting,-readability-inconsistent-declaration-parameter-name -- -std=c++11 -I${CMAKE_CURRENT_SOURCE_DIR} -I${CMAKE_BINARY_DIR} -I${OpenBLAS_INCLUDE_DIR}
                       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                       COMMENT "Generating API documentation with Doxygen"
                       VERBATIM)
