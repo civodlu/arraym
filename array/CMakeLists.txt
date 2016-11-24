@@ -8,7 +8,8 @@ set(Headers    array.h
                array.h
                array-processor.h
                array-traits.h
-			   array-exp.h
+               array-exp.h
+               array-op-impl.h
                op.h
                forward.h
                index-mapper.h
