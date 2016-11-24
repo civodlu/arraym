@@ -536,14 +536,14 @@ struct TestArray
       //using MemoryRebind = Array::Memory::rebind<int, 2>;
    }
 
-   void testArraySlice()
+   void testMemorySlice()
    {
-      testArraySlice_impl<NAMESPACE_NLL::Array_row_major<short, 2>>();
-      testArraySlice_impl<NAMESPACE_NLL::Array_column_major<float, 2>>();
+      testMemorySlice_impl<NAMESPACE_NLL::Array_row_major<short, 2>>();
+      testMemorySlice_impl<NAMESPACE_NLL::Array_column_major<float, 2>>();
    }
 
    template <class Array>
-   void testArraySlice_impl()
+   void testMemorySlice_impl()
    {
       Array m(2, 3);
       m = { 1, 2, 3, 4, 5, 6 };
@@ -564,39 +564,154 @@ struct TestArray
       }
    }
 
-   void testArraySliceNonContiguous()
+   void testMemorySliceNonContiguous_zslice()
    {
-      using Array = NAMESPACE_NLL::Array_row_major_multislice<short, 3>;
+      testMemorySliceNonContiguous_zslice_impl<NAMESPACE_NLL::Array_row_major<short, 3>>();
+      testMemorySliceNonContiguous_zslice_impl<NAMESPACE_NLL::Array_column_major<short, 3>>();
+      testMemorySliceNonContiguous_zslice_impl<NAMESPACE_NLL::Array_row_major_multislice<short, 3>>();
+   }
 
-      //Array::Memory::SliceImpl<1>::other other(2, 3);
-      Array a1(2, 3, 10);
+   template <class Array>
+   void testMemorySliceNonContiguous_zslice_impl()
+   {
+      const size_t dim = 2;
 
-      //using Sliced = Array::Memory::SliceImpl_z;
-      using Sliced = Array::Memory::SliceImpl<2>;
-      Sliced::slice<2>(a1.getMemory(), NAMESPACE_NLL::vector3ui{ 0, 0, 5 });
+      for (size_t nn = 0; nn < 100; ++nn)
+      {
+         srand((unsigned)nn);
+         NAMESPACE_NLL::vector3ui size(
+            NAMESPACE_NLL::generateUniformDistribution(1, 20),
+            NAMESPACE_NLL::generateUniformDistribution(1, 20),
+            NAMESPACE_NLL::generateUniformDistribution(1, 20));
 
-      //auto sliced = a1.getMemory().slice<2>(NAMESPACE_NLL::vector3ui{ 0, 0, 5 });
+         Array a1(size);
+         short index = 0;
+         NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&){return index++; });
 
-      std::cout << "D" << std::endl;
+         const auto origin = NAMESPACE_NLL::vector3ui{
+            NAMESPACE_NLL::generateUniformDistribution<size_t>(0, size[0] - 1),
+            NAMESPACE_NLL::generateUniformDistribution<size_t>(0, size[1] - 1),
+            NAMESPACE_NLL::generateUniformDistribution<size_t>(0, size[2] - 1)
+         };
+
+         auto& memory = a1.getMemory();
+         auto sliced = memory.slice<2>(origin);
+
+         TESTER_ASSERT(a1({ 0, 0, origin[dim] }) == *sliced.at({ 0, 0 }));
+
+         for (size_t y = 0; y < size[1]; ++y)
+         {
+            for (size_t x = 0; x < size[0]; ++x)
+            {
+               const auto value_expected = a1(NAMESPACE_NLL::vector3ui(x, y, origin[dim]));
+               const auto value_found = *sliced.at({ x, y });
+               TESTER_ASSERT(value_expected == value_found);
+            }
+         }
+      }
+   }
+
+   void testMemorySliceNonContiguous_not_zslice()
+   {
+      testMemorySliceNonContiguous_not_zslice_impl<NAMESPACE_NLL::Array_row_major<short, 3>>();
+      testMemorySliceNonContiguous_not_zslice_impl<NAMESPACE_NLL::Array_column_major<short, 3>>();
+      testMemorySliceNonContiguous_not_zslice_impl<NAMESPACE_NLL::Array_row_major_multislice<short, 3>>();
+   }
+
+   template <class Array>
+   void testMemorySliceNonContiguous_not_zslice_impl()
+   {
+      const size_t dim = 0;
+
+      for (size_t nn = 0; nn < 100; ++nn)
+      {
+         srand((unsigned)nn + 1);
+         NAMESPACE_NLL::vector3ui size(
+            NAMESPACE_NLL::generateUniformDistribution(1, 20),
+            NAMESPACE_NLL::generateUniformDistribution(1, 20),
+            NAMESPACE_NLL::generateUniformDistribution(1, 20));
+
+         Array a1(size);
+         short index = 0;
+         NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&){return index++; });
+
+         const auto origin = NAMESPACE_NLL::vector3ui{
+            NAMESPACE_NLL::generateUniformDistribution<size_t>(0, size[0] - 1),
+            NAMESPACE_NLL::generateUniformDistribution<size_t>(0, size[1] - 1),
+            NAMESPACE_NLL::generateUniformDistribution<size_t>(0, size[2] - 1)
+         };
+
+         auto& memory = a1.getMemory();
+         auto sliced = memory.slice<0>(origin);
+
+         TESTER_ASSERT(a1({ origin[dim], 0, 0 }) == *sliced.at({ 0, 0 }));
+
+         for (size_t z = 0; z < size[2]; ++z)
+         {
+            for (size_t y = 0; y < size[1]; ++y)
+            {
+               const auto value_expected = a1(NAMESPACE_NLL::vector3ui(origin[dim], y, z));
+               const auto value_found = *sliced.at({ y, z });
+               TESTER_ASSERT(value_expected == value_found);
+            }
+         }
+      }
+   }
+   void testArraySlice()
+   {
+      testArraySlice_impl<NAMESPACE_NLL::Array_row_major<short, 3>>();
+      testArraySlice_impl<NAMESPACE_NLL::Array_column_major<short, 3>>();
+      testArraySlice_impl<NAMESPACE_NLL::Array_row_major_multislice<short, 3>>();
+   }
+
+   template <class Array>
+   void testArraySlice_impl()
+   {
+      srand((unsigned)1);
+      NAMESPACE_NLL::vector3ui size(
+         NAMESPACE_NLL::generateUniformDistribution(5, 20),
+         NAMESPACE_NLL::generateUniformDistribution(5, 20),
+         NAMESPACE_NLL::generateUniformDistribution(5, 20));
+
+      Array a1(size);
+      short index = 0;
+      NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&){return index++; });
+
+      const int slice_a = 1;
+      auto slice = a1.slice<2>({ 2, 3, slice_a });
+      TESTER_ASSERT(slice.shape() == NAMESPACE_NLL::vector2ui(a1.shape()[0], a1.shape()[1]));
+      TESTER_ASSERT(slice(0, 0) == a1(0, 0, slice_a));
+      TESTER_ASSERT(slice(1, 0) == a1(1, 0, slice_a));
+      TESTER_ASSERT(slice(0, 1) == a1(0, 1, slice_a));
+      
+      const int slice_b = 2;
+      auto slice2 = slice.slice<1>({ 0, slice_b });
+      TESTER_ASSERT(slice2(0) == a1(0, slice_b, slice_a));
+      TESTER_ASSERT(slice2(1) == a1(1, slice_b, slice_a));
+      TESTER_ASSERT(slice2(2) == a1(2, slice_b, slice_a));
+      std::cout << slice.shape() << std::endl;
    }
 };
 
 TESTER_TEST_SUITE( TestArray );
-TESTER_TEST(testArraySliceNonContiguous);
-TESTER_TEST( testVolumeConstruction_slices );
-TESTER_TEST( testVolumeConstruction_slices_ref );
-TESTER_TEST( testVolumeMove );
-TESTER_TEST( testArray_construction );
-TESTER_TEST( testMatrix_construction );
-TESTER_TEST( testMatrix_construction2 );
-TESTER_TEST( testArray_directional_index );
-TESTER_TEST( testArray_processor );
-TESTER_TEST( testArray_processor_stride );
-TESTER_TEST( testIteratorByDim );
-TESTER_TEST( testIteratorByLocality );
-TESTER_TEST( testFill );
+TESTER_TEST(testMemorySliceNonContiguous_not_zslice);
+TESTER_TEST(testMemorySliceNonContiguous_zslice);
+TESTER_TEST(testVolumeConstruction_slices);
+TESTER_TEST(testVolumeConstruction_slices_ref);
+TESTER_TEST(testVolumeMove);
+TESTER_TEST(testArray_construction);
+TESTER_TEST(testMatrix_construction);
+TESTER_TEST(testMatrix_construction2);
+TESTER_TEST(testArray_directional_index);
+TESTER_TEST(testArray_processor);
+TESTER_TEST(testArray_processor_stride);
+TESTER_TEST(testIteratorByDim);
+TESTER_TEST(testIteratorByLocality);
+TESTER_TEST(testFill);
 TESTER_TEST(testArray_subArray);
 TESTER_TEST(testInitializerList);
 TESTER_TEST(testIndeMapperRebind);
+TESTER_TEST(testMemorySlice);
 TESTER_TEST(testArraySlice);
+
 TESTER_TEST_SUITE_END();

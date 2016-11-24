@@ -137,13 +137,19 @@ public:
    Create a reference of <this>, so do NOT destroy the memory while using the sliced mempory
    */
    template <size_t dimension>
-   typename rebind<T, N - 1>::other slice(const Vectorui& point) const
+   typename rebind<T, N - 1>::other slice(const Vectorui& index) const
    {
+      // we start at the beginning of the slice
+      Vectorui index_slice;
+      index_slice[dimension] = index[dimension];
+      T* ptr = const_cast<T*>(this->at(index_slice));
+
       using Other = typename rebind<T, N - 1>::other;
       Other memory;
-      memory._indexMapper = _indexMapper.slice<dimension>(point);
-      memory._data = const_cast<T*>(at(point));
+      memory._indexMapper = _indexMapper.slice<dimension>(index_slice);
+      memory._data = const_cast<T*>(ptr);
       memory._dataAllocated = false; // this is a "reference"
+      memory._allocator = getAllocator();
 
       size_t current_dim = 0;
       for (size_t n = 0; n < N; ++n)
@@ -353,6 +359,11 @@ public:
       return _indexMapper;
    }
 
+   const allocator_type& getAllocator() const
+   {
+      return _allocator;
+   }
+
    //private:
    IndexMapper      _indexMapper;
    Vectorui         _shape;
@@ -497,6 +508,14 @@ public:
       _slicesAllocated = slicesAllocated;
    }
 
+   Memory_multislice(const Vectorui& shape, const std::vector<T*>& slices, const Vectorui& physicalStrides, const allocator_type& allocator = allocator_type(), bool slicesAllocated = false) :
+      _shape(shape), _allocator(allocator)
+   {
+      _indexMapper.init(physicalStrides);
+      _slices = slices;
+      _slicesAllocated = slicesAllocated;
+   }
+
    /**
    @brief reference an existing sub-memory block
    @param strides the stride (spacing between data elements) to be used to access the <ref>. (i.e., this doesn't depend on the
@@ -531,6 +550,11 @@ public:
       }
    }
 
+   const allocator_type& getAllocator() const
+   {
+      return _allocator;
+   }
+
    diterator beginDim( ui32 dim, const Vectorui& indexN )
    {
       return diterator( indexN[ Z_INDEX ], _indexMapper.offset( indexN ), _indexMapper._getPhysicalStrides()[ dim ], &_slices[ 0 ] );
@@ -555,33 +579,60 @@ public:
       return const_diterator( index_cpy[ Z_INDEX ], _indexMapper.offset( index_cpy ), _indexMapper._getPhysicalStrides()[ dim ], &_slices[ 0 ] );
    }
 
-//private:
+private:
 
-   //template <class T, size_t N, class IndexMapper = IndexMapper_multislice<N, N - 1>, class Allocator = std::allocator<T>>
-   //class Memory_multislice : public memory_layout_multislice_z
-
-   //template <class T, size_t N, class IndexMapper = IndexMapper_contiguous<N>, class Allocator = std::allocator<T>>
-   //Memory_contiguous
-
-   // generic case: we slice a dimension that is not Z_INDEX so we need to 
-   // keep the slices but remove one dimension within slice
-
+   // general case: we are keeping the Z_INDEX so we are still a slice based memory. Z_INDEX will be decreased
+   // Note: this is OK to decrease Z_INDEX when it is set to be the last dimension. In a more general setting,
+   //       this is not correct.
    struct SliceImpl_notz
    {
-      using other = Memory_multislice<T, N - 1, typename IndexMapper::template rebind<N - 1, N - 2>::other, allocator_type>;
+      static_assert(Z_INDEX == N - 1, "TODO not handled yet. Need a mechanism to reassign Z_INDEX");
+      using other = Memory_multislice<T, N - 1, typename IndexMapper::template rebind<N - 1, Z_INDEX - 1>::other, allocator_type>;
+
+      template <size_t slice_dim>
+      static other slice(const Memory_multislice& array, const Vectorui& index)
+      {
+         typename other::Vectorui shape;
+         typename other::Vectorui physicalStride;
+         size_t current_index = 0;
+         for (size_t n = 0; n < N; ++n)
+         {
+            if (n != slice_dim)
+            {
+               shape[current_index] = array.getShape()[n];
+               physicalStride[current_index] = array.getIndexMapper()._getPhysicalStrides()[n];
+               ++current_index;
+            }
+         }
+
+         const size_t nb_slices = array.getShape()[Z_INDEX];
+         std::vector<T*> slices(nb_slices);
+         Vectorui origin;
+         origin[slice_dim] = index[slice_dim];
+         for (ui32 n = 0; n < nb_slices; ++n)
+         {
+            origin[Z_INDEX] = n;
+            slices[n] = const_cast<T*>(array.at(origin));
+         }
+
+         return other(shape, slices, physicalStride, array.getAllocator(), false);
+      }
    };
 
    // specific case: we slice a dimension that is Z_INDEX so we need to 
    // keep a single slice
    struct SliceImpl_z
    {
-      using other = Memory_contiguous<T, N - 1, IndexMapper_contiguous<N-1, details::Mapper_stride_row_major<N-1>>, allocator_type>;
+      using index_mapper = IndexMapper_contiguous<N - 1, details::Mapper_stride_row_major<N - 1>>;
+      using other = Memory_contiguous<T, N - 1, index_mapper, allocator_type>;
 
       template <size_t slice_dim>
-      static other slice(Memory_multislice& array, const Vectorui& index)
-      {
-         const auto z_index = index[Z_INDEX];
-         T* ptr = array.at(index);
+      static other slice(const Memory_multislice& array, const Vectorui& index)
+      {         
+         // we start at the beginning of the slice
+         Vectorui index_slice;
+         index_slice[slice_dim] = index[slice_dim];
+         T* ptr = const_cast<T*>(array.at(index_slice));
 
          typename other::Vectorui shape;
          typename other::Vectorui physicalStride;
@@ -596,27 +647,27 @@ public:
             }
          }
 
-         return other(shape, ptr, physicalStride);
+         return other(shape, ptr, physicalStride, array.getAllocator(), false);
       }
    };
 
    template <size_t slice_dim>
-   using SliceImpl = typename std::conditional<slice_dim == Z_INDEX, SliceImpl_z, SliceImpl_notz>::type;
-
-   //template <size_t slice_dim>
-   //using SliceImpl = SliceImpl_z;
-
+   using SliceImpl = std::conditional<slice_dim == Z_INDEX, SliceImpl_z, SliceImpl_notz>;
 
 public:
    /**
    @brief Slice the memory such that we keep only the slice along dimension <dimension> passing through <point>
 
    Create a reference of <this>, so do NOT destroy the memory while using the sliced mempory
+
+   Workaround for VS2013 internal compiler bug with 
+   "SliceImpl = std::conditional<slice_dim == Z_INDEX, SliceImpl_z, SliceImpl_notz>::type;"
    */
-   template <size_t dimension>
-   typename SliceImpl<dimension>::other slice(const Vectorui& point)
+   template <int dimension>
+   typename SliceImpl<dimension>::type::other slice(const Vectorui& point) const
    {
-      return SliceImpl<dimension>::template slice<dimension>(*this, point);
+      using Impl = SliceImpl<dimension>::type;
+      return Impl::slice<dimension>(*this, point);
    }
 
 private:

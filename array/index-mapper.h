@@ -173,7 +173,6 @@ public:
    typename rebind<N-1>::other slice(const Vectorui& UNUSED(index)) const
    {
       typename rebind<N - 1>::other sliced_index;
-      //sliced_index._origin = offset(index);
       sliced_index._origin = 0; // the <_data> will be set to index so start from 0
       
       size_t current_dim = 0;
@@ -258,6 +257,13 @@ public:
       _origin = origin;
       _physicalStrides = strides;
       _physicalStrides[ Z_INDEX ] = 0;   // in slice offset should be independent of Z_INDEX axis
+   }
+
+   void init(const Vectorui& physicalStrides)
+   {
+      _origin = 0;  // the slices' ptr should already be set to origin
+      _physicalStrides = physicalStrides;
+      _physicalStrides[Z_INDEX] = 0;   // in slice offset should be independent of Z_INDEX axis
    }
 
    ui32 offset( const Vectorui& index ) const

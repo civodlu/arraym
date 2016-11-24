@@ -321,6 +321,19 @@ public:
       return false;
    }
 
+   template <size_t slicing_dimension>
+   using SlicingMemory = decltype(array_type().getMemory().slice<slicing_dimension>(index_type()));
+
+   template <size_t slicing_dimension>
+   using SlicingArray = Array < T, N - 1, ArrayTraitsConfig<T, N - 1, allocator_type, SlicingMemory<slicing_dimension>>>;
+   
+   
+   template <size_t slicing_dimension>
+   SlicingArray<slicing_dimension> slice(const index_type& index) const
+   {
+      return _memory.slice<slicing_dimension>(index);
+   }
+
 private:
    void _move( array_type&& src )
    {
