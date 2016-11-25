@@ -397,6 +397,53 @@ public:
       ensure(array.shape() == this->shape(), "must have the same shape!");
       return *this;
    }
+
+   /**
+   @brief Specifies if for a specific type of array, we can use BLAS functions
+   In particular, float and double types can be used with BLAS.
+   */
+   template <class Array>
+   struct array_use_blas : public std::false_type
+   {
+   };
+
+   template <size_t N, class Config>
+   struct array_use_blas<Array<float, N, Config>> : public std::true_type
+   {
+   };
+
+   template <size_t N, class Config>
+   struct array_use_blas<Array<double, N, Config>> : public std::true_type
+   {
+   };
+
+   /**
+   @todo not supported yet
+   */
+   template <class Array>
+   struct array_use_vectorization : public std::false_type
+   {
+   };
+
+   /**
+   @brief if values is true, it means we need to use the naive set of operations for this array
+   */
+   template <class Array>
+   struct array_use_naive
+   {
+      static const bool value = !array_use_vectorization<Array>::value && !array_use_blas<Array::value>;
+   };
+
+   /**
+   @brief returns true if two array have similar data ordering. (i.e., using an iterator, we point to the same
+   index for both arrays)
+   @todo needs to be extensible (using class specialization) for custom types!
+   */
+   template <class T, int N, class Config>
+   bool same_data_ordering(Array<T, N, Config>& a1, const Array<T, N, Config>& a2)
+   {
+      return a1.getMemory().getIndexMapper()._getPhysicalStrides() == a2.getMemory().getIndexMapper()._getPhysicalStrides();
+   }
 };
 
 DECLARE_NAMESPACE_END

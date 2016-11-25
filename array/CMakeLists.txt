@@ -9,8 +9,8 @@ set(Headers    array.h
                array-processor.h
                array-traits.h
                array-exp.h
-               array-op-impl.h
-               op.h
+               array-op-naive.h
+               op-naive.h
                forward.h
                index-mapper.h
                memory-contiguous.h

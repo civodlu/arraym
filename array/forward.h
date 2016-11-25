@@ -7,7 +7,7 @@ using ui32 = uint32_t;
 DECLARE_NAMESPACE_END
 
 #include <array/array-api.h>
-#include "op.h"
+#include "op-naive.h"
 #include "static-vector.h"
 #include "static-vector-math.h"
 #include "static-vector-op.h"
@@ -18,7 +18,7 @@ DECLARE_NAMESPACE_END
 #include "array-traits.h"
 #include "array.h"
 #include "array-processor.h"
-#include "array-op-impl.h"
+#include "array-op-naive.h"
 
 #include "blas-wrapper.h"
 #include "array-exp.h"
