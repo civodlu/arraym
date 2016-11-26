@@ -456,4 +456,22 @@ bool same_data_ordering( const Array<T, N, Config>& a1, const Array<T, N, Config
    return a1.getMemory().getIndexMapper()._getPhysicalStrides() == a2.getMemory().getIndexMapper()._getPhysicalStrides();
 }
 
+
+/**
+ @brief Returns true if the array is fully contiguous (i.e., contiguous memory based AND not a sub-array)
+ */
+template <class T, int N, class Config>
+bool is_array_fully_contiguous( const Array<T, N, Config>& a1 )
+{
+   using array_type = Array<T, N, Config>;
+   using index_mapper = typename Array<T, N, Config>::IndexMapper;
+   if ( !std::is_base_of<Memory_contiguous<T, N, index_mapper>, array_type>::value )
+   {
+      return false;
+   }
+
+   ensure( 0, "TODO" );
+   return true;
+}
+
 DECLARE_NAMESPACE_END

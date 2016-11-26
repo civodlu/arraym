@@ -18,12 +18,31 @@ using Array_NaiveEnabled = typename std::enable_if<array_use_naive<Array<T, N, C
 
 namespace details
 {
+   /**
+    @brief Computes a1 += a2
+    */
    template <class T, int N, class Config>
    Array_NaiveEnabled<T, N, Config>& array_add( Array<T, N, Config>& a1, const Array<T, N, Config>& a2 )
    {
+      ensure( a1.shape() == a2.shape(), "must have the same shape!" );
       ensure( same_data_ordering( a1, a2 ), "data must have a similar ordering!" );
 
-      Array<T, N, Config> cpy = a1;
+      // we MUST use processors: data may not be contiguous or with stride...
+      ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a2(a2);
+      ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
+
+      bool hasMoreElements = true;
+      while ( hasMoreElements )
+      {
+         T* ptr_a1 = nullptr;
+         T* ptr_a2 = nullptr;
+         hasMoreElements = processor_a1.accessMaxElements( ptr_a1 );
+         hasMoreElements = processor_a2.accessMaxElements( ptr_a2 );
+         NLL_FAST_ASSERT( processor_a1.getMaxAccessElements() == processor_a2.getMaxAccessElements(), "memory line must have the same size" );
+
+         add_naive( ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getMaxAccessElements() );
+      }
+
       return a1;
    }
 }
