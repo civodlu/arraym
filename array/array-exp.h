@@ -120,11 +120,12 @@ public:
 };
 
 template <class T, int N, class Config>
-Expr<ExprBinOp<Array<T, N, Config>, Array<T, N, Config>, OpAdd>> operator+(const Array<T, N, Config>& a, const Array<T, N, Config>& b)
+Expr<ExprBinOp<Array<T, N, Config>, Array<T, N, Config>, OpAdd>> operator+( const Array_BlasEnabled<T, N, Config>& a, const Array<T, N, Config>& b )
 {
    using ExprT = ExprBinOp<Array<T, N, Config>, Array<T, N, Config>, OpAdd>;
    return Expr<ExprT>(ExprT(a, b));
 }
+
 
 // https://github.com/guyz/cpp-array/blob/master/array/expr.hpp
 // https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Expression-template

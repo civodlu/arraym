@@ -17,11 +17,13 @@ struct TestArrayOp
       };
 
       Array a2( 2, 3 );
-      a1 = {
+      a2 = {
          11, 12, 13, 14, 15, 16
       };
 
-      Array result = a1 + a2;
+      Array result = a1;
+      NAMESPACE_NLL::details::array_add( result, a2 );
+
       TESTER_ASSERT( result( 0, 0 ) == a1( 0, 0 ) + a2( 0, 0 ) );
       TESTER_ASSERT( result( 1, 0 ) == a1( 1, 0 ) + a2( 1, 0 ) );
 

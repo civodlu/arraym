@@ -5,24 +5,27 @@
 
  This file is implementing basic array & matrix calculations in the simplest manner. This may be useful as "default" implementation
  for types that are not supported by more specialized routines (e.g., BLAS, vectorization...)
+
+ These other implementations must support exactly the same operations
  */
 DECLARE_NAMESPACE_NLL
 
 /**
-    @brief returns true if two array have similar data ordering. (i.e., using an iterator, we point to the same
-           index for both arrays)
-    */
+ @brief Simplify the std::enable_if expression so that it is readable
+ */
 template <class T, int N, class Config>
-bool same_data_ordering(Array<T, N, Config>& a1, const Array<T, N, Config>& a2)
-{
-   // TODO this will not work with strided data! use only physical stride ordering & size
-   return a1.getMemory().getIndexMapper()._getPhysicalStrides() == a2.getMemory().getIndexMapper()._getPhysicalStrides();
-}
+using Array_NaiveEnabled = typename std::enable_if<array_use_naive<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
 
-template <class T, int N, class Config, class = typename std::enable_if<array_use_naive<Array<T, N, Config>::value>>::type>
-Array<T, N, Config>& operator+=(Array<T, N, Config>& a1, Array<T, N, Config>& a2)
+namespace details
 {
-   ensure( same_data_ordering( a1, a2 ), "data must have a similar ordering!" );
+   template <class T, int N, class Config>
+   Array_NaiveEnabled<T, N, Config>& array_add( Array<T, N, Config>& a1, const Array<T, N, Config>& a2 )
+   {
+      ensure( same_data_ordering( a1, a2 ), "data must have a similar ordering!" );
+
+      Array<T, N, Config> cpy = a1;
+      return a1;
+   }
 }
 
 DECLARE_NAMESPACE_END
