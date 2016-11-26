@@ -464,7 +464,7 @@ template <class T, int N, class Config>
 bool is_array_fully_contiguous( const Array<T, N, Config>& a1 )
 {
    using array_type = Array<T, N, Config>;
-   using index_mapper = typename Array<T, N, Config>::IndexMapper;
+   using index_mapper = typename Array<T, N, Config>::Memory::index_mapper;
    if ( !std::is_base_of<Memory_contiguous<T, N, index_mapper>, array_type>::value )
    {
       return false;

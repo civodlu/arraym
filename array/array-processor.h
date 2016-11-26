@@ -297,7 +297,7 @@ public:
 
    ui32 stride() const
    {
-      return this->_array.getMemory().getIndexMapper()._getPhysicalStrides()[this->getVaryingIndex()];
+      return this->_processor._array.getMemory().getIndexMapper()._getPhysicalStrides()[ this->getVaryingIndex() ];
    }
 
    /**

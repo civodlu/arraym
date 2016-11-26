@@ -10,11 +10,31 @@
  */
 DECLARE_NAMESPACE_NLL
 
+
+/**
+@brief When there is a choice between two array configuration, this template will decide which one to chose
+(e.g., when adding two array with different config)
+*/
+/*
+template <class Config1, class Config2>
+struct choose_array_config
+{
+   // @TODO have a smarted scheme, in particular for the stack memory allocators
+   using type = Config1;
+};
+*/
+
 /**
  @brief Simplify the std::enable_if expression so that it is readable
  */
 template <class T, int N, class Config>
 using Array_NaiveEnabled = typename std::enable_if<array_use_naive<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
+
+/**
+@brief Simplify the std::enable_if expression so that it is readable
+*/
+//template <class T, int N, class Config, class Config2>
+//using Array_NaiveEnabled = typename std::enable_if<array_use_naive<Array<T, N, Config>>::value, Array<T, N, typename choose_array_config<Config, Config2>::type>>::type;
 
 namespace details
 {
@@ -24,11 +44,12 @@ namespace details
    template <class T, int N, class Config>
    Array_NaiveEnabled<T, N, Config>& array_add( Array<T, N, Config>& a1, const Array<T, N, Config>& a2 )
    {
+      using Config2 = Config;
       ensure( a1.shape() == a2.shape(), "must have the same shape!" );
       ensure( same_data_ordering( a1, a2 ), "data must have a similar ordering!" );
 
       // we MUST use processors: data may not be contiguous or with stride...
-      ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a2(a2);
+      ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config2>> processor_a2(a2);
       ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
 
       bool hasMoreElements = true;
