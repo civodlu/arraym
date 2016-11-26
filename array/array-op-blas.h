@@ -35,7 +35,7 @@ namespace details
          // use BLAS on the array's memory all at once
          const T* ptr_x = &x( index_type() );
          T* ptr_y = &y( index_type() );
-         blas::axpy<T>( x.size(), a, ptr_x, 1, ptr_y, 1 );
+         blas::axpy<T>( static_cast<blas::BlasInt>( x.size()), a, ptr_x, 1, ptr_y, 1 );
       }
       else
       {
@@ -52,13 +52,13 @@ namespace details
             hasMoreElements = processor_x.accessMaxElements( ptr_x );
             NLL_FAST_ASSERT( processor_y.getMaxAccessElements() == processor_x.getMaxAccessElements(), "memory line must have the same size" );
 
-            blas::axpy<T>( processor_y.getMaxAccessElements(), a, ptr_x, processor_x.stride(), ptr_y, processor_y.stride() );
+            blas::axpy<T>( static_cast<blas::BlasInt>(processor_y.getMaxAccessElements()), a, ptr_x, processor_x.stride(), ptr_y, processor_y.stride() );
          }
       }
    }
    
-   template <class T, int N, class Config>
-   Array_BlasEnabled<T, N, Config>& array_add( Array<T, N, Config>& a1, const Array<T, N, Config>& a2 )
+   template <class T, int N, class Config, class Config2>
+   Array_BlasEnabled<T, N, Config>& array_add( Array<T, N, Config>& a1, const Array<T, N, Config2>& a2 )
    {
       axpy( static_cast<T>(1), a2, a1 );
       return a1;

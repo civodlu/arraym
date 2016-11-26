@@ -41,8 +41,6 @@ struct TestArrayOp
       TESTER_ASSERT( result( 0, 2 ) == a1( 0, 2 ) + a2( 0, 2 ) );
       TESTER_ASSERT( result( 1, 2 ) == a1( 1, 2 ) + a2( 1, 2 ) );
    }
-
-   
 };
 
 TESTER_TEST_SUITE( TestArrayOp );

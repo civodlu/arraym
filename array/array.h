@@ -406,7 +406,6 @@ In particular, float and double types can be used with BLAS.
 For any array, only one of @ref array_use_vectorization, @ref array_use_naive, @ref array_use_blas must be true
 */
 
-
 template <class Array>
 struct array_use_blas : public std::false_type
 {
@@ -451,26 +450,25 @@ index for both arrays)
 @todo needs to be extensible (using class specialization) for custom types!
 */
 template <class T, int N, class Config>
-bool same_data_ordering( const Array<T, N, Config>& a1, const Array<T, N, Config>& a2 )
+bool same_data_ordering(const Array<T, N, Config>& a1, const Array<T, N, Config>& a2)
 {
    return a1.getMemory().getIndexMapper()._getPhysicalStrides() == a2.getMemory().getIndexMapper()._getPhysicalStrides();
 }
-
 
 /**
  @brief Returns true if the array is fully contiguous (i.e., contiguous memory based AND not a sub-array)
  */
 template <class T, int N, class Config>
-bool is_array_fully_contiguous( const Array<T, N, Config>& a1 )
+bool is_array_fully_contiguous(const Array<T, N, Config>& a1)
 {
-   using array_type = Array<T, N, Config>;
+   using array_type   = Array<T, N, Config>;
    using index_mapper = typename Array<T, N, Config>::Memory::index_mapper;
-   if ( !std::is_base_of<Memory_contiguous<T, N, index_mapper>, array_type>::value )
+   if (!std::is_base_of<Memory_contiguous<T, N, index_mapper>, array_type>::value)
    {
       return false;
    }
 
-   ensure( 0, "TODO" );
+   ensure(0, "TODO");
    return true;
 }
 
