@@ -154,17 +154,17 @@ template <class Array>
 class ConstArrayProcessor_contiguous_base
 {
 public:
-   using index_type = typename Array::index_type;
+   using index_type   = typename Array::index_type;
    using pointer_type = typename Array::pointer_type;
 
    template <class FunctorGetDimensionOrder>
-   ConstArrayProcessor_contiguous_base( const Array& array, const FunctorGetDimensionOrder& functor ) : _processor( const_cast<Array&>( array ), functor )
+   ConstArrayProcessor_contiguous_base(const Array& array, const FunctorGetDimensionOrder& functor) : _processor(const_cast<Array&>(array), functor)
    {
    }
 
-   bool accessSingleElement( const pointer_type& ptrToValue )
+   bool accessSingleElement(const pointer_type& ptrToValue)
    {
-      return _processor.accessSingleElement( const_cast<pointer_type&>( ptrToValue ) );
+      return _processor.accessSingleElement(const_cast<pointer_type&>(ptrToValue));
    }
 
    // this is the specific view index reordered by <functor>
@@ -189,13 +189,13 @@ public:
    }
 
 protected:
-   bool _accessElements( const pointer_type& ptrToValue, ui32 nbElements )
+   bool _accessElements(const pointer_type& ptrToValue, ui32 nbElements)
    {
-      return _processor._accessElements( const_cast<pointer_type&>( ptrToValue ), nbElements );
+      return _processor._accessElements(const_cast<pointer_type&>(ptrToValue), nbElements);
    }
 
 protected:
-   ArrayProcessor_contiguous_base<Array>  _processor;
+   ArrayProcessor_contiguous_base<Array> _processor;
 };
 
 template <class T, ui32 N, class ConfigT>
@@ -282,11 +282,11 @@ template <class Array>
 class ConstArrayProcessor_contiguous_byMemoryLocality : public details::ConstArrayProcessor_contiguous_base<Array>
 {
 public:
-   using base = details::ConstArrayProcessor_contiguous_base<Array>;
+   using base         = details::ConstArrayProcessor_contiguous_base<Array>;
    using pointer_type = typename base::pointer_type;
 
-   ConstArrayProcessor_contiguous_byMemoryLocality( const Array& array )
-      : base( array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config> )
+   ConstArrayProcessor_contiguous_byMemoryLocality(const Array& array)
+       : base(array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config>)
    {
    }
 
@@ -297,7 +297,7 @@ public:
 
    ui32 stride() const
    {
-      return this->_array.getMemory().getIndexMapper()._getPhysicalStrides()[ this->getVaryingIndex() ];
+      return this->_array.getMemory().getIndexMapper()._getPhysicalStrides()[this->getVaryingIndex()];
    }
 
    /**
@@ -307,9 +307,9 @@ public:
 
    IMPORTANT, <ptrToValue> if accessed in a contiguous fashion must account for the stride in the direction of access using <stride()>
    */
-   bool accessMaxElements( const pointer_type& ptrToValue )
+   bool accessMaxElements(const pointer_type& ptrToValue)
    {
-      return this->_accessElements( ptrToValue, getMaxAccessElements() );
+      return this->_accessElements(ptrToValue, getMaxAccessElements());
    }
 };
 
@@ -343,22 +343,21 @@ public:
 template <class Array>
 class ConstArrayProcessor_contiguous_byDimension : public details::ConstArrayProcessor_contiguous_base<Array>
 {
-   static index_type getIndexes( const Array& )
+   static index_type getIndexes(const Array&)
    {
       index_type indexes;
-      for ( ui32 n = 0; n < Array::RANK; ++n )
+      for (ui32 n = 0; n < Array::RANK; ++n)
       {
-         indexes[ n ] = n;
+         indexes[n] = n;
       }
       return indexes;
    }
 
 public:
-   using base = details::ConstArrayProcessor_contiguous_base<Array>;
+   using base         = details::ConstArrayProcessor_contiguous_base<Array>;
    using pointer_type = typename base::pointer_type;
 
-   ConstArrayProcessor_contiguous_byDimension( const Array& array )
-      : base( array, &getIndexes )
+   ConstArrayProcessor_contiguous_byDimension(const Array& array) : base(array, &getIndexes)
    {
    }
 };
