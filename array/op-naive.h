@@ -16,32 +16,30 @@ DECLARE_NAMESPACE_NLL
 namespace details
 {
 template <class T>
-void add_naive(T* v1, const T* v2, size_t size)
+void add_naive(T* v1, size_t stride_v1, const T* v2, const size_t stride_v2, size_t size)
 {
-   const T* end = v1 + size;
-   for (; v1 != end; ++v1)
+   const T* end = v1 + size * stride_v1;
+   for ( ; v1 != end; v1 += stride_v1, v2 += stride_v2 )
    {
       *v1 += *v2;
-      ++v1;
-      ++v2;
    }
 }
 
 template <class T>
-void sub_naive(T* v1, const T* v2, size_t size)
+void sub_naive( T* v1, size_t stride_v1, const T* v2, size_t stride_v2, size_t size )
 {
-   const T* end = v1 + size;
-   for (; v1 != end; ++v1, ++v2)
+   const T* end = v1 + size * stride_v1;
+   for ( ; v1 != end; v1 += stride_v1, v2 += stride_v2 )
    {
       *v1 -= *v2;
    }
 }
 
 template <class T>
-void mul_naive(T* v1, const T value, size_t size)
+void mul_naive( T* v1, size_t stride_v1, const T value, size_t size )
 {
-   const T* end = v1 + size;
-   for (; v1 != end; ++v1)
+   const T* end = v1 + size * stride_v1;
+   for ( ; v1 != end; v1 += stride_v1 )
    {
       *v1 *= value;
    }
@@ -51,14 +49,12 @@ void mul_naive(T* v1, const T value, size_t size)
     @brief compute v1 += v2 * mul
     */
 template <class T>
-void addmul_naive(T* v1, const T* v2, T mul, size_t size)
+void addmul_naive( T* v1, size_t stride_v1, const T* v2, size_t stride_v2, T mul, size_t size )
 {
-   const T* end = v1 + size;
-   for (; v1 != end; ++v1)
+   const T* end = v1 + size * stride_v1;
+   for ( ; v1 != end; v1 += stride_v1, v2 += stride_v2 )
    {
-      *v1 += *v2 * mul;
-      ++v1;
-      ++v2;
+      *v1 -= *v2 * mul;
    }
 }
 

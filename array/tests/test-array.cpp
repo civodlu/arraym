@@ -660,6 +660,113 @@ struct TestArray
       TESTER_ASSERT(slice2(2) == a1(2, slice_b, slice_a));
       std::cout << slice.shape() << std::endl;
    }
+
+   void testArray_processor_const()
+   {
+      using Array = NAMESPACE_NLL::Array_row_major<int, 2>;
+      Array m( 3, 2 );
+      m = { 1, 2, 3, 4, 5, 6 };
+
+      NAMESPACE_NLL::ConstArrayProcessor_contiguous_byMemoryLocality<Array> processor( m );
+      TESTER_ASSERT( processor.getVaryingIndex() == 0 );
+
+      bool more_elements = true;
+      int* ptr = nullptr;
+
+      auto current_index = processor.getArrayIndex();
+      more_elements = processor.accessMaxElements( ptr );
+      TESTER_ASSERT( more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 1 );
+      TESTER_ASSERT( ptr[ 1 ] == 2 );
+      TESTER_ASSERT( ptr[ 2 ] == 3 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 0, 0 ) );
+
+      current_index = processor.getArrayIndex();
+      more_elements = processor.accessMaxElements( ptr );
+      TESTER_ASSERT( !more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 4 );
+      TESTER_ASSERT( ptr[ 1 ] == 5 );
+      TESTER_ASSERT( ptr[ 2 ] == 6 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 0, 1 ) );
+   }
+
+   void testArray_processor_const_column()
+   {
+      using Array = NAMESPACE_NLL::Array_column_major<int, 2>;
+      Array m( 2, 3 );
+      m = { 1, 2, 3, 4, 5, 6 };
+
+      NAMESPACE_NLL::ConstArrayProcessor_contiguous_byMemoryLocality<Array> processor( m );
+      TESTER_ASSERT( processor.getVaryingIndex() == 1 );
+
+      bool more_elements = true;
+      int* ptr = nullptr;
+
+      auto current_index = processor.getArrayIndex();
+      more_elements = processor.accessMaxElements( ptr );
+      TESTER_ASSERT( more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 1 );
+      TESTER_ASSERT( ptr[ 1 ] == 3 );
+      TESTER_ASSERT( ptr[ 2 ] == 5 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 0, 0 ) );
+
+      current_index = processor.getArrayIndex();
+      more_elements = processor.accessMaxElements( ptr );
+      TESTER_ASSERT( !more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 2 );
+      TESTER_ASSERT( ptr[ 1 ] == 4 );
+      TESTER_ASSERT( ptr[ 2 ] == 6 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 1, 0 ) );
+   }
+
+   void testArray_processor_const_column2()
+   {
+      using Array = NAMESPACE_NLL::Array_column_major<int, 2>;
+      Array m( 2, 3 );
+      m = { 1, 2, 3, 4, 5, 6 };
+
+      NAMESPACE_NLL::ConstArrayProcessor_contiguous_byDimension<Array> processor( m );
+      TESTER_ASSERT( processor.getVaryingIndex() == 0 );
+
+      bool more_elements = true;
+      int* ptr = nullptr;
+
+      auto current_index = processor.getArrayIndex();
+      more_elements = processor.accessSingleElement( ptr );
+      TESTER_ASSERT( more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 1 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 0, 0 ) );
+
+      current_index = processor.getArrayIndex();
+      more_elements = processor.accessSingleElement( ptr );
+      TESTER_ASSERT( more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 2 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 1, 0 ) );
+
+      current_index = processor.getArrayIndex();
+      more_elements = processor.accessSingleElement( ptr );
+      TESTER_ASSERT( more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 3 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 0, 1 ) );
+
+      current_index = processor.getArrayIndex();
+      more_elements = processor.accessSingleElement( ptr );
+      TESTER_ASSERT( more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 4 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 1, 1 ) );
+
+      current_index = processor.getArrayIndex();
+      more_elements = processor.accessSingleElement( ptr );
+      TESTER_ASSERT( more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 5 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 0, 2 ) );
+
+      current_index = processor.getArrayIndex();
+      more_elements = processor.accessSingleElement( ptr );
+      TESTER_ASSERT( !more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 6 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 1, 2 ) );
+   }
 };
 
 TESTER_TEST_SUITE(TestArray);
@@ -673,6 +780,7 @@ TESTER_TEST(testMatrix_construction);
 TESTER_TEST(testMatrix_construction2);
 TESTER_TEST(testArray_directional_index);
 TESTER_TEST(testArray_processor);
+TESTER_TEST( testArray_processor_const );
 TESTER_TEST(testArray_processor_stride);
 TESTER_TEST(testIteratorByDim);
 TESTER_TEST(testIteratorByLocality);
@@ -682,5 +790,7 @@ TESTER_TEST(testInitializerList);
 TESTER_TEST(testIndeMapperRebind);
 TESTER_TEST(testMemorySlice);
 TESTER_TEST(testArraySlice);
+TESTER_TEST( testArray_processor_const_column );
+TESTER_TEST( testArray_processor_const_column2 );
 
 TESTER_TEST_SUITE_END();

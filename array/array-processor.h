@@ -9,6 +9,12 @@ DECLARE_NAMESPACE_NLL
  the memory locality of the arrays
  */
 
+template <class Array>
+class ConstArrayProcessor_contiguous_byMemoryLocality;
+
+template <class Array>
+class ConstArrayProcessor_contiguous_base;
+
 namespace details
 {
 /**
@@ -25,6 +31,9 @@ namespace details
 template <class Array>
 class ArrayProcessor_contiguous_base
 {
+   friend class ConstArrayProcessor_contiguous_byMemoryLocality<Array>;
+   friend class ConstArrayProcessor_contiguous_base<Array>;
+
    using diterator = typename Array::diterator;
    static_assert(std::is_base_of<memory_layout_linear, typename Array::Memory>::value, "must be a linear index mapper!");
 
@@ -136,6 +145,59 @@ protected:
    ui32 _maxAccessElements;     // maximum number of steps in the fastest varying dimension possible without increasing the other indexes
 };
 
+/**
+ @brief Const array processor
+
+ This is just an adaptor of @ref ArrayProcessor_contiguous_base
+ */
+template <class Array>
+class ConstArrayProcessor_contiguous_base
+{
+public:
+   using index_type = typename Array::index_type;
+   using pointer_type = typename Array::pointer_type;
+
+   template <class FunctorGetDimensionOrder>
+   ConstArrayProcessor_contiguous_base( const Array& array, const FunctorGetDimensionOrder& functor ) : _processor( const_cast<Array&>( array ), functor )
+   {
+   }
+
+   bool accessSingleElement( const pointer_type& ptrToValue )
+   {
+      return _processor.accessSingleElement( const_cast<pointer_type&>( ptrToValue ) );
+   }
+
+   // this is the specific view index reordered by <functor>
+   const index_type& getIteratorIndex() const
+   {
+      return _processor.getIteratorIndex();
+   }
+
+   const index_type getArrayIndex() const
+   {
+      return _processor.getArrayIndex();
+   }
+
+   ui32 getVaryingIndex() const
+   {
+      return _processor.getVaryingIndex();
+   }
+
+   const index_type& getVaryingIndexOrder() const
+   {
+      return _processor.getVaryingIndexOrder();
+   }
+
+protected:
+   bool _accessElements( const pointer_type& ptrToValue, ui32 nbElements )
+   {
+      return _processor._accessElements( const_cast<pointer_type&>( ptrToValue ), nbElements );
+   }
+
+protected:
+   ArrayProcessor_contiguous_base<Array>  _processor;
+};
+
 template <class T, ui32 N, class ConfigT>
 StaticVector<ui32, N> getFastestVaryingIndexes(const Array<T, N, ConfigT>& array)
 {
@@ -212,6 +274,46 @@ public:
 };
 
 /**
+@brief iterate an array by maximizing memory locality. This should be the preferred iterator
+
+This is a const version of @ref ArrayProcessor_contiguous_byMemoryLocality
+*/
+template <class Array>
+class ConstArrayProcessor_contiguous_byMemoryLocality : public details::ConstArrayProcessor_contiguous_base<Array>
+{
+public:
+   using base = details::ConstArrayProcessor_contiguous_base<Array>;
+   using pointer_type = typename base::pointer_type;
+
+   ConstArrayProcessor_contiguous_byMemoryLocality( const Array& array )
+      : base( array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config> )
+   {
+   }
+
+   ui32 getMaxAccessElements() const
+   {
+      return _processor._maxAccessElements;
+   }
+
+   ui32 stride() const
+   {
+      return this->_array.getMemory().getIndexMapper()._getPhysicalStrides()[ this->getVaryingIndex() ];
+   }
+
+   /**
+   @return true if more elements are to be processed
+
+   This is defined only for memory locality as this is the only method guarantying contiguous memory access
+
+   IMPORTANT, <ptrToValue> if accessed in a contiguous fashion must account for the stride in the direction of access using <stride()>
+   */
+   bool accessMaxElements( const pointer_type& ptrToValue )
+   {
+      return this->_accessElements( ptrToValue, getMaxAccessElements() );
+   }
+};
+
+/**
 @brief iterate by dimension, in (x, y, z...) order
 */
 template <class Array>
@@ -231,6 +333,32 @@ class ArrayProcessor_contiguous_byDimension : public details::ArrayProcessor_con
 
 public:
    ArrayProcessor_contiguous_byDimension(Array& array) : details::ArrayProcessor_contiguous_base<Array>(array, &getIndexes)
+   {
+   }
+};
+
+/**
+@brief iterate by dimension, in (x, y, z...) order
+*/
+template <class Array>
+class ConstArrayProcessor_contiguous_byDimension : public details::ConstArrayProcessor_contiguous_base<Array>
+{
+   static index_type getIndexes( const Array& )
+   {
+      index_type indexes;
+      for ( ui32 n = 0; n < Array::RANK; ++n )
+      {
+         indexes[ n ] = n;
+      }
+      return indexes;
+   }
+
+public:
+   using base = details::ConstArrayProcessor_contiguous_base<Array>;
+   using pointer_type = typename base::pointer_type;
+
+   ConstArrayProcessor_contiguous_byDimension( const Array& array )
+      : base( array, &getIndexes )
    {
    }
 };

@@ -23,7 +23,9 @@ bool same_data_ordering(Array<T, N, Config>& a1, const Array<T, N, Config>& a2)
 template <class T, int N, class Config, class = typename std::enable_if<array_use_naive<Array<T, N, Config>::value>>::type>
 Array<T, N, Config>& operator+=(Array<T, N, Config>& a1, Array<T, N, Config>& a2)
 {
+
 }
+
 }
 
 DECLARE_NAMESPACE_END
