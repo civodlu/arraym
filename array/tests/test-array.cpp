@@ -671,7 +671,7 @@ struct TestArray
       TESTER_ASSERT(processor.getVaryingIndex() == 0);
 
       bool more_elements = true;
-      int* ptr           = nullptr;
+      int const* ptr     = nullptr;
 
       auto current_index = processor.getArrayIndex();
       more_elements      = processor.accessMaxElements(ptr);
@@ -700,7 +700,7 @@ struct TestArray
       TESTER_ASSERT(processor.getVaryingIndex() == 1);
 
       bool more_elements = true;
-      int* ptr           = nullptr;
+      int const* ptr     = nullptr;
 
       auto current_index = processor.getArrayIndex();
       more_elements      = processor.accessMaxElements(ptr);
@@ -717,6 +717,8 @@ struct TestArray
       TESTER_ASSERT(ptr[1] == 4);
       TESTER_ASSERT(ptr[2] == 6);
       TESTER_ASSERT(current_index == NAMESPACE_NLL::vector2ui(1, 0));
+
+      //ptr[ 0 ] = 42;
    }
 
    void testArray_processor_const_column2()

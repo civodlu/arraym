@@ -156,6 +156,7 @@ class ConstArrayProcessor_contiguous_base
 public:
    using index_type   = typename Array::index_type;
    using pointer_type = typename Array::pointer_type;
+   using value_type   = typename Array::value_type;
 
    template <class FunctorGetDimensionOrder>
    ConstArrayProcessor_contiguous_base(const Array& array, const FunctorGetDimensionOrder& functor) : _processor(const_cast<Array&>(array), functor)
@@ -189,7 +190,7 @@ public:
    }
 
 protected:
-   bool _accessElements(const pointer_type& ptrToValue, ui32 nbElements)
+   bool _accessElements(value_type const*& ptrToValue, ui32 nbElements)
    {
       return _processor._accessElements(const_cast<pointer_type&>(ptrToValue), nbElements);
    }
@@ -283,7 +284,8 @@ class ConstArrayProcessor_contiguous_byMemoryLocality : public details::ConstArr
 {
 public:
    using base         = details::ConstArrayProcessor_contiguous_base<Array>;
-   using pointer_type = typename base::pointer_type;
+   using pointer_type = typename Array::pointer_type;
+   using value_type   = typename Array::value_type;
 
    ConstArrayProcessor_contiguous_byMemoryLocality(const Array& array)
        : base(array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config>)
@@ -307,7 +309,7 @@ public:
 
    IMPORTANT, <ptrToValue> if accessed in a contiguous fashion must account for the stride in the direction of access using <stride()>
    */
-   bool accessMaxElements(const pointer_type& ptrToValue)
+   bool accessMaxElements(value_type const*& ptrToValue)
    {
       return this->_accessElements(ptrToValue, getMaxAccessElements());
    }

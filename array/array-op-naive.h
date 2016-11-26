@@ -54,7 +54,7 @@ Array_NaiveEnabled<T, N, Config>& array_add(Array<T, N, Config>& a1, const Array
    while (hasMoreElements)
    {
       T* ptr_a1       = nullptr;
-      T* ptr_a2       = nullptr;
+      T const* ptr_a2 = nullptr;
       hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
       hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
       NLL_FAST_ASSERT(processor_a1.getMaxAccessElements() == processor_a2.getMaxAccessElements(), "memory line must have the same size");

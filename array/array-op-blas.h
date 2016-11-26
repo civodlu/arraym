@@ -33,7 +33,7 @@ namespace details
       {
          // the two array are using contiguous memory with no gap at all, so we can just
          // use BLAS on the array's memory all at once
-         const T* ptr_x = &x( index_type() );
+         T const * ptr_x = &x( index_type() );
          T* ptr_y = &y( index_type() );
          blas::axpy<T>( static_cast<blas::BlasInt>( x.size()), a, ptr_x, 1, ptr_y, 1 );
       }
@@ -46,7 +46,7 @@ namespace details
          bool hasMoreElements = true;
          while ( hasMoreElements )
          {
-            T* ptr_x = nullptr;
+            T const * ptr_x = nullptr;
             T* ptr_y = nullptr;
             hasMoreElements = processor_y.accessMaxElements( ptr_y );
             hasMoreElements = processor_x.accessMaxElements( ptr_x );
