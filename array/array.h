@@ -11,6 +11,12 @@ class Expr;
 template <class Array>
 class ArrayProcessor_contiguous_byDimension;
 
+namespace details
+{
+template <class T, ui32 N, class ConfigT>
+StaticVector<ui32, N> getFastestVaryingIndexes(const Array<T, N, ConfigT>& array);
+}
+
 /**
  @brief Represents a multi-dimensional array with value based semantic
 
@@ -43,6 +49,14 @@ class ArrayProcessor_contiguous_byDimension;
  @endcode
 
  while a @ref ArrayRef is in use, the original @ref Array must be kept alive.
+
+ Internally, the arithmetic operations used on arrays are controlled by 3 template: @ref array_use_naive,
+ @ref array_use_blas, @ref array_use_vectorization. For a given array, only one of these template must
+ have a true value. Implemented with a layered approach:
+ - basic linear algebra building blocks for arrays such as @ref details::array_add, have a separate implementation
+   for each type (naive, BLAS, vectorized)
+ - typical operators are defined. If BLAS is enabled and template expression enabled, template based expression operators
+   are selected, if not, simple operators.
  */
 template <class T, int N, class ConfigT = ArrayTraitsConfig<T, N>>
 class Array : public ArrayTraits<Array<T, N, ConfigT>, ConfigT>
@@ -405,7 +419,6 @@ In particular, float and double types can be used with BLAS.
 
 For any array, only one of @ref array_use_vectorization, @ref array_use_naive, @ref array_use_blas must be true
 */
-
 template <class Array>
 struct array_use_blas : public std::false_type
 {
@@ -444,15 +457,23 @@ struct array_use_naive
    static const bool value = !array_use_vectorization<Array>::value && !array_use_blas<Array>::value;
 };
 
+template <class Array>
+struct array_use_naive_operator
+{
+   static const bool value = !array_use_blas<Array>::value;
+};
+
 /**
 @brief returns true if two array have similar data ordering. (i.e., using an iterator, we point to the same
 index for both arrays)
 @todo needs to be extensible (using class specialization) for custom types!
 */
-template <class T, int N, class Config>
-bool same_data_ordering(const Array<T, N, Config>& a1, const Array<T, N, Config>& a2)
+template <class T, int N, class Config, class Config2>
+bool same_data_ordering(const Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
-   return a1.getMemory().getIndexMapper()._getPhysicalStrides() == a2.getMemory().getIndexMapper()._getPhysicalStrides();
+   const auto i1 = details::getFastestVaryingIndexes(a1);
+   const auto i2 = details::getFastestVaryingIndexes(a2);
+   return i1 == i2;
 }
 
 /**
@@ -471,5 +492,18 @@ bool is_array_fully_contiguous(const Array<T, N, Config>& a1)
    ensure(0, "TODO");
    return true;
 }
+
+/**
+@brief When there is a choice between two array configuration, this template will decide which one to chose
+(e.g., when adding two array with different config)
+*/
+/*
+template <class Config1, class Config2>
+struct choose_array_config
+{
+// @TODO have a smarted scheme, in particular for the stack memory allocators
+using type = Config1;
+};
+*/
 
 DECLARE_NAMESPACE_END

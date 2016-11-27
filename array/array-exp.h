@@ -2,9 +2,11 @@
 
 DECLARE_NAMESPACE_NLL
 
-//
-// TODO only for contiguous arrays...
-//
+/**
+@brief Simplify the std::enable_if expression so that it is readable
+*/
+template <class T, int N, class Config>
+using Array_TemplateExpressionEnabled = typename std::enable_if<!array_use_naive_operator<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
 
 template <typename T>
 class ExprConstant
@@ -111,16 +113,14 @@ public:
    template <class T, int N, class Config>
    static Array<T, N, Config> apply(const Array<T, N, Config>& lhs, const Array<T, N, Config>& rhs)
    {
-      // TODO handle sub-array! need a processor
-      NLL_FAST_ASSERT(lhs.shape() == rhs.shape(), "must have the same shape!");
-      Array<T, N, Config> r(lhs);
-      blas::axpy<T>(static_cast<blas::BlasInt>(lhs.size()), 1, &rhs(0), 1, &r(0), 1);
-      return r;
+      Array<T, N, Config> cpy = lhs;
+      array_add(cpy, rhs);
+      return cpy;
    }
 };
 
 template <class T, int N, class Config>
-Expr<ExprBinOp<Array<T, N, Config>, Array<T, N, Config>, OpAdd>> operator+(const Array_BlasEnabled<T, N, Config>& a, const Array<T, N, Config>& b)
+Expr<ExprBinOp<Array<T, N, Config>, Array<T, N, Config>, OpAdd>> operator+(const Array_TemplateExpressionEnabled<T, N, Config>& a, const Array<T, N, Config>& b)
 {
    using ExprT = ExprBinOp<Array<T, N, Config>, Array<T, N, Config>, OpAdd>;
    return Expr<ExprT>(ExprT(a, b));

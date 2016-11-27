@@ -23,3 +23,4 @@ DECLARE_NAMESPACE_END
 
 #include "blas-wrapper.h"
 #include "array-exp.h"
+#include "array-noexp.h"

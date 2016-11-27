@@ -9,7 +9,9 @@ set(Headers    array.h
                array-processor.h
                array-traits.h
                array-exp.h
+			   array-noexp.h
                array-op-naive.h
+			   array-op-blas.h
                op-naive.h
                forward.h
                index-mapper.h

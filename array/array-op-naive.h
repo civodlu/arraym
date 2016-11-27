@@ -11,35 +11,16 @@
 DECLARE_NAMESPACE_NLL
 
 /**
-@brief When there is a choice between two array configuration, this template will decide which one to chose
-(e.g., when adding two array with different config)
-*/
-/*
-template <class Config1, class Config2>
-struct choose_array_config
-{
-   // @TODO have a smarted scheme, in particular for the stack memory allocators
-   using type = Config1;
-};
-*/
-
-/**
  @brief Simplify the std::enable_if expression so that it is readable
  */
 template <class T, int N, class Config>
 using Array_NaiveEnabled = typename std::enable_if<array_use_naive<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
 
-/**
-@brief Simplify the std::enable_if expression so that it is readable
-*/
-//template <class T, int N, class Config, class Config2>
-//using Array_NaiveEnabled = typename std::enable_if<array_use_naive<Array<T, N, Config>>::value, Array<T, N, typename choose_array_config<Config, Config2>::type>>::type;
-
 namespace details
 {
 /**
-    @brief Computes a1 += a2
-    */
+@brief Computes a1 += a2
+*/
 template <class T, int N, class Config, class Config2>
 Array_NaiveEnabled<T, N, Config>& array_add(Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
