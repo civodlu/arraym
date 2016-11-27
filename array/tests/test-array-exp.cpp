@@ -20,6 +20,7 @@ struct TestArrayExp
       a2(1) = 13;
 
       Vectorf a3 = a1 + a2;
+      a3 += a1;
       std::cout << a3(0) << std::endl;
    }
 };
