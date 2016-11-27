@@ -19,8 +19,8 @@ using Array_BlasEnabled = typename std::enable_if<array_use_blas<Array<T, N, Con
 namespace details
 {
 /**
-      @brief computes Y += a * X using BLAS
-      */
+ @brief computes Y += a * X using BLAS
+ */
 template <class T, int N, class Config, class Config2>
 void axpy(T a, const Array<T, N, Config>& x, Array<T, N, Config2>& y)
 {
@@ -56,6 +56,34 @@ void axpy(T a, const Array<T, N, Config>& x, Array<T, N, Config2>& y)
    }
 }
 
+/**
+@brief computes Y *= a using BLAS
+*/
+template <class T, int N, class Config>
+void scal( Array<T, N, Config>& y, T a )
+{
+   using index_type = typename Array<T, N, Config>::index_type;
+   if ( is_array_fully_contiguous( y ) )
+   {
+      // the two array are using contiguous memory with no gap at all, so we can just
+      // use BLAS on the array's memory all at once
+      T* ptr_y = &y( index_type() );
+      blas::scal<T>( static_cast<blas::BlasInt>( y.size() ), a, ptr_y, 1 );
+   } else
+   {
+      // the memory is contiguous by block so we use a processor to access these contiguous blocks
+      ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_y( y );
+
+      bool hasMoreElements = true;
+      while ( hasMoreElements )
+      {
+         T* ptr_y = nullptr;
+         hasMoreElements = processor_y.accessMaxElements( ptr_y );
+         blas::scal<T>( static_cast<blas::BlasInt>( processor_y.getMaxAccessElements() ), a, ptr_y, 1 );
+      }
+   }
+}
+
 template <class T, int N, class Config, class Config2>
 Array_BlasEnabled<T, N, Config>& array_add(Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
@@ -66,7 +94,14 @@ Array_BlasEnabled<T, N, Config>& array_add(Array<T, N, Config>& a1, const Array<
 template <class T, int N, class Config, class Config2>
 Array_BlasEnabled<T, N, Config>& array_sub(Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
-   axpy(static_cast<T>(-1), a2, a1);
+   axpy( static_cast<T>( -1 ), a2, a1 );
+   return a1;
+}
+
+template <class T, int N, class Config>
+Array_BlasEnabled<T, N, Config>& array_mul( Array<T, N, Config>& a1, T value )
+{
+   scal( a1, value );
    return a1;
 }
 }
