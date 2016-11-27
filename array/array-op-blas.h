@@ -62,6 +62,14 @@ Array_BlasEnabled<T, N, Config>& array_add(Array<T, N, Config>& a1, const Array<
    axpy(static_cast<T>(1), a2, a1);
    return a1;
 }
+
+template <class T, int N, class Config, class Config2>
+Array_BlasEnabled<T, N, Config>& array_sub( Array<T, N, Config>& a1, const Array<T, N, Config2>& a2 )
+{
+   axpy( static_cast<T>( -1 ), a2, a1 );
+   return a1;
+}
+
 }
 
 DECLARE_NAMESPACE_END

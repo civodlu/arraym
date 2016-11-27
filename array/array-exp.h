@@ -117,7 +117,16 @@ public:
       array_add(cpy, rhs);
       return cpy;
    }
+
+   template <class T, int N, class Config>
+   static Array<T, N, Config>& apply( Array<T, N, Config>& lhs, const Array<T, N, Config>& rhs )
+   {
+      array_add( lhs, rhs );
+      return lhs;
+   }
 };
+
+
 
 template <class T, int N, class Config>
 Expr<ExprBinOp<Array<T, N, Config>, Array<T, N, Config>, OpAdd>> operator+(const Array_TemplateExpressionEnabled<T, N, Config>& a, const Array<T, N, Config>& b)
