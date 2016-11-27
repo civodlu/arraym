@@ -49,29 +49,46 @@ Array_NaiveEnabled<T, N, Config>& array_add(Array<T, N, Config>& a1, const Array
 @brief Computes a1 -= a2
 */
 template <class T, int N, class Config, class Config2>
-Array_NaiveEnabled<T, N, Config>& array_sub( Array<T, N, Config>& a1, const Array<T, N, Config2>& a2 )
+Array_NaiveEnabled<T, N, Config>& array_sub(Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
-   ensure( a1.shape() == a2.shape(), "must have the same shape!" );
-   ensure( same_data_ordering( a1, a2 ), "data must have a similar ordering!" );
+   ensure(a1.shape() == a2.shape(), "must have the same shape!");
+   ensure(same_data_ordering(a1, a2), "data must have a similar ordering!");
 
    // we MUST use processors: data may not be contiguous or with stride...
-   ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config2>> processor_a2( a2 );
-   ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1( a1 );
+   ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config2>> processor_a2(a2);
+   ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
 
    bool hasMoreElements = true;
-   while ( hasMoreElements )
+   while (hasMoreElements)
    {
-      T* ptr_a1 = nullptr;
+      T* ptr_a1       = nullptr;
       T const* ptr_a2 = nullptr;
-      hasMoreElements = processor_a1.accessMaxElements( ptr_a1 );
-      hasMoreElements = processor_a2.accessMaxElements( ptr_a2 );
-      NLL_FAST_ASSERT( processor_a1.getMaxAccessElements() == processor_a2.getMaxAccessElements(), "memory line must have the same size" );
+      hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
+      hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
+      NLL_FAST_ASSERT(processor_a1.getMaxAccessElements() == processor_a2.getMaxAccessElements(), "memory line must have the same size");
 
-      sub_naive( ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getMaxAccessElements() );
+      sub_naive(ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getMaxAccessElements());
    }
    return a1;
 }
 
+/**
+@brief Computes a1 *= cte
+*/
+template <class T, int N, class Config>
+Array_NaiveEnabled<T, N, Config>& array_mul(Array<T, N, Config>& a1, T a2)
+{
+   ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
+
+   bool hasMoreElements = true;
+   while (hasMoreElements)
+   {
+      T* ptr_a1       = nullptr;
+      hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
+      mul_naive(ptr_a1, processor_a1.stride(), a2, processor_a1.getMaxAccessElements());
+   }
+   return a1;
+}
 }
 
 DECLARE_NAMESPACE_END

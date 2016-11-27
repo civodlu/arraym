@@ -106,15 +106,15 @@ class RefExprBinOp
    A& _left;
    const B& _right;
 
- //  using _result = decltype( operator_type::apply( A(), B() ) ) &;
+   //  using _result = decltype( operator_type::apply( A(), B() ) ) &;
 
 public:
-   using left_type = A&;
-   using right_type = const B&;
+   using left_type     = A&;
+   using right_type    = const B&;
    using operator_type = Op;
-   using result_type = decltype( operator_type::apply( A(), B() ) ) &;
+   using result_type   = decltype(operator_type::apply(A(), B()))&;
 
-   RefExprBinOp( A& left, const B& right ) : _left( left ), _right( right )
+   RefExprBinOp(A& left, const B& right) : _left(left), _right(right)
    {
    }
 
@@ -128,9 +128,9 @@ public:
       return _right;
    }
 
-   result_type operator()() const 
+   result_type operator()() const
    {
-      return operator_type::apply( _left, _right );
+      return operator_type::apply(_left, _right);
    }
 };
 
@@ -152,31 +152,30 @@ public:
       array_add(cpy, rhs);
       return cpy;
    }
-   
+
    /// Array += Array
    template <class T, int N, class Config, class Config2>
-   static Array<T, N, Config>& apply( Array<T, N, Config>& lhs, const Array<T, N, Config2>& rhs )
+   static Array<T, N, Config>& apply(Array<T, N, Config>& lhs, const Array<T, N, Config2>& rhs)
    {
-      array_add( lhs, rhs );
+      array_add(lhs, rhs);
       return lhs;
    }
 
    /// Array += Expr
    template <class T, int N, class Config, class B>
-   static Array<T, N, Config>& apply( Array<T, N, Config>& lhs, const Expr<B>& b )
+   static Array<T, N, Config>& apply(Array<T, N, Config>& lhs, const Expr<B>& b)
    {
       lhs += b();
       return lhs;
    }
 };
 
-
 //
 // operator+ (Array, Array)
 //
 template <class T, int N, class Config, class Config2>
-Expr<ExprBinOp<Array_TemplateExpressionEnabled<T, N, Config>, Array<T, N, Config2>, OpAdd >>
-operator+( const Array<T, N, Config>& a, const Array<T, N, Config2>& b )
+Expr<ExprBinOp<Array_TemplateExpressionEnabled<T, N, Config>, Array<T, N, Config2>, OpAdd>> operator+(const Array<T, N, Config>& a,
+                                                                                                      const Array<T, N, Config2>& b)
 {
    using ExprT = ExprBinOp<Array<T, N, Config>, Array<T, N, Config2>, OpAdd>;
    return Expr<ExprT>(ExprT(a, b));
@@ -186,11 +185,10 @@ operator+( const Array<T, N, Config>& a, const Array<T, N, Config2>& b )
 // operator+= (Array, Array)
 //
 template <class T, int N, class Config, class Config2>
-Array_TemplateExpressionEnabled<T, N, Config>&
-operator+=( Array<T, N, Config>& a, const Array<T, N, Config2>& b )
+Array_TemplateExpressionEnabled<T, N, Config>& operator+=(Array<T, N, Config>& a, const Array<T, N, Config2>& b)
 {
    using ExprT = RefExprBinOp<Array<T, N, Config>, Array<T, N, Config2>, OpAdd>;
-   return Expr<ExprT>( ExprT( a, b ) )();
+   return Expr<ExprT>(ExprT(a, b))();
 }
 
 // https://github.com/guyz/cpp-array/blob/master/array/expr.hpp
