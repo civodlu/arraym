@@ -1,5 +1,18 @@
 #pragma once
 
+/**
+ @file
+
+ This file implements expression templates and contrary to most other libraries, the purpose is not to
+ avoid temporaries but to use as much as possible the BLAS interface. In particular, this code has been
+ strongly inspired from : 
+ "A C++ 11 implementation of arbitrary-rank tensors for high-performance computing", Alejandro M. Aragon
+ https://github.com/guyz/cpp-array/tree/master/array
+
+ Often we want to be able to use Array of the same rank and type but with a different Config parameter,
+ in particular to enable custom-fixed memory allocator with general purpose heap allocators.
+ */
+
 DECLARE_NAMESPACE_NLL
 
 /**
@@ -76,6 +89,7 @@ public:
    using left_type     = const A&;
    using right_type    = const B&;
    using operator_type = Op;
+   //using result_type = decltype( operator_type::apply( *( (A*)( nullptr ) ), *( (B*)( nullptr ) ) ) );
    using result_type   = decltype(operator_type::apply(A(), B()));
 
    ExprBinOp(const A& left, const B& right) : _left(left), _right(right)
@@ -153,6 +167,14 @@ public:
       array_add(cpy, rhs);
       return cpy;
    }
+   
+   /*
+   template <class A, class B>
+   static decltype(A() + B())
+   apply( const Expr<A>& a, const Expr<B>& b )
+   {
+      return a() + b();
+   }*/
 
    /// Array += Array
    template <class T, int N, class Config, class Config2>
@@ -162,13 +184,14 @@ public:
       return lhs;
    }
 
+   /*
    /// Array += Expr
    template <class T, int N, class Config, class B>
    static Array<T, N, Config>& apply(Array<T, N, Config>& lhs, const Expr<B>& b)
    {
       lhs += b();
       return lhs;
-   }
+   }*/
 };
 
 class OpMul
@@ -211,7 +234,16 @@ Expr<ExprBinOp<Array_TemplateExpressionEnabled<T, N, Config>, Array<T, N, Config
    using ExprT = ExprBinOp<Array<T, N, Config>, Array<T, N, Config2>, OpAdd>;
    return Expr<ExprT>(ExprT(a, b));
 }
-
+/*
+// (Array, Expr)
+template <class T, int N, class Config, class A>
+Expr<ExprBinOp<Array_TemplateExpressionEnabled<T, N, Config>, Expr<A>, OpAdd>> operator+( const Array<T, N, Config>& a,
+                                                                                          const Expr<A>& b )
+{
+   using ExprT = ExprBinOp<Array<T, N, Config>, Expr<A>, OpAdd> ;
+   return Expr<ExprT>( ExprT( a, b ) );
+}
+*/
 //
 // operator+= (Array, Array)
 //
@@ -250,5 +282,8 @@ Array_TemplateExpressionEnabled<T, N, Config>& operator*=( Array<T, N, Config>& 
 
 // https://github.com/guyz/cpp-array/blob/master/array/expr.hpp
 // https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Expression-template
+
+// TODO reconsider boost.proto:
+// http://web.archive.org/web/20120906070131/http://cpp-next.com/archive/2011/01/expressive-c-expression-optimization/
 
 DECLARE_NAMESPACE_END
