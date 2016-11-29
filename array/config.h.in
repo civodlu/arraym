@@ -17,6 +17,7 @@
 #cmakedefine WITH_BOOSTSIMD
 #cmakedefine WITH_NUMPY
 #cmakedefine NLL_HAS_EXECINFO
+#cmakedefine WITH_EXPRESSION_TEMPLATE
 
 // configure OpenMP
 #ifndef WITH_OMP
@@ -25,12 +26,6 @@
 # include <omp.h>
 # pragma message( "NLL multithreading enabled" )
 #endif
-
-/*
-#ifdef WITH_ZLIB
-# include <zlib/zlib.h>
-#endif
-*/
 
 #define NLL_VERSION "${APPLICATION_VERSION}"
 

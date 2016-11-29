@@ -457,11 +457,17 @@ struct array_use_naive
    static const bool value = !array_use_vectorization<Array>::value && !array_use_blas<Array>::value;
 };
 
+#ifdef WITH_EXPRESSION_TEMPLATE
 template <class Array>
-struct array_use_naive_operator
+struct array_use_naive_operator : public std::false_type
 {
-   static const bool value = !array_use_blas<Array>::value;
 };
+#else
+template <class Array>
+struct array_use_naive_operator: public std::true_type
+{
+};
+#endif
 
 /**
 @brief returns true if two array have similar data ordering. (i.e., using an iterator, we point to the same
@@ -477,20 +483,77 @@ bool same_data_ordering(const Array<T, N, Config>& a1, const Array<T, N, Config2
 }
 
 /**
+@brief Returns true if an array is based on a single slice of contiguous memory
+@note this doesn't mean there is not gap between dimensions (e.g., we have a sub-array)
+*/
+template <class Array>
+struct IsArrayLayoutContiguous
+{
+   static const bool value = std::is_base_of<memory_layout_contiguous, typename Array::Memory>::value;
+};
+
+namespace details
+{
+   template <class Array>
+   struct IsArrayFullyContiguous
+   {
+      static bool value(const Array& array, std::integral_constant<bool, true> UNUSED(isContiguous))
+      {
+         auto stride = array.getMemory().getIndexMapper()._getPhysicalStrides();
+
+         std::array<std::pair<ui32, size_t>, Array::RANK> stride_index;
+         for (size_t n = 0; n < Array::RANK; ++n)
+         {
+            stride_index[n] = std::make_pair(stride[n], n);
+         }
+
+         // sort by increasing stride. Stride must start at 1 and multiplied by the corresponding shape's
+         // index
+
+         std::sort(stride_index.begin(), stride_index.end());
+         if (stride_index[0].first != 1)
+         {
+            return false;
+         }
+
+         ui32 current = 1;
+         for (size_t n = 0; n < Array::RANK; ++n)
+         {
+            const auto dim = stride_index[n].second;
+            // this test is not perfect when we have a dimension == 1 as we can't know which is
+            // the true fastest dimension, so the result of the sort may not be correct, so discard
+            // if array.shape()[dim] != 1
+            if (array.shape()[dim] != 1 && stride_index[n].first != current)
+            {
+               return false;
+            }
+            current *= array.shape()[stride_index[n].second];
+         }
+         return true;
+      }
+
+      static bool value(const Array& array, std::integral_constant<bool, false> UNUSED(isContiguous))
+      {
+         return false;
+      }
+   };
+}
+/**
  @brief Returns true if the array is fully contiguous (i.e., contiguous memory based AND not a sub-array)
  */
 template <class T, int N, class Config>
 bool is_array_fully_contiguous(const Array<T, N, Config>& a1)
 {
    using array_type   = Array<T, N, Config>;
+   using index_type = typename array_type::index_type;
    using index_mapper = typename Array<T, N, Config>::Memory::index_mapper;
-   if (!std::is_base_of<Memory_contiguous<T, N, index_mapper>, array_type>::value)
+   if (!IsArrayLayoutContiguous<array_type>::value)
    {
       return false;
    }
 
-   ensure(0, "TODO");
-   return true;
+   // test that the last element of one dimension + 1 equals the first element of the next dimension
+   return details::IsArrayFullyContiguous<array_type>::value(a1, std::integral_constant<bool, IsArrayLayoutContiguous<array_type>::value>());
 }
 
 /**

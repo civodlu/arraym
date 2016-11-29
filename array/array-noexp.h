@@ -28,7 +28,6 @@ Array_NaiveOperatorEnabled<T, N, Config1> operator+(const Array<T, N, Config1>& 
    return cpy;
 }
 
-/*
 template <class T, size_t N, class Config1, class Config2>
 Array_NaiveOperatorEnabled<T, N, Config1>& operator-=( Array<T, N, Config1>& lhs, const Array<T, N, Config2>& rhs )
 {
@@ -43,7 +42,6 @@ Array_NaiveOperatorEnabled<T, N, Config1> operator-( const Array<T, N, Config1>&
    cpy -= rhs;
    return cpy;
 }
-*/
 
 template <class T, size_t N, class Config1>
 Array_NaiveOperatorEnabled<T, N, Config1>& operator*=(Array<T, N, Config1>& lhs, T value)

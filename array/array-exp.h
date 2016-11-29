@@ -13,6 +13,8 @@
  in particular to enable custom-fixed memory allocator with general purpose heap allocators.
  */
 
+#ifdef WITH_EXPRESSION_TEMPLATE
+
 DECLARE_NAMESPACE_NLL
 
 /**
@@ -287,3 +289,5 @@ Array_TemplateExpressionEnabled<T, N, Config>& operator*=( Array<T, N, Config>& 
 // http://web.archive.org/web/20120906070131/http://cpp-next.com/archive/2011/01/expressive-c-expression-optimization/
 
 DECLARE_NAMESPACE_END
+
+#endif

@@ -5,8 +5,36 @@
 
 using namespace NAMESPACE_NLL;
 
+using vector3ui = StaticVector<ui32, 3>;
+using vector2ui = StaticVector<ui32, 2>;
+using vector1ui = StaticVector<ui32, 1>;
+
 struct TestArrayOp
 {
+   void test_is_fully_contiguous()
+   {
+      static_assert(IsArrayLayoutContiguous<Array_row_major<int, 2>>::value, "row major is contiguous layout!");
+      static_assert(IsArrayLayoutContiguous<Array_column_major<int, 2>>::value, "column major is contiguous layout!");
+      static_assert(!IsArrayLayoutContiguous<Array_row_major_multislice<int, 2>>::value, "slice based memory is NOT contiguous layout!");
+
+      TESTER_ASSERT(!is_array_fully_contiguous(Array_row_major_multislice<int, 2>(4, 6)));  // multi-slices: not contiguous!
+
+      TESTER_ASSERT(is_array_fully_contiguous(Array_row_major<int, 2>(4, 6)));  // contiguous layout, not a sub-array
+      TESTER_ASSERT(is_array_fully_contiguous(Array_row_major<int, 3>(6, 4, 1)));  // contiguous layout, not a sub-array
+      TESTER_ASSERT(is_array_fully_contiguous(Array_column_major<int, 3>(6, 4, 2)));  // contiguous layout, not a sub-array
+
+      TESTER_ASSERT(is_array_fully_contiguous(Array_column_major<int, 3>(6, 4, 1)));
+      TESTER_ASSERT(is_array_fully_contiguous(Array_column_major<int, 3>(6, 1, 4)));
+      TESTER_ASSERT(is_array_fully_contiguous(Array_row_major<int, 3>(6, 1, 4)));
+      TESTER_ASSERT(is_array_fully_contiguous(Array_row_major<int, 3>(6, 4, 1)));
+      TESTER_ASSERT(is_array_fully_contiguous(Array_row_major<int, 3>(1, 4, 2)));
+      TESTER_ASSERT(is_array_fully_contiguous(Array_column_major<int, 3>(1, 1, 4)));
+
+      Array_row_major<int, 3> a1(10, 11, 12);
+      TESTER_ASSERT(!is_array_fully_contiguous(a1(vector3ui(1, 1, 1), vector3ui(3, 3, 3))));
+      TESTER_ASSERT(is_array_fully_contiguous(a1(vector3ui(0, 0, 5), vector3ui(9, 10, 8))));
+   }
+
    void test_same_data_ordering()
    {
       TESTER_ASSERT(same_data_ordering(Array<int, 2>(2, 2), Array<int, 2>(2, 2)));
@@ -108,14 +136,10 @@ struct TestArrayOp
       test_matrixSub_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       test_matrixSub_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
 
-      // implemented but commented!
-      //test_matrixSubOp_impl<NAMESPACE_NLL::Array<int, 2>>();   // naive, contiguous
-      //test_matrixSubOp_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();  // naive, non fully contiguous
-      /*
-      // not implemented!
+      test_matrixSubOp_impl<NAMESPACE_NLL::Array<int, 2>>();   // naive, contiguous
+      test_matrixSubOp_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();  // naive, non fully contiguous
       test_matrixSubOp_impl<NAMESPACE_NLL::Array<float, 2>>(); // BLAS, contiguous
       test_matrixSubOp_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>();  // BLAS, non fully contiguous
-      */
    }
 
    template <class Array>
@@ -241,6 +265,7 @@ struct TestArrayOp
 
 TESTER_TEST_SUITE(TestArrayOp);
 TESTER_TEST(test_same_data_ordering);
+TESTER_TEST(test_is_fully_contiguous);
 TESTER_TEST(test_matrixAdd);
 TESTER_TEST(test_matrixSub);
 TESTER_TEST(testArray_mul_cte);
