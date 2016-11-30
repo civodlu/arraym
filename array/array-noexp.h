@@ -66,4 +66,25 @@ Array_NaiveOperatorEnabled<T, N, Config1> operator*(T value, Array<T, N, Config1
    return cpy;
 }
 
+template <class T, size_t N, class Config1>
+Array_NaiveOperatorEnabled<T, N, Config1>& operator/=(Array<T, N, Config1>& lhs, T value)
+{
+   details::array_div(lhs, value);
+   return lhs;
+}
+
+template <class T, size_t N, class Config1>
+Array_NaiveOperatorEnabled<T, N, Config1> operator/(Array<T, N, Config1>& lhs, T value)
+{
+   Array<T, N, Config1> cpy = lhs;
+   cpy /= value;
+   return cpy;
+}
+
+template <class T, size_t N, class Config1, class Config2>
+Array_NaiveOperatorEnabled<T, N, Config1> operator*(const Array<T, N, Config1>& lhs, Array<T, N, Config2>& rhs)
+{
+   return array_mul_array(lhs, rhs);
+}
+
 DECLARE_NAMESPACE_END

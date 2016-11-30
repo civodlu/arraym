@@ -215,7 +215,7 @@ struct TestArrayOp
 
       cpy *= static_cast<Array::value_type>(2);
       TESTER_ASSERT(cpy(0, 0) == a1(0, 0) * 2);
-      TESTER_ASSERT(cpy(0, 0) == a1(0, 0) * 2);
+      TESTER_ASSERT(cpy(1, 0) == a1(1, 0) * 2);
 
       TESTER_ASSERT(cpy(0, 1) == a1(0, 1) * 2);
       TESTER_ASSERT(cpy(1, 1) == a1(1, 1) * 2);
@@ -234,7 +234,7 @@ struct TestArrayOp
 
       cpy = a1 * static_cast<Array::value_type>(2);
       TESTER_ASSERT(cpy(0, 0) == a1(0, 0) * 2);
-      TESTER_ASSERT(cpy(0, 0) == a1(0, 0) * 2);
+      TESTER_ASSERT(cpy(1, 0) == a1(1, 0) * 2);
 
       TESTER_ASSERT(cpy(0, 1) == a1(0, 1) * 2);
       TESTER_ASSERT(cpy(1, 1) == a1(1, 1) * 2);
@@ -253,13 +253,68 @@ struct TestArrayOp
 
       cpy = static_cast<Array::value_type>(2) * a1;
       TESTER_ASSERT(cpy(0, 0) == a1(0, 0) * 2);
-      TESTER_ASSERT(cpy(0, 0) == a1(0, 0) * 2);
+      TESTER_ASSERT(cpy(1, 0) == a1(1, 0) * 2);
 
       TESTER_ASSERT(cpy(0, 1) == a1(0, 1) * 2);
       TESTER_ASSERT(cpy(1, 1) == a1(1, 1) * 2);
 
       TESTER_ASSERT(cpy(0, 2) == a1(0, 2) * 2);
       TESTER_ASSERT(cpy(1, 2) == a1(1, 2) * 2);
+   }
+
+   void testArray_div_cte()
+   {
+      testArray_div_cte_impl<NAMESPACE_NLL::Array<int, 2>>();                      // naive, contiguous
+      testArray_div_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>(); // naive, non fully contiguous
+      testArray_div_cte_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
+      testArray_div_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
+      
+      /*
+      testArray_div_cte_right_impl<NAMESPACE_NLL::Array<int, 2>>();                      // naive, contiguous
+      testArray_div_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>(); // naive, non fully contiguous
+      testArray_div_cte_right_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
+      testArray_div_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
+      */
+   }
+
+   template <class Array>
+   void testArray_div_cte_impl()
+   {
+      Array a1(2, 3);
+      a1 = { 11, 21, 31, 40, 50, 60 };
+
+      Array cpy = a1;
+
+      cpy /= static_cast<Array::value_type>(2);
+      TESTER_ASSERT(cpy(0, 0) == a1(0, 0) / 2);
+      TESTER_ASSERT(cpy(1, 0) == a1(1, 0) / 2);
+
+      TESTER_ASSERT(cpy(0, 1) == a1(0, 1) / 2);
+      TESTER_ASSERT(cpy(1, 1) == a1(1, 1) / 2);
+
+      TESTER_ASSERT(cpy(0, 2) == a1(0, 2) / 2);
+      TESTER_ASSERT(cpy(1, 2) == a1(1, 2) / 2);
+   }
+
+   void testArray_mul_array()
+   {
+      testArray_mul_array<NAMESPACE_NLL::Array<int, 2>>();                      // naive, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>(); // naive, non fully contiguous
+      //testArray_mul_array<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
+      //testArray_mul_array<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
+   }
+
+   template <class Array>
+   void testArray_mul_array()
+   {
+      Array a1(2, 3);
+      a1 = { 2, 3, 4, 5, 6, 7 };
+
+      Array a2(3, 2);
+      a2 = { 20, 30, 40, 50, 60, 70 };
+
+      Array result = a1 * a2;
+      TESTER_ASSERT(result.shape() == vector2ui(2, 2));
    }
 };
 
@@ -269,4 +324,6 @@ TESTER_TEST(test_is_fully_contiguous);
 TESTER_TEST(test_matrixAdd);
 TESTER_TEST(test_matrixSub);
 TESTER_TEST(testArray_mul_cte);
+TESTER_TEST(testArray_div_cte);
+TESTER_TEST(testArray_mul_array);
 TESTER_TEST_SUITE_END();

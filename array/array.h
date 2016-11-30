@@ -532,7 +532,7 @@ namespace details
          return true;
       }
 
-      static bool value(const Array& array, std::integral_constant<bool, false> UNUSED(isContiguous))
+      static bool value(const Array& UNUSED(array), std::integral_constant<bool, false> UNUSED(isContiguous))
       {
          return false;
       }

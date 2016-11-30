@@ -38,21 +38,11 @@ void axpy(T a, const Array<T, N, Config>& x, Array<T, N, Config2>& y)
    }
    else
    {
-      // the memory is contiguous by block so we use a processor to access these contiguous blocks
-      ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_x(x);
-      ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config2>> processor_y(y);
-
-      bool hasMoreElements = true;
-      while (hasMoreElements)
+      auto op = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
       {
-         T const* ptr_x  = nullptr;
-         T* ptr_y        = nullptr;
-         hasMoreElements = processor_y.accessMaxElements(ptr_y);
-         hasMoreElements = processor_x.accessMaxElements(ptr_x);
-         NLL_FAST_ASSERT(processor_y.getMaxAccessElements() == processor_x.getMaxAccessElements(), "memory line must have the same size");
-
-         blas::axpy<T>(static_cast<blas::BlasInt>(processor_y.getMaxAccessElements()), a, ptr_x, processor_x.stride(), ptr_y, processor_y.stride());
-      }
+         blas::axpy<T>(static_cast<blas::BlasInt>(nb_elements), a, x_pointer, x_stride, y_pointer, y_stride);
+      };
+      iterate_array_constarray(y, x, op);
    }
 }
 
@@ -71,16 +61,11 @@ void scal( Array<T, N, Config>& y, T a )
       blas::scal<T>( static_cast<blas::BlasInt>( y.size() ), a, ptr_y, 1 );
    } else
    {
-      // the memory is contiguous by block so we use a processor to access these contiguous blocks
-      ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_y( y );
-
-      bool hasMoreElements = true;
-      while ( hasMoreElements )
+      auto op = [&](T* y_pointer, ui32 y_stride, ui32 nb_elements)
       {
-         T* ptr_y = nullptr;
-         hasMoreElements = processor_y.accessMaxElements( ptr_y );
-         blas::scal<T>( static_cast<blas::BlasInt>( processor_y.getMaxAccessElements() ), a, ptr_y, 1 );
-      }
+         blas::scal<T>(static_cast<blas::BlasInt>(nb_elements), a, y_pointer, y_stride);
+      };
+      iterate_array(y, op);
    }
 }
 
@@ -104,6 +89,13 @@ Array_BlasEnabled<T, N, Config>& array_mul( Array<T, N, Config>& a1, T value )
    scal( a1, value );
    return a1;
 }
+
+template <class T, int N, class Config>
+Array_BlasEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
+{
+   return array_mul(a1, static_cast<T>(1) / a2);
+}
+
 }
 
 DECLARE_NAMESPACE_END
