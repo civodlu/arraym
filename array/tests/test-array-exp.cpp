@@ -14,15 +14,15 @@ struct TestArrayExp
    template <class Array>
    void test_expr_add_array_array_impl()
    {
-      Array a1( 2, 3 );
-      a1 = { 1, 2, 3, 4, 5, 6 };
+      Array a1(2, 3);
+      a1 = {1, 2, 3, 4, 5, 6};
 
-      Array a2( 2, 3 );
-      a2 = { 11, 12, 13, 14, 15, 16 };
+      Array a2(2, 3);
+      a2 = {11, 12, 13, 14, 15, 16};
 
-      Array a3( 2, 3 );
-      a3 = { 110, 120, 130, 140, 150, 160 };
-/*
+      Array a3(2, 3);
+      a3 = {110, 120, 130, 140, 150, 160};
+      /*
       auto expr = a1 + a2;
       Array result = a3 + expr;
 
@@ -38,5 +38,5 @@ struct TestArrayExp
 };
 
 TESTER_TEST_SUITE(TestArrayExp);
-TESTER_TEST( test_expr_add_array_array_impl );
+TESTER_TEST(test_expr_add_array_array_impl);
 TESTER_TEST_SUITE_END();

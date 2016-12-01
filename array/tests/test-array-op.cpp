@@ -17,11 +17,11 @@ struct TestArrayOp
       static_assert(IsArrayLayoutContiguous<Array_column_major<int, 2>>::value, "column major is contiguous layout!");
       static_assert(!IsArrayLayoutContiguous<Array_row_major_multislice<int, 2>>::value, "slice based memory is NOT contiguous layout!");
 
-      TESTER_ASSERT(!is_array_fully_contiguous(Array_row_major_multislice<int, 2>(4, 6)));  // multi-slices: not contiguous!
+      TESTER_ASSERT(!is_array_fully_contiguous(Array_row_major_multislice<int, 2>(4, 6))); // multi-slices: not contiguous!
 
-      TESTER_ASSERT(is_array_fully_contiguous(Array_row_major<int, 2>(4, 6)));  // contiguous layout, not a sub-array
-      TESTER_ASSERT(is_array_fully_contiguous(Array_row_major<int, 3>(6, 4, 1)));  // contiguous layout, not a sub-array
-      TESTER_ASSERT(is_array_fully_contiguous(Array_column_major<int, 3>(6, 4, 2)));  // contiguous layout, not a sub-array
+      TESTER_ASSERT(is_array_fully_contiguous(Array_row_major<int, 2>(4, 6)));       // contiguous layout, not a sub-array
+      TESTER_ASSERT(is_array_fully_contiguous(Array_row_major<int, 3>(6, 4, 1)));    // contiguous layout, not a sub-array
+      TESTER_ASSERT(is_array_fully_contiguous(Array_column_major<int, 3>(6, 4, 2))); // contiguous layout, not a sub-array
 
       TESTER_ASSERT(is_array_fully_contiguous(Array_column_major<int, 3>(6, 4, 1)));
       TESTER_ASSERT(is_array_fully_contiguous(Array_column_major<int, 3>(6, 1, 4)));
@@ -136,10 +136,10 @@ struct TestArrayOp
       test_matrixSub_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       test_matrixSub_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
 
-      test_matrixSubOp_impl<NAMESPACE_NLL::Array<int, 2>>();   // naive, contiguous
-      test_matrixSubOp_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();  // naive, non fully contiguous
-      test_matrixSubOp_impl<NAMESPACE_NLL::Array<float, 2>>(); // BLAS, contiguous
-      test_matrixSubOp_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>();  // BLAS, non fully contiguous
+      test_matrixSubOp_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
+      test_matrixSubOp_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
+      test_matrixSubOp_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
+      test_matrixSubOp_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
    }
 
    template <class Array>
@@ -189,18 +189,18 @@ struct TestArrayOp
 
    void testArray_mul_cte()
    {
-      testArray_mul_cte_impl<NAMESPACE_NLL::Array<int, 2>>();                      // naive, contiguous
-      testArray_mul_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>(); // naive, non fully contiguous
+      testArray_mul_cte_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
+      testArray_mul_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       testArray_mul_cte_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       testArray_mul_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
 
-      testArray_mul_cte_right_impl<NAMESPACE_NLL::Array<int, 2>>();                      // naive, contiguous
-      testArray_mul_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>(); // naive, non fully contiguous
+      testArray_mul_cte_right_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
+      testArray_mul_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       testArray_mul_cte_right_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       testArray_mul_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
 
-      testArray_mul_cte_left_impl<NAMESPACE_NLL::Array<int, 2>>();                      // naive, contiguous
-      testArray_mul_cte_left_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>(); // naive, non fully contiguous
+      testArray_mul_cte_left_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
+      testArray_mul_cte_left_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       testArray_mul_cte_left_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       testArray_mul_cte_left_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
    }
@@ -264,11 +264,11 @@ struct TestArrayOp
 
    void testArray_div_cte()
    {
-      testArray_div_cte_impl<NAMESPACE_NLL::Array<int, 2>>();                      // naive, contiguous
-      testArray_div_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>(); // naive, non fully contiguous
+      testArray_div_cte_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
+      testArray_div_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       testArray_div_cte_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       testArray_div_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
-      
+
       /*
       testArray_div_cte_right_impl<NAMESPACE_NLL::Array<int, 2>>();                      // naive, contiguous
       testArray_div_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>(); // naive, non fully contiguous
@@ -281,7 +281,7 @@ struct TestArrayOp
    void testArray_div_cte_impl()
    {
       Array a1(2, 3);
-      a1 = { 11, 21, 31, 40, 50, 60 };
+      a1 = {11, 21, 31, 40, 50, 60};
 
       std::cout << a1 << std::endl;
       Array cpy = a1;
@@ -299,20 +299,20 @@ struct TestArrayOp
 
    void testArray_mul_array()
    {
-      testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<int>>();                      // naive, contiguous
-      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<int>>();                   // naive, contiguous
-      testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<float>>();                      // BLAS, contiguous
-      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<float>>();                      // BLAS, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<int>>();      // naive, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<int>>();   // naive, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<float>>();    // BLAS, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<float>>(); // BLAS, contiguous
    }
 
    template <class Array>
    void testArray_mul_array()
    {
       Array a1(2, 3);
-      a1 = { 2, 3, 4, 5, 6, 7 };
+      a1 = {2, 3, 4, 5, 6, 7};
 
       Array a2(3, 2);
-      a2 = { 20, 30, 40, 50, 60, 70 };
+      a2 = {20, 30, 40, 50, 60, 70};
 
       std::cout << a1 << std::endl;
       std::cout << a2 << std::endl;

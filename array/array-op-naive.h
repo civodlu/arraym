@@ -18,52 +18,52 @@ using Array_NaiveEnabled = typename std::enable_if<array_use_naive<Array<T, N, C
 
 namespace details
 {
-   /**
+/**
     @brief iterate array & const array jointly
     @tparam must be callable using (T* a1_pointer, a1_stride, const T* a2_pointer, a2_stride, nb elements)
     */
-   template <class T, class T2, int N, class Config, class Config2, class Op>
-   void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, const Op& op)
+template <class T, class T2, int N, class Config, class Config2, class Op>
+void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, const Op& op)
+{
+   static_assert(is_callable_with<Op, T*, ui32, const T2*, ui32, ui32>::value, "Op is not callable!");
+
+   ensure(a1.shape() == a2.shape(), "must have the same shape!");
+   ensure(same_data_ordering(a1, a2), "data must have a similar ordering!");
+
+   // we MUST use processors: data may not be contiguous or with stride...
+   ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config2>> processor_a2(a2);
+   ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
+
+   bool hasMoreElements = true;
+   while (hasMoreElements)
    {
-      static_assert(is_callable_with<Op, T*, ui32, const T2*, ui32, ui32>::value, "Op is not callable!");
+      T* ptr_a1       = nullptr;
+      T const* ptr_a2 = nullptr;
+      hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
+      hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
+      NLL_FAST_ASSERT(processor_a1.getMaxAccessElements() == processor_a2.getMaxAccessElements(), "memory line must have the same size");
 
-      ensure(a1.shape() == a2.shape(), "must have the same shape!");
-      ensure(same_data_ordering(a1, a2), "data must have a similar ordering!");
-
-      // we MUST use processors: data may not be contiguous or with stride...
-      ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config2>> processor_a2(a2);
-      ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
-
-      bool hasMoreElements = true;
-      while (hasMoreElements)
-      {
-         T* ptr_a1 = nullptr;
-         T const* ptr_a2 = nullptr;
-         hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
-         hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
-         NLL_FAST_ASSERT(processor_a1.getMaxAccessElements() == processor_a2.getMaxAccessElements(), "memory line must have the same size");
-
-         op(ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getMaxAccessElements());
-      }
+      op(ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getMaxAccessElements());
    }
+}
 
-   /**
+/**
    @brief iterate array
    @tparam must be callable using (T* a1_pointer, a1_stride, nb elements)
    */
-   template <class T, int N, class Config, class Op>
-   void iterate_array(Array<T, N, Config>& a1, const Op& op)
-   {
-      ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
+template <class T, int N, class Config, class Op>
+void iterate_array(Array<T, N, Config>& a1, const Op& op)
+{
+   ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
 
-      bool hasMoreElements = true;
-      while (hasMoreElements)
-      {
-         T* ptr_a1 = nullptr;
-         hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
-         op(ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements());
-      }
+   bool hasMoreElements = true;
+   while (hasMoreElements)
+   {
+      T* ptr_a1       = nullptr;
+      hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
+      op(ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements());
    }
+}
 
 /**
 @brief Computes a1 += a2
@@ -93,10 +93,7 @@ Array_NaiveEnabled<T, N, Config>& array_sub(Array<T, N, Config>& a1, const Array
 template <class T, int N, class Config>
 Array_NaiveEnabled<T, N, Config>& array_mul(Array<T, N, Config>& a1, T a2)
 {
-   auto op = [&](T* ptr, ui32 stride, ui32 elements)
-   {
-      mul_naive(ptr, stride, a2, elements);
-   };
+   auto op = [&](T* ptr, ui32 stride, ui32 elements) { mul_naive(ptr, stride, a2, elements); };
 
    iterate_array(a1, op);
    return a1;
@@ -109,10 +106,7 @@ Array_NaiveEnabled<T, N, Config>& array_mul(Array<T, N, Config>& a1, T a2)
 template <class T, int N, class Config>
 Array_NaiveEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
 {
-   auto op = [&](T* ptr, ui32 stride, ui32 elements)
-   {
-      div_naive(ptr, stride, a2, elements);
-   };
+   auto op = [&](T* ptr, ui32 stride, ui32 elements) { div_naive(ptr, stride, a2, elements); };
 
    iterate_array(a1, op);
    return a1;
@@ -121,9 +115,8 @@ Array_NaiveEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
 /**
  @brief Display matrices
  */
-template <class T, size_t N, class Config,
-   typename = typename std::enable_if< is_matrix<Array<T, N, Config>>::value >::type>
-   std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
+template <class T, size_t N, class Config, typename = typename std::enable_if<is_matrix<Array<T, N, Config>>::value>::type>
+std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
 {
    if (array.size() == 0)
    {
@@ -150,9 +143,8 @@ template <class T, size_t N, class Config,
 /**
 @brief Display any other array type than matrices
 */
-template <class T, size_t N, class Config,
-   typename = typename std::enable_if< !is_matrix<Array<T, N, Config>>::value >::type, typename = int>
-   std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
+template <class T, size_t N, class Config, typename = typename std::enable_if<!is_matrix<Array<T, N, Config>>::value>::type, typename = int>
+std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
 {
    if (array.size() == 0)
    {
@@ -161,20 +153,21 @@ template <class T, size_t N, class Config,
    }
 
    o << "[ ";
-   
+
    ConstArrayProcessor_contiguous_byDimension<Array<T, N, Config>> processor(array);
    bool hasMoreElements = true;
    while (hasMoreElements)
    {
-      T const* ptr = nullptr;
-      hasMoreElements = processor.accessSingleElement(ptr);
+      T const* ptr     = nullptr;
+      hasMoreElements  = processor.accessSingleElement(ptr);
       const auto index = processor.getArrayIndex()[0];
       o << *ptr;
       if (index == 0 && hasMoreElements)
       {
          o << "\n ";
       }
-      else {
+      else
+      {
          o << ' ';
       }
    }
@@ -182,7 +175,6 @@ template <class T, size_t N, class Config,
    o << "]";
    return o;
 }
-
 }
 
 DECLARE_NAMESPACE_END

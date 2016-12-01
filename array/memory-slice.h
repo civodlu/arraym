@@ -15,16 +15,16 @@ template <class T, size_t N, class IndexMapper = IndexMapper_multislice<N, N - 1
 class Memory_multislice : public memory_layout_multislice_z
 {
 public:
-   using index_type            = StaticVector<ui32, N>;
-   using allocator_type        = Allocator;
-   using allocator_trait       = std::allocator_traits<allocator_type>;
-   using index_mapper          = IndexMapper;
-   using pointer_type          = T*;
-   using value_type            = T;
-   using Memory                = Memory_multislice<T, N, IndexMapper, Allocator>;
+   using index_type      = StaticVector<ui32, N>;
+   using allocator_type  = Allocator;
+   using allocator_trait = std::allocator_traits<allocator_type>;
+   using index_mapper    = IndexMapper;
+   using pointer_type    = T*;
+   using value_type      = T;
+   using Memory          = Memory_multislice<T, N, IndexMapper, Allocator>;
 
    static const size_t Z_INDEX = index_mapper::Z_INDEX; /// this is the index where the slices will be created (i.e., all others will be in contiguous memory)
-   static const size_t RANK = N;
+   static const size_t RANK    = N;
 
    template <class TT>
    class diterator_t : public std::iterator<std::random_access_iterator_tag, TT>
@@ -143,8 +143,8 @@ public:
       _slicesAllocated = slicesAllocated;
    }
 
-   Memory_multislice(const index_type& shape, const std::vector<T*>& slices, const index_type& physicalStrides, const allocator_type& allocator = allocator_type(),
-                     bool slicesAllocated = false)
+   Memory_multislice(const index_type& shape, const std::vector<T*>& slices, const index_type& physicalStrides,
+                     const allocator_type& allocator = allocator_type(), bool slicesAllocated = false)
        : _shape(shape), _allocator(allocator)
    {
       _indexMapper.init(physicalStrides);
@@ -204,14 +204,14 @@ public:
    diterator endDim(ui32 dim, const index_type& indexN)
    {
       index_type index_cpy = indexN;
-      index_cpy[dim]     = this->_shape[dim];
+      index_cpy[dim]       = this->_shape[dim];
       return diterator(index_cpy[Z_INDEX], _indexMapper.offset(index_cpy), _indexMapper._getPhysicalStrides()[dim], &_slices[0]);
    }
 
    const_diterator endDim(ui32 dim, const index_type& indexN) const
    {
       index_type index_cpy = indexN;
-      index_cpy[dim]     = this->_shape[dim];
+      index_cpy[dim]       = this->_shape[dim];
       return const_diterator(index_cpy[Z_INDEX], _indexMapper.offset(index_cpy), _indexMapper._getPhysicalStrides()[dim], &_slices[0]);
    }
 

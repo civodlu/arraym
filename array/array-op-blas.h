@@ -38,8 +38,7 @@ void axpy(T a, const Array<T, N, Config>& x, Array<T, N, Config2>& y)
    }
    else
    {
-      auto op = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
-      {
+      auto op = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements) {
          blas::axpy<T>(static_cast<blas::BlasInt>(nb_elements), a, x_pointer, x_stride, y_pointer, y_stride);
       };
       iterate_array_constarray(y, x, op);
@@ -50,21 +49,19 @@ void axpy(T a, const Array<T, N, Config>& x, Array<T, N, Config2>& y)
 @brief computes Y *= a using BLAS
 */
 template <class T, int N, class Config>
-void scal( Array<T, N, Config>& y, T a )
+void scal(Array<T, N, Config>& y, T a)
 {
    using index_type = typename Array<T, N, Config>::index_type;
-   if ( is_array_fully_contiguous( y ) )
+   if (is_array_fully_contiguous(y))
    {
       // the two array are using contiguous memory with no gap at all, so we can just
       // use BLAS on the array's memory all at once
-      T* ptr_y = &y( index_type() );
-      blas::scal<T>( static_cast<blas::BlasInt>( y.size() ), a, ptr_y, 1 );
-   } else
+      T* ptr_y = &y(index_type());
+      blas::scal<T>(static_cast<blas::BlasInt>(y.size()), a, ptr_y, 1);
+   }
+   else
    {
-      auto op = [&](T* y_pointer, ui32 y_stride, ui32 nb_elements)
-      {
-         blas::scal<T>(static_cast<blas::BlasInt>(nb_elements), a, y_pointer, y_stride);
-      };
+      auto op = [&](T* y_pointer, ui32 y_stride, ui32 nb_elements) { blas::scal<T>(static_cast<blas::BlasInt>(nb_elements), a, y_pointer, y_stride); };
       iterate_array(y, op);
    }
 }
@@ -79,14 +76,14 @@ Array_BlasEnabled<T, N, Config>& array_add(Array<T, N, Config>& a1, const Array<
 template <class T, int N, class Config, class Config2>
 Array_BlasEnabled<T, N, Config>& array_sub(Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
-   axpy( static_cast<T>( -1 ), a2, a1 );
+   axpy(static_cast<T>(-1), a2, a1);
    return a1;
 }
 
 template <class T, int N, class Config>
-Array_BlasEnabled<T, N, Config>& array_mul( Array<T, N, Config>& a1, T value )
+Array_BlasEnabled<T, N, Config>& array_mul(Array<T, N, Config>& a1, T value)
 {
-   scal( a1, value );
+   scal(a1, value);
    return a1;
 }
 
@@ -95,7 +92,6 @@ Array_BlasEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
 {
    return array_mul(a1, static_cast<T>(1) / a2);
 }
-
 }
 
 DECLARE_NAMESPACE_END

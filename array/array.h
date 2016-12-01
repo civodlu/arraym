@@ -469,7 +469,7 @@ struct array_use_naive_operator : public std::false_type
 };
 #else
 template <class Array>
-struct array_use_naive_operator: public std::true_type
+struct array_use_naive_operator : public std::true_type
 {
 };
 #endif
@@ -499,49 +499,49 @@ struct IsArrayLayoutContiguous
 
 namespace details
 {
-   template <class Array>
-   struct IsArrayFullyContiguous
+template <class Array>
+struct IsArrayFullyContiguous
+{
+   static bool value(const Array& array, std::integral_constant<bool, true> UNUSED(isContiguous))
    {
-      static bool value(const Array& array, std::integral_constant<bool, true> UNUSED(isContiguous))
+      auto stride = array.getMemory().getIndexMapper()._getPhysicalStrides();
+
+      std::array<std::pair<ui32, size_t>, Array::RANK> stride_index;
+      for (size_t n = 0; n < Array::RANK; ++n)
       {
-         auto stride = array.getMemory().getIndexMapper()._getPhysicalStrides();
-
-         std::array<std::pair<ui32, size_t>, Array::RANK> stride_index;
-         for (size_t n = 0; n < Array::RANK; ++n)
-         {
-            stride_index[n] = std::make_pair(stride[n], n);
-         }
-
-         // sort by increasing stride. Stride must start at 1 and multiplied by the corresponding shape's
-         // index
-
-         std::sort(stride_index.begin(), stride_index.end());
-         if (stride_index[0].first != 1)
-         {
-            return false;
-         }
-
-         ui32 current = 1;
-         for (size_t n = 0; n < Array::RANK; ++n)
-         {
-            const auto dim = stride_index[n].second;
-            // this test is not perfect when we have a dimension == 1 as we can't know which is
-            // the true fastest dimension, so the result of the sort may not be correct, so discard
-            // if array.shape()[dim] != 1
-            if (array.shape()[dim] != 1 && stride_index[n].first != current)
-            {
-               return false;
-            }
-            current *= array.shape()[stride_index[n].second];
-         }
-         return true;
+         stride_index[n] = std::make_pair(stride[n], n);
       }
 
-      static bool value(const Array& UNUSED(array), std::integral_constant<bool, false> UNUSED(isContiguous))
+      // sort by increasing stride. Stride must start at 1 and multiplied by the corresponding shape's
+      // index
+
+      std::sort(stride_index.begin(), stride_index.end());
+      if (stride_index[0].first != 1)
       {
          return false;
       }
-   };
+
+      ui32 current = 1;
+      for (size_t n = 0; n < Array::RANK; ++n)
+      {
+         const auto dim = stride_index[n].second;
+         // this test is not perfect when we have a dimension == 1 as we can't know which is
+         // the true fastest dimension, so the result of the sort may not be correct, so discard
+         // if array.shape()[dim] != 1
+         if (array.shape()[dim] != 1 && stride_index[n].first != current)
+         {
+            return false;
+         }
+         current *= array.shape()[stride_index[n].second];
+      }
+      return true;
+   }
+
+   static bool value(const Array& UNUSED(array), std::integral_constant<bool, false> UNUSED(isContiguous))
+   {
+      return false;
+   }
+};
 }
 /**
  @brief Returns true if the array is fully contiguous, meaning that the array occupies a single block of contiguous memory
@@ -551,7 +551,7 @@ template <class T, int N, class Config>
 bool is_array_fully_contiguous(const Array<T, N, Config>& a1)
 {
    using array_type   = Array<T, N, Config>;
-   using index_type = typename array_type::index_type;
+   using index_type   = typename array_type::index_type;
    using index_mapper = typename Array<T, N, Config>::Memory::index_mapper;
    if (!IsArrayLayoutContiguous<array_type>::value)
    {

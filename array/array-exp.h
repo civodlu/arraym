@@ -34,7 +34,7 @@ public:
    {
    }
 
-   ExprConstant() : _value( value )
+   ExprConstant() : _value(value)
    {
    }
 
@@ -92,7 +92,7 @@ public:
    using right_type    = const B&;
    using operator_type = Op;
    //using result_type = decltype( operator_type::apply( *( (A*)( nullptr ) ), *( (B*)( nullptr ) ) ) );
-   using result_type   = decltype(operator_type::apply(A(), B()));
+   using result_type = decltype(operator_type::apply(A(), B()));
 
    ExprBinOp(const A& left, const B& right) : _left(left), _right(right)
    {
@@ -169,7 +169,7 @@ public:
       array_add(cpy, rhs);
       return cpy;
    }
-   
+
    /*
    template <class A, class B>
    static decltype(A() + B())
@@ -201,27 +201,27 @@ class OpMul
 public:
    // scalar * array
    template <typename T, size_t N, class Config>
-   static Array<T, N, Config> apply( const ExprConstant<T>& a, const Array<T, N, Config>& b )
+   static Array<T, N, Config> apply(const ExprConstant<T>& a, const Array<T, N, Config>& b)
    {
       Array<T, N, Config> r = b;
-      details::array_mul( r, a() );
+      details::array_mul(r, a());
       return r;
    }
 
    // array * scalar
    template <typename T, size_t N, class Config>
-   static Array<T, N, Config> apply( const Array<T, N, Config>& b, const ExprConstant<T>& a )
+   static Array<T, N, Config> apply(const Array<T, N, Config>& b, const ExprConstant<T>& a)
    {
       Array<T, N, Config> r = b;
-      details::array_mul( r, a() );
+      details::array_mul(r, a());
       return r;
    }
 
    // array *= scalar
    template <typename T, size_t N, class Config>
-   static Array<T, N, Config>& apply( Array<T, N, Config>& b, const ExprConstant<T>& a )
+   static Array<T, N, Config>& apply(Array<T, N, Config>& b, const ExprConstant<T>& a)
    {
-      details::array_mul( b, a() );
+      details::array_mul(b, a());
       return b;
    }
 };
@@ -263,23 +263,23 @@ template <class T, int N, class Config>
 Array_TemplateExpressionEnabled<T, N, Config> operator*(const Array<T, N, Config>& a, T value)
 {
    using ExprT = typename ScalarArrayMul<T, N, Config>::expression_type;
-   return ScalarArrayMul<T, N, Config>( ExprT( ExprConstant<T>( value ), a ) );
+   return ScalarArrayMul<T, N, Config>(ExprT(ExprConstant<T>(value), a));
 }
 
 template <class T, int N, class Config>
-Array_TemplateExpressionEnabled<T, N, Config> operator*( T value, const Array<T, N, Config>& a )
+Array_TemplateExpressionEnabled<T, N, Config> operator*(T value, const Array<T, N, Config>& a)
 {
    using ExprT = typename ScalarArrayMul<T, N, Config>::expression_type;
-   return ScalarArrayMul<T, N, Config>( ExprT( ExprConstant<T>( value ), a ) );
+   return ScalarArrayMul<T, N, Config>(ExprT(ExprConstant<T>(value), a));
 }
 
 template <class T, int N, class Config>
-Array_TemplateExpressionEnabled<T, N, Config>& operator*=( Array<T, N, Config>& a, T value )
+Array_TemplateExpressionEnabled<T, N, Config>& operator*=(Array<T, N, Config>& a, T value)
 {
-   using ExprT = RefExprBinOp<Array<T, N, Config>, ExprConstant<T>, OpMul>;
+   using ExprT             = RefExprBinOp<Array<T, N, Config>, ExprConstant<T>, OpMul>;
    using RefScalarArrayMul = Expr<ExprT>;
 
-   return RefScalarArrayMul( ExprT( a, ExprConstant<T>( value ) ) );
+   return RefScalarArrayMul(ExprT(a, ExprConstant<T>(value)));
 }
 
 // https://github.com/guyz/cpp-array/blob/master/array/expr.hpp

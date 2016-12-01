@@ -118,7 +118,7 @@ template <size_t N, class Mapper = details::Mapper_stride_row_major<N>>
 class IndexMapper_contiguous : public memory_layout_contiguous
 {
 public:
-   using index_type    = StaticVector<ui32, N>;
+   using index_type  = StaticVector<ui32, N>;
    using IndexMapper = IndexMapper_contiguous<N, Mapper>;
 
    template <size_t dim>
@@ -240,7 +240,7 @@ class IndexMapper_multislice : public memory_layout_multislice_z
    };
 
 public:
-   using index_type              = StaticVector<ui32, N>;
+   using index_type            = StaticVector<ui32, N>;
    static const size_t Z_INDEX = Z_INDEX_;
    using IndexMapper           = IndexMapper_multislice<N, Z_INDEX, Mapper>;
 

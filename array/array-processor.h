@@ -208,36 +208,36 @@ protected:
 };
 
 template <class Memory>
-StaticVector<ui32, Memory::RANK> getFastestVaryingIndexesMemory( const Memory& memory )
+StaticVector<ui32, Memory::RANK> getFastestVaryingIndexesMemory(const Memory& memory)
 {
    static const size_t N = Memory::RANK;
-   using index_type = typename Memory::index_type;
+   using index_type      = typename Memory::index_type;
 
-   static_assert( std::is_base_of<memory_layout_linear, Memory>::value, "must be a linear index mapper!" );
+   static_assert(std::is_base_of<memory_layout_linear, Memory>::value, "must be a linear index mapper!");
 
    index_type fastestVaryingIndexes;
 
    // first, we want to iterate from the fastest->lowest varying index to avoid as much cache misses as possible
    // EXCEPT is stride is 0, which is a special case (different slices in memory, so this is actually the WORST dimension to iterate on)
    auto strides = memory.getIndexMapper()._getPhysicalStrides();
-   for ( auto& v : strides )
+   for (auto& v : strides)
    {
-      if ( v == 0 )
+      if (v == 0)
       {
          v = std::numeric_limits<typename index_type::value_type>::max();
       }
    }
 
    std::array<std::pair<ui32, ui32>, N> stridesIndex;
-   for ( ui32 n = 0; n < N; ++n )
+   for (ui32 n = 0; n < N; ++n)
    {
-      stridesIndex[ n ] = std::make_pair( strides[ n ], n );
+      stridesIndex[n] = std::make_pair(strides[n], n);
    }
-   std::sort( stridesIndex.begin(), stridesIndex.end() );
+   std::sort(stridesIndex.begin(), stridesIndex.end());
 
-   for ( ui32 n = 0; n < N; ++n )
+   for (ui32 n = 0; n < N; ++n)
    {
-      fastestVaryingIndexes[ n ] = stridesIndex[ n ].second;
+      fastestVaryingIndexes[n] = stridesIndex[n].second;
    }
 
    return fastestVaryingIndexes;
@@ -246,9 +246,8 @@ StaticVector<ui32, Memory::RANK> getFastestVaryingIndexesMemory( const Memory& m
 template <class T, ui32 N, class ConfigT>
 StaticVector<ui32, N> getFastestVaryingIndexes(const Array<T, N, ConfigT>& array)
 {
-   return getFastestVaryingIndexesMemory( array.getMemory() );
+   return getFastestVaryingIndexesMemory(array.getMemory());
 }
-
 }
 
 /**
@@ -297,11 +296,10 @@ template <class Memory>
 class MemoryProcessor_contiguous_byMemoryLocality : public details::ArrayProcessor_contiguous_base<Memory>
 {
 public:
-   using base = details::ArrayProcessor_contiguous_base<Memory>;
+   using base         = details::ArrayProcessor_contiguous_base<Memory>;
    using pointer_type = typename base::pointer_type;
 
-   MemoryProcessor_contiguous_byMemoryLocality( Memory& array )
-      : base( array, &details::getFastestVaryingIndexesMemory<Memory> )
+   MemoryProcessor_contiguous_byMemoryLocality(Memory& array) : base(array, &details::getFastestVaryingIndexesMemory<Memory>)
    {
    }
 
@@ -312,7 +310,7 @@ public:
 
    ui32 stride() const
    {
-      return this->_array.getIndexMapper()._getPhysicalStrides()[ this->getVaryingIndex() ];
+      return this->_array.getIndexMapper()._getPhysicalStrides()[this->getVaryingIndex()];
    }
 
    /**
@@ -322,9 +320,9 @@ public:
 
    IMPORTANT, <ptrToValue> if accessed in a contiguous fashion must account for the stride in the direction of access using <stride()>
    */
-   bool accessMaxElements( pointer_type& ptrToValue )
+   bool accessMaxElements(pointer_type& ptrToValue)
    {
-      return this->_accessElements( ptrToValue, this->_maxAccessElements );
+      return this->_accessElements(ptrToValue, this->_maxAccessElements);
    }
 };
 
@@ -338,12 +336,11 @@ template <class Memory>
 class ConstMemoryProcessor_contiguous_byMemoryLocality : public details::ConstArrayProcessor_contiguous_base<Memory>
 {
 public:
-   using base = details::ConstArrayProcessor_contiguous_base<Memory>;
+   using base         = details::ConstArrayProcessor_contiguous_base<Memory>;
    using pointer_type = typename Memory::pointer_type;
-   using value_type = typename Memory::value_type;
+   using value_type   = typename Memory::value_type;
 
-   ConstMemoryProcessor_contiguous_byMemoryLocality( const Memory& array )
-      : base( array, &details::getFastestVaryingIndexesMemory<Memory> )
+   ConstMemoryProcessor_contiguous_byMemoryLocality(const Memory& array) : base(array, &details::getFastestVaryingIndexesMemory<Memory>)
    {
    }
 
@@ -354,7 +351,7 @@ public:
 
    ui32 stride() const
    {
-      return this->_processor._array.getIndexMapper()._getPhysicalStrides()[ this->getVaryingIndex() ];
+      return this->_processor._array.getIndexMapper()._getPhysicalStrides()[this->getVaryingIndex()];
    }
 
    /**
@@ -364,9 +361,9 @@ public:
 
    IMPORTANT, <ptrToValue> if accessed in a contiguous fashion must account for the stride in the direction of access using <stride()>
    */
-   bool accessMaxElements( value_type const*& ptrToValue )
+   bool accessMaxElements(value_type const*& ptrToValue)
    {
-      return this->_accessElements( ptrToValue, getMaxAccessElements() );
+      return this->_accessElements(ptrToValue, getMaxAccessElements());
    }
 };
 

@@ -19,8 +19,7 @@ public:
    using index_mapper    = IndexMapper;
    using pointer_type    = T*;
    using value_type      = T;
-   using Memory = Memory_contiguous<T, N, IndexMapper, Allocator>;
-
+   using Memory          = Memory_contiguous<T, N, IndexMapper, Allocator>;
 
    static const size_t RANK = N;
 
@@ -206,7 +205,7 @@ public:
    diterator endDim(ui32 dim, const index_type& indexN)
    {
       index_type index_cpy = indexN;
-      index_cpy[dim]     = this->_shape[dim];
+      index_cpy[dim]       = this->_shape[dim];
 
       auto p = this->at(index_cpy);
       return diterator(p, _indexMapper._getPhysicalStrides()[dim]);
@@ -215,7 +214,7 @@ public:
    const_diterator endDim(ui32 dim, const index_type& indexN) const
    {
       index_type index_cpy = indexN;
-      index_cpy[dim]     = this->_shape[dim];
+      index_cpy[dim]       = this->_shape[dim];
 
       auto p = this->at(index_cpy);
       return const_diterator(p, _indexMapper._getPhysicalStrides()[dim]);

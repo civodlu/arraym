@@ -29,14 +29,14 @@ Array_NaiveOperatorEnabled<T, N, Config1> operator+(const Array<T, N, Config1>& 
 }
 
 template <class T, size_t N, class Config1, class Config2>
-Array_NaiveOperatorEnabled<T, N, Config1>& operator-=( Array<T, N, Config1>& lhs, const Array<T, N, Config2>& rhs )
+Array_NaiveOperatorEnabled<T, N, Config1>& operator-=(Array<T, N, Config1>& lhs, const Array<T, N, Config2>& rhs)
 {
-   details::array_sub( lhs, rhs );
+   details::array_sub(lhs, rhs);
    return lhs;
 }
 
 template <class T, size_t N, class Config1, class Config2>
-Array_NaiveOperatorEnabled<T, N, Config1> operator-( const Array<T, N, Config1>& lhs, const Array<T, N, Config2>& rhs )
+Array_NaiveOperatorEnabled<T, N, Config1> operator-(const Array<T, N, Config1>& lhs, const Array<T, N, Config2>& rhs)
 {
    Array<T, N, Config1> cpy = lhs;
    cpy -= rhs;
