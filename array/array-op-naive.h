@@ -119,32 +119,70 @@ Array_NaiveEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
 }
 
 /**
- @brief Matrix * Matrix operation
- 
- Very slow version... should probably always avoid it!
+ @brief Display matrices
  */
-template <class T, class Config, class Config2>
-Array_NaiveEnabled<T, 2, Config> array_mul_array(const Array<T, 2, Config>& op1, const Array<T, 2, Config2>& op2)
+template <class T, size_t N, class Config,
+   typename = typename std::enable_if< is_matrix<Array<T, N, Config>>::value >::type>
+   std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
 {
-   const size_t op2_sizex = op2.shape()[1];
-   const size_t op1_sizex = op1.shape()[1];
-   const size_t op1_sizey = op1.shape()[0];
-   
-   Array<T, 2, Config> m({ op1_sizey, op2_sizex });
-   for (size_t nx = 0; nx < op2_sizex; ++nx)
+   if (array.size() == 0)
    {
-      for (size_t ny = 0; ny < op1_sizey; ++ny)
+      o << "[]";
+      return o;
+   }
+
+   o << "[ ";
+   for (size_t r = 0; r < array.rows(); ++r)
+   {
+      for (size_t c = 0; c < array.columns(); ++c)
       {
-         T val = 0;
-         for (size_t n = 0; n < op1_sizex; ++n)
-         {
-            val += op1(ny, n) * op2(n, nx);
-         }
-         m(ny, nx) = val;
+         o << array(r, c) << " ";
+      }
+      if (r + 1 < array.rows())
+      {
+         o << std::endl << "  ";
       }
    }
-   return m;
+   o << "]";
+   return o;
 }
+
+/**
+@brief Display any other array type than matrices
+*/
+template <class T, size_t N, class Config,
+   typename = typename std::enable_if< !is_matrix<Array<T, N, Config>>::value >::type, typename = int>
+   std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
+{
+   if (array.size() == 0)
+   {
+      o << "[]";
+      return o;
+   }
+
+   o << "[ ";
+   
+   ConstArrayProcessor_contiguous_byDimension<Array<T, N, Config>> processor(array);
+   bool hasMoreElements = true;
+   while (hasMoreElements)
+   {
+      T const* ptr = nullptr;
+      hasMoreElements = processor.accessSingleElement(ptr);
+      const auto index = processor.getArrayIndex()[0];
+      o << *ptr;
+      if (index == 0 && hasMoreElements)
+      {
+         o << "\n ";
+      }
+      else {
+         o << ' ';
+      }
+   }
+
+   o << "]";
+   return o;
+}
+
 }
 
 DECLARE_NAMESPACE_END

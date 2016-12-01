@@ -283,6 +283,7 @@ struct TestArrayOp
       Array a1(2, 3);
       a1 = { 11, 21, 31, 40, 50, 60 };
 
+      std::cout << a1 << std::endl;
       Array cpy = a1;
 
       cpy /= static_cast<Array::value_type>(2);
@@ -298,10 +299,10 @@ struct TestArrayOp
 
    void testArray_mul_array()
    {
-      testArray_mul_array<NAMESPACE_NLL::Array<int, 2>>();                      // naive, contiguous
-      testArray_mul_array<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>(); // naive, non fully contiguous
-      //testArray_mul_array<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
-      //testArray_mul_array<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<int>>();                      // naive, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<int>>();                   // naive, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<float>>();                      // BLAS, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<float>>();                      // BLAS, contiguous
    }
 
    template <class Array>
@@ -313,8 +314,50 @@ struct TestArrayOp
       Array a2(3, 2);
       a2 = { 20, 30, 40, 50, 60, 70 };
 
+      std::cout << a1 << std::endl;
+      std::cout << a2 << std::endl;
+
       Array result = a1 * a2;
       TESTER_ASSERT(result.shape() == vector2ui(2, 2));
+
+      TESTER_ASSERT(result(0, 0) == 400);
+      TESTER_ASSERT(result(1, 0) == 490);
+      TESTER_ASSERT(result(0, 1) == 760);
+      TESTER_ASSERT(result(1, 1) == 940);
+      std::cout << result << std::endl;
+   }
+
+   void testArray_matrix_memoryOrder()
+   {
+      {
+         Matrix_row_major<int> m1(4, 10);
+         auto order = getMatrixMemoryOrder(m1);
+         TESTER_ASSERT(order == MatrixMemoryOrder::ROW_MAJOR);
+      }
+
+      {
+         Matrix_row_major<int> m1(10, 4);
+         auto order = getMatrixMemoryOrder(m1);
+         TESTER_ASSERT(order == MatrixMemoryOrder::ROW_MAJOR);
+      }
+
+      {
+         Matrix_column_major<int> m1(4, 10);
+         auto order = getMatrixMemoryOrder(m1);
+         TESTER_ASSERT(order == MatrixMemoryOrder::COLUMN_MAJOR);
+      }
+
+      {
+         Matrix_column_major<int> m1(10, 4);
+         auto order = getMatrixMemoryOrder(m1);
+         TESTER_ASSERT(order == MatrixMemoryOrder::COLUMN_MAJOR);
+      }
+
+      {
+         Array<int, 2> m1(10, 4); // not a matrix, just an array!
+         auto order = getMatrixMemoryOrder(m1);
+         TESTER_ASSERT(order == MatrixMemoryOrder::UNKNOWN);
+      }
    }
 };
 
@@ -326,4 +369,5 @@ TESTER_TEST(test_matrixSub);
 TESTER_TEST(testArray_mul_cte);
 TESTER_TEST(testArray_div_cte);
 TESTER_TEST(testArray_mul_array);
+TESTER_TEST(testArray_matrix_memoryOrder);
 TESTER_TEST_SUITE_END();

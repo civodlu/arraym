@@ -731,7 +731,7 @@ struct TestArray
       TESTER_ASSERT(processor.getVaryingIndex() == 0);
 
       bool more_elements = true;
-      int* ptr           = nullptr;
+      int const* ptr           = nullptr;
 
       auto current_index = processor.getArrayIndex();
       more_elements      = processor.accessSingleElement(ptr);

@@ -366,10 +366,15 @@ protected:
 
 /**
 @brief Default matrix type, following Fortran column-major style
-@note If the default is changed, this means we need to update all the BLAS function calls having (LDA, LDB, ...) arguments
 */
 template <class T, class Mapper = IndexMapper_contiguous_matrix_column_major, class Allocator = std::allocator<T>>
 using Matrix = Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous<T, 2, Mapper, Allocator>>>;
+
+template <class T, class Allocator = std::allocator<T>>
+using Matrix_row_major = Matrix<T, IndexMapper_contiguous_matrix_row_major, Allocator>;
+
+template <class T, class Allocator = std::allocator<T>>
+using Matrix_column_major = Matrix<T, IndexMapper_contiguous_matrix_column_major, Allocator>;
 
 template <class T, size_t N, class Allocator = std::allocator<T>>
 using Array_row_major = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, IndexMapper_contiguous_row_major<N>, Allocator>>>;

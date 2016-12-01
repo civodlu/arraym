@@ -12,6 +12,8 @@ set(Headers    array.h
 			   array-noexp.h
                array-op-naive.h
 			   array-op-blas.h
+			   matrix-op-blas.h
+			   matrix-op-naive.h
                op-naive.h
                forward.h
                index-mapper.h

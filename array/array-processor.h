@@ -163,7 +163,7 @@ public:
    {
    }
 
-   bool accessSingleElement(const pointer_type& ptrToValue)
+   bool accessSingleElement(value_type const*& ptrToValue)
    {
       return _processor.accessSingleElement(const_cast<pointer_type&>(ptrToValue));
    }
