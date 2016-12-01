@@ -13,10 +13,16 @@ template <class T, size_t N, class IndexMapper = IndexMapper_contiguous<N>, clas
 class Memory_contiguous : public memory_layout_contiguous
 {
 public:
-   using Vectorui        = StaticVector<ui32, N>;
+   using index_type      = StaticVector<ui32, N>;
    using allocator_type  = Allocator;
    using allocator_trait = std::allocator_traits<allocator_type>;
    using index_mapper    = IndexMapper;
+   using pointer_type    = T*;
+   using value_type      = T;
+   using Memory = Memory_contiguous<T, N, IndexMapper, Allocator>;
+
+
+   static const size_t RANK = N;
 
    template <class T2, size_t N2>
    struct rebind
@@ -96,7 +102,7 @@ public:
    }
 
    /// New memory block
-   Memory_contiguous(const Vectorui& shape, T default_value = T(), const allocator_type& allocator = allocator_type()) : _shape(shape), _allocator(allocator)
+   Memory_contiguous(const index_type& shape, T default_value = T(), const allocator_type& allocator = allocator_type()) : _shape(shape), _allocator(allocator)
    {
       _indexMapper.init(0, shape);
       _allocateSlices(default_value, _linearSize());
@@ -107,7 +113,7 @@ public:
    for deallocation
    @param slicesAllocated if true, <allocator> will be used to deallocate the memory. Else the user is responsible for the slice's memory
    */
-   Memory_contiguous(const Vectorui& shape, T* data, const allocator_type& allocator = allocator_type(), bool dataAllocated = false)
+   Memory_contiguous(const index_type& shape, T* data, const allocator_type& allocator = allocator_type(), bool dataAllocated = false)
        : _shape(shape), _allocator(allocator)
    {
       _indexMapper.init(0, shape);
@@ -120,7 +126,7 @@ public:
    for deallocation
    @param slicesAllocated if true, <allocator> will be used to deallocate the memory. Else the user is responsible for the slice's memory
    */
-   Memory_contiguous(const Vectorui& shape, T* data, const Vectorui& physicalStrides, const allocator_type& allocator = allocator_type(),
+   Memory_contiguous(const index_type& shape, T* data, const index_type& physicalStrides, const allocator_type& allocator = allocator_type(),
                      bool dataAllocated = false)
        : _shape(shape), _allocator(allocator)
    {
@@ -135,10 +141,10 @@ public:
    Create a reference of <this>, so do NOT destroy the memory while using the sliced mempory
    */
    template <size_t dimension>
-   typename rebind<T, N - 1>::other slice(const Vectorui& index) const
+   typename rebind<T, N - 1>::other slice(const index_type& index) const
    {
       // we start at the beginning of the slice
-      Vectorui index_slice;
+      index_type index_slice;
       index_slice[dimension] = index[dimension];
       T* ptr                 = const_cast<T*>(this->at(index_slice));
 
@@ -167,7 +173,7 @@ public:
    @param shape the size of the actual memory
    @param min_index the index in <ref> to be used as the first data element
    */
-   Memory_contiguous(Memory_contiguous& ref, const Vectorui& min_index, const Vectorui& shape, const Vectorui& strides) : _shape(shape)
+   Memory_contiguous(Memory_contiguous& ref, const index_type& min_index, const index_type& shape, const index_type& strides) : _shape(shape)
    {
       _data          = ref._data;
       _dataAllocated = false; // we create a reference on existing slices
@@ -185,30 +191,30 @@ public:
       }
    }
 
-   diterator beginDim(ui32 dim, const Vectorui& indexN)
+   diterator beginDim(ui32 dim, const index_type& indexN)
    {
       auto p = this->at(indexN);
       return diterator(p, _indexMapper._getPhysicalStrides()[dim]);
    }
 
-   const_diterator beginDim(ui32 dim, const Vectorui& indexN) const
+   const_diterator beginDim(ui32 dim, const index_type& indexN) const
    {
       auto p = this->at(indexN);
       return const_diterator(p, _indexMapper._getPhysicalStrides()[dim]);
    }
 
-   diterator endDim(ui32 dim, const Vectorui& indexN)
+   diterator endDim(ui32 dim, const index_type& indexN)
    {
-      Vectorui index_cpy = indexN;
+      index_type index_cpy = indexN;
       index_cpy[dim]     = this->_shape[dim];
 
       auto p = this->at(index_cpy);
       return diterator(p, _indexMapper._getPhysicalStrides()[dim]);
    }
 
-   const_diterator endDim(ui32 dim, const Vectorui& indexN) const
+   const_diterator endDim(ui32 dim, const index_type& indexN) const
    {
-      Vectorui index_cpy = indexN;
+      index_type index_cpy = indexN;
       index_cpy[dim]     = this->_shape[dim];
 
       auto p = this->at(index_cpy);
@@ -333,19 +339,19 @@ public:
       _deallocateSlices();
    }
 
-   const T* at(const Vectorui& index) const
+   const T* at(const index_type& index) const
    {
       const auto offset = _indexMapper.offset(index);
       return _data + offset;
    }
 
-   T* at(const Vectorui& index)
+   T* at(const index_type& index)
    {
       const auto offset = _indexMapper.offset(index);
       return _data + offset;
    }
 
-   const Vectorui& shape() const
+   const index_type& shape() const
    {
       return _shape;
    }
@@ -362,7 +368,7 @@ public:
 
    //private:
    IndexMapper _indexMapper;
-   Vectorui _shape;
+   index_type _shape;
    T* _data = nullptr;
    allocator_type _allocator;
    bool _dataAllocated = true;

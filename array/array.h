@@ -544,7 +544,8 @@ namespace details
    };
 }
 /**
- @brief Returns true if the array is fully contiguous (i.e., contiguous memory based AND not a sub-array)
+ @brief Returns true if the array is fully contiguous, meaning that the array occupies a single block of contiguous memory
+        with no gap between elements (i.e., can't generally be a sub-array)
  */
 template <class T, int N, class Config>
 bool is_array_fully_contiguous(const Array<T, N, Config>& a1)
@@ -560,18 +561,5 @@ bool is_array_fully_contiguous(const Array<T, N, Config>& a1)
    // test that the last element of one dimension + 1 equals the first element of the next dimension
    return details::IsArrayFullyContiguous<array_type>::value(a1, std::integral_constant<bool, IsArrayLayoutContiguous<array_type>::value>());
 }
-
-/**
-@brief When there is a choice between two array configuration, this template will decide which one to chose
-(e.g., when adding two array with different config)
-*/
-/*
-template <class Config1, class Config2>
-struct choose_array_config
-{
-// @TODO have a smarted scheme, in particular for the stack memory allocators
-using type = Config1;
-};
-*/
 
 DECLARE_NAMESPACE_END

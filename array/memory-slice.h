@@ -15,11 +15,16 @@ template <class T, size_t N, class IndexMapper = IndexMapper_multislice<N, N - 1
 class Memory_multislice : public memory_layout_multislice_z
 {
 public:
-   using Vectorui              = StaticVector<ui32, N>;
+   using index_type            = StaticVector<ui32, N>;
    using allocator_type        = Allocator;
    using allocator_trait       = std::allocator_traits<allocator_type>;
    using index_mapper          = IndexMapper;
+   using pointer_type          = T*;
+   using value_type            = T;
+   using Memory                = Memory_multislice<T, N, IndexMapper, Allocator>;
+
    static const size_t Z_INDEX = index_mapper::Z_INDEX; /// this is the index where the slices will be created (i.e., all others will be in contiguous memory)
+   static const size_t RANK = N;
 
    template <class TT>
    class diterator_t : public std::iterator<std::random_access_iterator_tag, TT>
@@ -119,7 +124,7 @@ public:
    }
 
    /// New memory block
-   Memory_multislice(const Vectorui& shape, T default_value = T(), const allocator_type& allocator = allocator_type()) : _shape(shape), _allocator(allocator)
+   Memory_multislice(const index_type& shape, T default_value = T(), const allocator_type& allocator = allocator_type()) : _shape(shape), _allocator(allocator)
    {
       _indexMapper.init(0, shape);
       _allocateSlices(default_value, _inSliceSize());
@@ -130,7 +135,7 @@ public:
    for deallocation
    @param slicesAllocated if true, <allocator> will be used to deallocate the memory. Else the user is responsible for the slice's memory
    */
-   Memory_multislice(const Vectorui& shape, const std::vector<T*>& slices, const allocator_type& allocator = allocator_type(), bool slicesAllocated = false)
+   Memory_multislice(const index_type& shape, const std::vector<T*>& slices, const allocator_type& allocator = allocator_type(), bool slicesAllocated = false)
        : _shape(shape), _allocator(allocator)
    {
       _indexMapper.init(0, shape);
@@ -138,7 +143,7 @@ public:
       _slicesAllocated = slicesAllocated;
    }
 
-   Memory_multislice(const Vectorui& shape, const std::vector<T*>& slices, const Vectorui& physicalStrides, const allocator_type& allocator = allocator_type(),
+   Memory_multislice(const index_type& shape, const std::vector<T*>& slices, const index_type& physicalStrides, const allocator_type& allocator = allocator_type(),
                      bool slicesAllocated = false)
        : _shape(shape), _allocator(allocator)
    {
@@ -154,7 +159,7 @@ public:
    @param shape the size of the actual memory
    @param min_index the index in <ref> to be used as the first data element
    */
-   Memory_multislice(Memory_multislice& ref, const Vectorui& min_index, const Vectorui& shape, const Vectorui& strides) : _shape(shape)
+   Memory_multislice(Memory_multislice& ref, const index_type& min_index, const index_type& shape, const index_type& strides) : _shape(shape)
    {
       _slices.resize(shape[Z_INDEX]);
       for (size_t s = 0; s < shape[Z_INDEX]; ++s)
@@ -186,26 +191,26 @@ public:
       return _allocator;
    }
 
-   diterator beginDim(ui32 dim, const Vectorui& indexN)
+   diterator beginDim(ui32 dim, const index_type& indexN)
    {
       return diterator(indexN[Z_INDEX], _indexMapper.offset(indexN), _indexMapper._getPhysicalStrides()[dim], &_slices[0]);
    }
 
-   const_diterator beginDim(ui32 dim, const Vectorui& indexN) const
+   const_diterator beginDim(ui32 dim, const index_type& indexN) const
    {
       return const_diterator(indexN[Z_INDEX], _indexMapper.offset(indexN), _indexMapper._getPhysicalStrides()[dim], &_slices[0]);
    }
 
-   diterator endDim(ui32 dim, const Vectorui& indexN)
+   diterator endDim(ui32 dim, const index_type& indexN)
    {
-      Vectorui index_cpy = indexN;
+      index_type index_cpy = indexN;
       index_cpy[dim]     = this->_shape[dim];
       return diterator(index_cpy[Z_INDEX], _indexMapper.offset(index_cpy), _indexMapper._getPhysicalStrides()[dim], &_slices[0]);
    }
 
-   const_diterator endDim(ui32 dim, const Vectorui& indexN) const
+   const_diterator endDim(ui32 dim, const index_type& indexN) const
    {
-      Vectorui index_cpy = indexN;
+      index_type index_cpy = indexN;
       index_cpy[dim]     = this->_shape[dim];
       return const_diterator(index_cpy[Z_INDEX], _indexMapper.offset(index_cpy), _indexMapper._getPhysicalStrides()[dim], &_slices[0]);
    }
@@ -220,10 +225,10 @@ private:
       using other = Memory_multislice<T, N - 1, typename IndexMapper::template rebind<N - 1, Z_INDEX - 1>::other, allocator_type>;
 
       template <size_t slice_dim>
-      static other slice(const Memory_multislice& array, const Vectorui& index)
+      static other slice(const Memory_multislice& array, const index_type& index)
       {
-         typename other::Vectorui shape;
-         typename other::Vectorui physicalStride;
+         typename other::index_type shape;
+         typename other::index_type physicalStride;
          size_t current_index = 0;
          for (size_t n = 0; n < N; ++n)
          {
@@ -237,7 +242,7 @@ private:
 
          const size_t nb_slices = array.shape()[Z_INDEX];
          std::vector<T*> slices(nb_slices);
-         Vectorui origin;
+         index_type origin;
          origin[slice_dim] = index[slice_dim];
          for (ui32 n = 0; n < nb_slices; ++n)
          {
@@ -257,15 +262,15 @@ private:
       using other        = Memory_contiguous<T, N - 1, index_mapper, allocator_type>;
 
       template <size_t slice_dim>
-      static other slice(const Memory_multislice& array, const Vectorui& index)
+      static other slice(const Memory_multislice& array, const index_type& index)
       {
          // we start at the beginning of the slice
-         Vectorui index_slice;
+         index_type index_slice;
          index_slice[slice_dim] = index[slice_dim];
          T* ptr                 = const_cast<T*>(array.at(index_slice));
 
-         typename other::Vectorui shape;
-         typename other::Vectorui physicalStride;
+         typename other::index_type shape;
+         typename other::index_type physicalStride;
          size_t current_index = 0;
          for (size_t n = 0; n < N; ++n)
          {
@@ -294,7 +299,7 @@ public:
    "SliceImpl = std::conditional<slice_dim == Z_INDEX, SliceImpl_z, SliceImpl_notz>::type;"
    */
    template <int dimension>
-   typename SliceImpl<dimension>::type::other slice(const Vectorui& point) const
+   typename SliceImpl<dimension>::type::other slice(const index_type& point) const
    {
       using Impl = SliceImpl<dimension>::type;
       return Impl::slice<dimension>(*this, point);
@@ -428,14 +433,14 @@ public:
       _deallocateSlices();
    }
 
-   const T* at(const Vectorui& index) const
+   const T* at(const index_type& index) const
    {
       const auto offset = _indexMapper.offset(index);
       const auto p      = _slices[index[Z_INDEX]];
       return p + offset;
    }
 
-   T* at(const Vectorui& index)
+   T* at(const index_type& index)
    {
       const auto offset = _indexMapper.offset(index);
       const auto p      = _slices[index[Z_INDEX]];
@@ -451,7 +456,7 @@ public:
    //
    //
 
-   const Vectorui& shape() const
+   const index_type& shape() const
    {
       return _shape;
    }
@@ -463,7 +468,7 @@ public:
 
 private:
    IndexMapper _indexMapper;
-   Vectorui _shape;
+   index_type _shape;
    std::vector<T*> _slices;
    allocator_type _allocator;
    bool _slicesAllocated = true;

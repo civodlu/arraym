@@ -9,11 +9,11 @@ template <size_t N>
 struct Mapper_stride_row_major
 {
 public:
-   using Vectorui = StaticVector<ui32, N>;
+   using index_type = StaticVector<ui32, N>;
 
-   Vectorui operator()(const Vectorui& shape) const
+   index_type operator()(const index_type& shape) const
    {
-      Vectorui strides;
+      index_type strides;
       ui32 stride = 1;
       for (size_t n = 0; n < N; ++n)
       {
@@ -35,11 +35,11 @@ template <size_t N, size_t Z_INDEX_>
 struct Mapper_multisplice_stride_row_major
 {
 public:
-   using Vectorui = StaticVector<ui32, N>;
+   using index_type = StaticVector<ui32, N>;
 
-   Vectorui operator()(const Vectorui& shape) const
+   index_type operator()(const index_type& shape) const
    {
-      Vectorui strides;
+      index_type strides;
       ui32 stride = 1;
       for (size_t n = 0; n < N; ++n)
       {
@@ -64,11 +64,11 @@ template <size_t N>
 struct Mapper_stride_column_major
 {
 public:
-   using Vectorui = StaticVector<ui32, N>;
+   using index_type = StaticVector<ui32, N>;
 
-   Vectorui operator()(const Vectorui& shape) const
+   index_type operator()(const index_type& shape) const
    {
-      Vectorui strides;
+      index_type strides;
 
       ui32 stride = 1;
       for (int n = N - 1; n >= 0; --n)
@@ -118,7 +118,7 @@ template <size_t N, class Mapper = details::Mapper_stride_row_major<N>>
 class IndexMapper_contiguous : public memory_layout_contiguous
 {
 public:
-   using Vectorui    = StaticVector<ui32, N>;
+   using index_type    = StaticVector<ui32, N>;
    using IndexMapper = IndexMapper_contiguous<N, Mapper>;
 
    template <size_t dim>
@@ -132,26 +132,26 @@ public:
    @param physical_strides the strides of the area to map, considering the underlying memory (i.e,
    if we reference a sub-block, this must be factored in the stride)
    */
-   void init(ui32 origin, const Vectorui& shape)
+   void init(ui32 origin, const index_type& shape)
    {
-      Vectorui strides = Mapper()(shape);
+      index_type strides = Mapper()(shape);
 
       _origin          = origin;
       _physicalStrides = strides;
    }
 
-   void init(const Vectorui& physicalStrides)
+   void init(const index_type& physicalStrides)
    {
       _origin          = 0;
       _physicalStrides = physicalStrides;
    }
 
-   ui32 offset(const Vectorui& index) const
+   ui32 offset(const index_type& index) const
    {
       return dot(index, _physicalStrides) + _origin;
    }
 
-   IndexMapper submap(const Vectorui& origin, const Vectorui& shape, const Vectorui& strides) const
+   IndexMapper submap(const index_type& origin, const index_type& shape, const index_type& strides) const
    {
       const auto newPhysicalStrides = _physicalStrides * strides;
       const auto newOrigin          = offset(origin);
@@ -163,7 +163,7 @@ public:
    }
 
    // this is not part of the generic interface but can be specifically used for a memory/mapper
-   const Vectorui& _getPhysicalStrides() const
+   const index_type& _getPhysicalStrides() const
    {
       return _physicalStrides;
    }
@@ -172,7 +172,7 @@ public:
     @brief slice an array following <dimension> at the position <index>
     */
    template <size_t dimension>
-   typename rebind<N - 1>::other slice(const Vectorui& UNUSED(index)) const
+   typename rebind<N - 1>::other slice(const index_type& UNUSED(index)) const
    {
       typename rebind<N - 1>::other sliced_index;
       sliced_index._origin = 0; // the <_data> will be set to index so start from 0
@@ -190,7 +190,7 @@ public:
 
    //private:
    ui32 _origin;
-   Vectorui _physicalStrides;
+   index_type _physicalStrides;
 };
 
 template <class Mapper>
@@ -240,7 +240,7 @@ class IndexMapper_multislice : public memory_layout_multislice_z
    };
 
 public:
-   using Vectorui              = StaticVector<ui32, N>;
+   using index_type              = StaticVector<ui32, N>;
    static const size_t Z_INDEX = Z_INDEX_;
    using IndexMapper           = IndexMapper_multislice<N, Z_INDEX, Mapper>;
 
@@ -253,28 +253,28 @@ public:
    @param physical_strides the strides of the area to map, considering the underlying memory (i.e,
    if we reference a sub-block, this must be factored in the stride)
    */
-   void init(ui32 origin, const Vectorui& shape)
+   void init(ui32 origin, const index_type& shape)
    {
-      Vectorui strides = Mapper()(shape);
+      index_type strides = Mapper()(shape);
 
       _origin                   = origin;
       _physicalStrides          = strides;
       _physicalStrides[Z_INDEX] = 0; // in slice offset should be independent of Z_INDEX axis
    }
 
-   void init(const Vectorui& physicalStrides)
+   void init(const index_type& physicalStrides)
    {
       _origin                   = 0; // the slices' ptr should already be set to origin
       _physicalStrides          = physicalStrides;
       _physicalStrides[Z_INDEX] = 0; // in slice offset should be independent of Z_INDEX axis
    }
 
-   ui32 offset(const Vectorui& index) const
+   ui32 offset(const index_type& index) const
    {
       return dot(index, _physicalStrides) + _origin;
    }
 
-   IndexMapper submap(const Vectorui& origin, const Vectorui& shape, const Vectorui& strides) const
+   IndexMapper submap(const index_type& origin, const index_type& shape, const index_type& strides) const
    {
       const auto newPhysicalStrides = _physicalStrides * strides;
       const auto newOrigin          = offset(origin);
@@ -287,14 +287,14 @@ public:
 
 public:
    // this is not part of the generic interface but can be specifically used for a memory/mapper
-   const Vectorui& _getPhysicalStrides() const
+   const index_type& _getPhysicalStrides() const
    {
       return _physicalStrides;
    }
 
 private:
    ui32 _origin;
-   Vectorui _physicalStrides;
+   index_type _physicalStrides;
 };
 
 DECLARE_NAMESPACE_END

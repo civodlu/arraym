@@ -199,41 +199,48 @@ protected:
    ArrayProcessor_contiguous_base<Array> _processor;
 };
 
-template <class T, ui32 N, class ConfigT>
-StaticVector<ui32, N> getFastestVaryingIndexes(const Array<T, N, ConfigT>& array)
+template <class Memory>
+StaticVector<ui32, Memory::RANK> getFastestVaryingIndexesMemory( const Memory& memory )
 {
-   using array_type = Array<T, N, ConfigT>;
-   using index_type = typename array_type::index_type;
+   static const size_t N = Memory::RANK;
+   using index_type = typename Memory::index_type;
 
-   static_assert(std::is_base_of<memory_layout_linear, typename array_type::Memory>::value, "must be a linear index mapper!");
+   static_assert( std::is_base_of<memory_layout_linear, Memory>::value, "must be a linear index mapper!" );
 
    index_type fastestVaryingIndexes;
 
    // first, we want to iterate from the fastest->lowest varying index to avoid as much cache misses as possible
    // EXCEPT is stride is 0, which is a special case (different slices in memory, so this is actually the WORST dimension to iterate on)
-   auto strides = array.getMemory().getIndexMapper()._getPhysicalStrides();
-   for (auto& v : strides)
+   auto strides = memory.getIndexMapper()._getPhysicalStrides();
+   for ( auto& v : strides )
    {
-      if (v == 0)
+      if ( v == 0 )
       {
          v = std::numeric_limits<typename index_type::value_type>::max();
       }
    }
 
    std::array<std::pair<ui32, ui32>, N> stridesIndex;
-   for (ui32 n = 0; n < N; ++n)
+   for ( ui32 n = 0; n < N; ++n )
    {
-      stridesIndex[n] = std::make_pair(strides[n], n);
+      stridesIndex[ n ] = std::make_pair( strides[ n ], n );
    }
-   std::sort(stridesIndex.begin(), stridesIndex.end());
+   std::sort( stridesIndex.begin(), stridesIndex.end() );
 
-   for (ui32 n = 0; n < N; ++n)
+   for ( ui32 n = 0; n < N; ++n )
    {
-      fastestVaryingIndexes[n] = stridesIndex[n].second;
+      fastestVaryingIndexes[ n ] = stridesIndex[ n ].second;
    }
 
    return fastestVaryingIndexes;
 }
+
+template <class T, ui32 N, class ConfigT>
+StaticVector<ui32, N> getFastestVaryingIndexes(const Array<T, N, ConfigT>& array)
+{
+   return getFastestVaryingIndexesMemory( array.getMemory() );
+}
+
 }
 
 /**
