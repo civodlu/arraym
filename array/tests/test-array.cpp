@@ -721,6 +721,68 @@ struct TestArray
       //ptr[ 0 ] = 42;
    }
 
+   void testMemory_processor_const_column()
+   {
+      using Array = NAMESPACE_NLL::Array_column_major<int, 2>;
+      Array m( 2, 3 );
+      m = { 1, 2, 3, 4, 5, 6 };
+
+      NAMESPACE_NLL::ConstMemoryProcessor_contiguous_byMemoryLocality<Array::Memory> processor( m.getMemory() );
+      TESTER_ASSERT( processor.getVaryingIndex() == 1 );
+
+      bool more_elements = true;
+      int const* ptr = nullptr;
+
+      auto current_index = processor.getArrayIndex();
+      more_elements = processor.accessMaxElements( ptr );
+      TESTER_ASSERT( more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 1 );
+      TESTER_ASSERT( ptr[ 1 ] == 3 );
+      TESTER_ASSERT( ptr[ 2 ] == 5 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 0, 0 ) );
+
+      current_index = processor.getArrayIndex();
+      more_elements = processor.accessMaxElements( ptr );
+      TESTER_ASSERT( !more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 2 );
+      TESTER_ASSERT( ptr[ 1 ] == 4 );
+      TESTER_ASSERT( ptr[ 2 ] == 6 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 1, 0 ) );
+
+      //ptr[ 0 ] = 42;
+   }
+
+   void testMemory_processor_column()
+   {
+      using Array = NAMESPACE_NLL::Array_column_major<int, 2>;
+      Array m( 2, 3 );
+      m = { 1, 2, 3, 4, 5, 6 };
+
+      NAMESPACE_NLL::MemoryProcessor_contiguous_byMemoryLocality<Array::Memory> processor( m.getMemory() );
+      TESTER_ASSERT( processor.getVaryingIndex() == 1 );
+
+      bool more_elements = true;
+      int* ptr = nullptr;
+
+      auto current_index = processor.getArrayIndex();
+      more_elements = processor.accessMaxElements( ptr );
+      TESTER_ASSERT( more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 1 );
+      TESTER_ASSERT( ptr[ 1 ] == 3 );
+      TESTER_ASSERT( ptr[ 2 ] == 5 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 0, 0 ) );
+
+      current_index = processor.getArrayIndex();
+      more_elements = processor.accessMaxElements( ptr );
+      TESTER_ASSERT( !more_elements );
+      TESTER_ASSERT( ptr[ 0 ] == 2 );
+      TESTER_ASSERT( ptr[ 1 ] == 4 );
+      TESTER_ASSERT( ptr[ 2 ] == 6 );
+      TESTER_ASSERT( current_index == NAMESPACE_NLL::vector2ui( 1, 0 ) );
+
+      //ptr[ 0 ] = 42;
+   }
+
    void testArray_processor_const_column2()
    {
       using Array = NAMESPACE_NLL::Array_column_major<int, 2>;
@@ -772,6 +834,8 @@ struct TestArray
 };
 
 TESTER_TEST_SUITE(TestArray);
+TESTER_TEST( testMemory_processor_const_column );
+TESTER_TEST( testMemory_processor_column );
 TESTER_TEST(testMemorySliceNonContiguous_not_zslice);
 TESTER_TEST(testMemorySliceNonContiguous_zslice);
 TESTER_TEST(testVolumeConstruction_slices);

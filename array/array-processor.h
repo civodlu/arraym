@@ -15,6 +15,12 @@ class ConstArrayProcessor_contiguous_byMemoryLocality;
 template <class Array>
 class ConstArrayProcessor_contiguous_base;
 
+template <class Array>
+class ConstMemoryProcessor_contiguous_byMemoryLocality;
+
+template <class Array>
+class ConstMemoryProcessor_contiguous_base;
+
 namespace details
 {
 /**
@@ -33,6 +39,8 @@ class ArrayProcessor_contiguous_base
 {
    friend class ConstArrayProcessor_contiguous_byMemoryLocality<Array>;
    friend class ConstArrayProcessor_contiguous_base<Array>;
+   friend class ConstMemoryProcessor_contiguous_byMemoryLocality<Array>;
+   friend class ConstMemoryProcessor_contiguous_base<Array>;
 
    using diterator = typename Array::diterator;
    static_assert(std::is_base_of<memory_layout_linear, typename Array::Memory>::value, "must be a linear index mapper!");
@@ -278,6 +286,87 @@ public:
    bool accessMaxElements(pointer_type& ptrToValue)
    {
       return this->_accessElements(ptrToValue, this->_maxAccessElements);
+   }
+};
+
+/**
+@brief iterate an array's memory by maximizing memory locality. This should be the preferred iterator
+@note memory behaves like an array so we can reuse the array's processor
+*/
+template <class Memory>
+class MemoryProcessor_contiguous_byMemoryLocality : public details::ArrayProcessor_contiguous_base<Memory>
+{
+public:
+   using base = details::ArrayProcessor_contiguous_base<Memory>;
+   using pointer_type = typename base::pointer_type;
+
+   MemoryProcessor_contiguous_byMemoryLocality( Memory& array )
+      : base( array, &details::getFastestVaryingIndexesMemory<Memory> )
+   {
+   }
+
+   ui32 getMaxAccessElements() const
+   {
+      return this->_maxAccessElements;
+   }
+
+   ui32 stride() const
+   {
+      return this->_array.getIndexMapper()._getPhysicalStrides()[ this->getVaryingIndex() ];
+   }
+
+   /**
+   @return true if more elements are to be processed
+
+   This is defined only for memory locality as this is the only method guarantying contiguous memory access
+
+   IMPORTANT, <ptrToValue> if accessed in a contiguous fashion must account for the stride in the direction of access using <stride()>
+   */
+   bool accessMaxElements( pointer_type& ptrToValue )
+   {
+      return this->_accessElements( ptrToValue, this->_maxAccessElements );
+   }
+};
+
+/**
+@brief iterate an array's memory by maximizing memory locality. This should be the preferred iterator
+
+This is a const version of @ref ArrayProcessor_contiguous_byMemoryLocality
+@note memory behaves like an array so we can reuse the array's processor
+*/
+template <class Memory>
+class ConstMemoryProcessor_contiguous_byMemoryLocality : public details::ConstArrayProcessor_contiguous_base<Memory>
+{
+public:
+   using base = details::ConstArrayProcessor_contiguous_base<Memory>;
+   using pointer_type = typename Memory::pointer_type;
+   using value_type = typename Memory::value_type;
+
+   ConstMemoryProcessor_contiguous_byMemoryLocality( const Memory& array )
+      : base( array, &details::getFastestVaryingIndexesMemory<Memory> )
+   {
+   }
+
+   ui32 getMaxAccessElements() const
+   {
+      return _processor._maxAccessElements;
+   }
+
+   ui32 stride() const
+   {
+      return this->_processor._array.getIndexMapper()._getPhysicalStrides()[ this->getVaryingIndex() ];
+   }
+
+   /**
+   @return true if more elements are to be processed
+
+   This is defined only for memory locality as this is the only method guarantying contiguous memory access
+
+   IMPORTANT, <ptrToValue> if accessed in a contiguous fashion must account for the stride in the direction of access using <stride()>
+   */
+   bool accessMaxElements( value_type const*& ptrToValue )
+   {
+      return this->_accessElements( ptrToValue, getMaxAccessElements() );
    }
 };
 
