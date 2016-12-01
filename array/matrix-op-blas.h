@@ -71,6 +71,8 @@ namespace details
 {
 /**
 @brief Compute opc = alpha * opa * opb + beta * opc
+
+Only call this methods for BLAS supported types (float/double) with Matrix based arrays
 */
 template <class T, class Config, class Config2, class Config3>
 void gemm( T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& opb, T beta, Array<T, 2, Config3>& opc )

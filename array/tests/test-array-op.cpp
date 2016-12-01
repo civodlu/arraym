@@ -17,6 +17,12 @@ struct TestArrayOp
       static_assert(IsArrayLayoutContiguous<Array_column_major<int, 2>>::value, "column major is contiguous layout!");
       static_assert(!IsArrayLayoutContiguous<Array_row_major_multislice<int, 2>>::value, "slice based memory is NOT contiguous layout!");
 
+      static_assert(IsArrayLayoutLinear<Array_row_major<int, 2>>::value, "row major is contiguous layout!");
+      static_assert(IsArrayLayoutLinear<Array_column_major<int, 2>>::value, "column major is contiguous layout!");
+      static_assert(IsArrayLayoutLinear<Array_row_major_multislice<int, 2>>::value, "slice based memory is contiguous layout by slice!");
+
+      
+
       TESTER_ASSERT(!is_array_fully_contiguous(Array_row_major_multislice<int, 2>(4, 6))); // multi-slices: not contiguous!
 
       TESTER_ASSERT(is_array_fully_contiguous(Array_row_major<int, 2>(4, 6)));       // contiguous layout, not a sub-array

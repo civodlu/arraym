@@ -354,38 +354,39 @@ private:
 
    void _deepCopy(const Memory_multislice& other)
    {
-      //
-      // TODO: we do NOT want to copy the full base memory, we SHOULD revert to stride = 1, 1, 1
-      // use a <processor> here!
-      //
-
       _deallocateSlices(); // if any memory is allocated or referenced, they are not needed anymore
 
-      _indexMapper     = other._indexMapper;
       _shape           = other._shape;
+      _indexMapper.init(0, _shape);
       _allocator       = other._allocator;
       _slicesAllocated = true;
 
-      // now deep copy...
-      ui32 in_slice_size = 0;
-      if (other._sharedView)
+      const ui32 this_inSliceSize = _inSliceSize();
+      const ui32 other_inSliceSize = other._sharedView ? other._sharedView->_inSliceSize() : other._inSliceSize();
+
+      const auto size_per_slice_bytes = sizeof(T) * this_inSliceSize;
+      _allocateSlices(T(), this_inSliceSize);
+      if (this_inSliceSize == other_inSliceSize) // TODO we want fully contiguous slice! We we construct the memory with a stride != 1
       {
-         // do not use the actual size of the reference, it may be a sub-memory!
-         in_slice_size = other._sharedView->_inSliceSize();
+         // same size so there was no sub-array: we can
+         // 
+         for (size_t n = 0; n < _shape[Z_INDEX]; ++n)
+         {
+            static_assert(std::is_standard_layout<T>::value, "must have standard layout!");
+            const auto src = other._slices[n];
+            const auto dst = _slices[n];
+            memcpy(dst, src, size_per_slice_bytes);
+         }
       }
       else
       {
-         // there is no reference so it can't be a sub-memory and _size is its actual size
-         in_slice_size = _inSliceSize();
-      }
-      const auto size_per_slice_bytes = sizeof(T) * in_slice_size;
-      _allocateSlices(T(), in_slice_size);
-      for (size_t n = 0; n < _shape[Z_INDEX]; ++n)
-      {
-         static_assert(std::is_standard_layout<T>::value, "must have standard layout!");
-         const auto src = other._slices[n];
-         const auto dst = _slices[n];
-         memcpy(dst, src, size_per_slice_bytes);
+         // we have a subarray, potentially with stride so we need to use a processor
+         auto op_cpy = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
+         {
+            // TODO add the BLAS copy
+            details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
+         };
+         iterate_memory_constmemory(*this, other, op_cpy);
       }
    }
 

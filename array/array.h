@@ -487,6 +487,14 @@ bool same_data_ordering(const Array<T, N, Config>& a1, const Array<T, N, Config2
    return i1 == i2;
 }
 
+template <class Memory1, class Memory2>
+bool same_data_ordering_memory(const Memory1& a1, const Memory2& a2)
+{
+   const auto i1 = details::getFastestVaryingIndexesMemory(a1);
+   const auto i2 = details::getFastestVaryingIndexesMemory(a2);
+   return i1 == i2;
+}
+
 /**
 @brief Returns true if an array is based on a single slice of contiguous memory
 @note this doesn't mean there is not gap between dimensions (e.g., we have a sub-array)
@@ -495,6 +503,26 @@ template <class Array>
 struct IsArrayLayoutContiguous
 {
    static const bool value = std::is_base_of<memory_layout_contiguous, typename Array::Memory>::value;
+};
+
+/**
+@brief Returns true if an array is based on a single slice or multiple slices of contiguous memory
+@note this doesn't mean there is not gap between dimensions (e.g., we have a sub-array)
+*/
+template <class Array>
+struct IsArrayLayoutLinear
+{
+   static const bool value = std::is_base_of<memory_layout_linear, typename Array::Memory>::value;
+};
+
+/**
+@brief Returns true if an array is based on a single slice or multiple slices of contiguous memory
+@note this doesn't mean there is not gap between dimensions (e.g., we have a sub-array)
+*/
+template <class Memory>
+struct IsMemoryLayoutLinear
+{
+   static const bool value = std::is_base_of<memory_layout_linear, Memory>::value;
 };
 
 namespace details

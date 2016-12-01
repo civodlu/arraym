@@ -141,8 +141,13 @@ protected:
       }
    };
 
-protected:
+
+public:
+   // TODO fix these issues with friends
+   ui32 _maxAccessElements;     // maximum number of steps in the fastest varying dimension possible without increasing the other indexes
    Array& _array;
+
+protected:
    diterator _iterator;
    bool _pointer_invalid = true;
    index_type _iterator_index;
@@ -150,7 +155,6 @@ protected:
    index_type _sizeOrder;       // the size, ordered by <_indexesOrder>
    index_type _indexesOrder;    // the order of the traversal
    index_type _indexesOrderInv; // the order of the traversal
-   ui32 _maxAccessElements;     // maximum number of steps in the fastest varying dimension possible without increasing the other indexes
 };
 
 /**
@@ -485,4 +489,72 @@ void fill(Array<T, N, Config>& array, Functor functor)
    }
 }
 
+
+/**
+@brief iterate array & const array jointly
+@tparam must be callable using (T* a1_pointer, a1_stride, const T* a2_pointer, a2_stride, nb elements)
+@note this is only instantiated for linear memory
+*/
+template <class Memory1, class Memory2, class Op,
+   typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
+void iterate_memory_constmemory(Memory1& a1, const Memory2& a2, const Op& op)
+{
+   using T = typename Memory1::value_type;
+   using T2 = typename Memory2::value_type;
+   static const size_t N = Memory1::RANK;
+
+   static_assert(is_callable_with<Op, T*, ui32, const T2*, ui32, ui32>::value, "Op is not callable!");
+   ensure(Memory1::RANK == Memory2::RANK, "must have the same rank!");
+   ensure(a1.shape() == a2.shape(), "must have the same shape!");
+   ensure(same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
+
+   // we MUST use processors: data may not be contiguous or with stride...
+   ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2);
+   MemoryProcessor_contiguous_byMemoryLocality<Memory1> processor_a1(a1);
+
+   bool hasMoreElements = true;
+   while (hasMoreElements)
+   {
+      T* ptr_a1 = nullptr;
+      T const* ptr_a2 = nullptr;
+      hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
+      hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
+      NLL_FAST_ASSERT(processor_a1.getMaxAccessElements() == processor_a2.getMaxAccessElements(), "memory line must have the same size");
+
+      op(ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getMaxAccessElements());
+   }
+}
+
+/**
+@brief iterate array & const array jointly
+@tparam must be callable using (T* a1_pointer, a1_stride, const T* a2_pointer, a2_stride, nb elements)
+@note this is only instantiated for linear memory
+*/
+template <class T, class T2, int N, class Config, class Config2, class Op,
+   typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
+void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, const Op& op)
+{
+   iterate_memory_constmemory(a1.getMemory(), a2.getMemory(), op);
+}
+
+
+/**
+@brief iterate array
+@tparam must be callable using (T* a1_pointer, a1_stride, nb elements)
+@note this is only instantiated for linear memory
+*/
+template <class T, int N, class Config, class Op,
+   typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
+void iterate_array(Array<T, N, Config>& a1, const Op& op)
+{
+   ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
+
+   bool hasMoreElements = true;
+   while (hasMoreElements)
+   {
+      T* ptr_a1 = nullptr;
+      hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
+      op(ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements());
+   }
+}
 DECLARE_NAMESPACE_END

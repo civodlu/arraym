@@ -2,6 +2,16 @@
 
 DECLARE_NAMESPACE_NLL
 
+
+namespace details
+{
+   template <class Memory>
+   class ConstMemoryProcessor_contiguous_byMemoryLocality;
+
+   template <class Memory>
+   class MemoryProcessor_contiguous_byMemoryLocality;
+}
+
 /**
 @brief Memory composed of multi-slices
 
@@ -277,37 +287,37 @@ private:
 
    void _deepCopy(const Memory_contiguous& other)
    {
-      //
-      // TODO: we do NOT want to copy the full base memory, we SHOULD revert to stride = 1, 1, 1
-      // use a <processor> here!
-      //
-
       _deallocateSlices(); // if any memory is allocated or referenced, they are not needed anymore
 
-      _indexMapper   = other._indexMapper;
       _shape         = other._shape;
+      _indexMapper.init(0, _shape);
       _allocator     = other._allocator;
       _dataAllocated = true;
 
       // now deep copy...
-      ui32 linear_size = 0;
-      if (other._sharedView)
-      {
-         // do not use the actual size of the reference, it may be a sub-memory!
-         linear_size = other._sharedView->_linearSize();
-      }
-      else
-      {
-         // there is no reference so it can't be a sub-memory and _size is its actual size
-         linear_size = _linearSize();
-      }
-      const auto size_bytes = sizeof(T) * linear_size;
-      _allocateSlices(T(), linear_size);
+      const ui32 this_linearSize = _linearSize();
+      const ui32 other_linearSize = other._sharedView ? other._sharedView->_linearSize() : other._linearSize();
 
-      static_assert(std::is_standard_layout<T>::value, "must have standard layout!");
-      const auto src = other._data;
-      const auto dst = _data;
-      memcpy(dst, src, size_bytes);
+      _allocateSlices(T(), this_linearSize);
+      if (this_linearSize == other_linearSize)  // TODO we want fully contiguous slice! We we construct the memory with a stride != 1
+      {
+         // this means the deep copy is the FULL buffer
+         const auto size_bytes = sizeof(T) * this_linearSize;
+         static_assert(std::is_standard_layout<T>::value, "must have standard layout!");
+         const auto src = other._data;
+         const auto dst = _data;
+         memcpy(dst, src, size_bytes);
+      }
+      else 
+      {
+         // we have a subarray, potentially with stride so we need to use a processor
+         auto op_cpy = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
+         {
+            // TODO add the BLAS copy
+            details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
+         };
+         iterate_memory_constmemory(*this, other, op_cpy);
+      }
    }
 
 public:

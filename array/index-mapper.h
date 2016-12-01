@@ -129,8 +129,6 @@ public:
 
    /**
    @param shape the size of the area to map
-   @param physical_strides the strides of the area to map, considering the underlying memory (i.e,
-   if we reference a sub-block, this must be factored in the stride)
    */
    void init(ui32 origin, const index_type& shape)
    {
@@ -140,6 +138,10 @@ public:
       _physicalStrides = strides;
    }
 
+   /**
+   @param physical_strides the strides of the area to map, considering the underlying memory (i.e,
+   if we reference a sub-block, this must be factored in the stride)
+   */
    void init(const index_type& physicalStrides)
    {
       _origin          = 0;

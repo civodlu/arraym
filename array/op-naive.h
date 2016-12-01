@@ -78,6 +78,30 @@ Accum norm2_naive(const T* v1, size_t size)
    const auto accum = std::accumulate(v1, v1 + size, Accum());
    return std::sqrt(accum);
 }
+
+/**
+ @brief y = x
+
+ Copy from a strided array x to another strided array y
+ */
+template <class T, class Accum = T>
+void copy_naive(T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
+{
+   if (y_stride == 1 && x_stride == 1)
+   {
+      const size_t size_bytes = nb_elements * sizeof(T);
+      memcpy(y_pointer, x_pointer, size_bytes);
+   }
+   else 
+   {
+      const T* y_end = y_pointer + y_stride * nb_elements;
+      for (; y_pointer != y_end; y_pointer += y_stride, x_pointer += x_stride)
+      {
+         *y_pointer = *x_pointer;
+      }
+   }
+}
+
 }
 
 template <class T, class Accum = T>
