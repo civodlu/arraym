@@ -70,13 +70,18 @@ void addmul_naive(T* v1, size_t stride_v1, const T* v2, size_t stride_v2, T mul,
 }
 
 /**
-    @brief compute sqrt(sum(v1^2))
-    */
+@brief compute sum(v1^2)
+*/
 template <class T, class Accum = T>
-Accum norm2_naive(const T* v1, size_t size)
+Accum norm2_naive_sqr( T const* v1, size_t stride_v1, size_t nb_elements )
 {
-   const auto accum = std::accumulate(v1, v1 + size, Accum());
-   return std::sqrt(accum);
+   const T* end = v1 + nb_elements * stride_v1;
+   Accum accum = 0;
+   for ( ; v1 != end; v1 += stride_v1)
+   {
+      accum += *v1 * *v1;
+   }
+   return accum;
 }
 
 /**

@@ -532,7 +532,7 @@ void iterate_memory_constmemory(Memory1& a1, const Memory2& a2, const Op& op)
 */
 template <class T, class T2, int N, class Config, class Config2, class Op,
    typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
-void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, const Op& op)
+void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op)
 {
    iterate_memory_constmemory(a1.getMemory(), a2.getMemory(), op);
 }
@@ -545,7 +545,7 @@ void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config
 */
 template <class T, int N, class Config, class Op,
    typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
-void iterate_array(Array<T, N, Config>& a1, const Op& op)
+void iterate_array(Array<T, N, Config>& a1, Op& op)
 {
    ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
 
@@ -555,6 +555,26 @@ void iterate_array(Array<T, N, Config>& a1, const Op& op)
       T* ptr_a1 = nullptr;
       hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
       op(ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements());
+   }
+}
+
+/**
+@brief iterate array
+@tparam must be callable using (T const* a1_pointer, a1_stride, nb elements)
+@note this is only instantiated for linear memory
+*/
+template <class T, int N, class Config, class Op,
+   typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
+   void iterate_array( const Array<T, N, Config>& a1, Op& op )
+{
+   ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1( a1 );
+
+   bool hasMoreElements = true;
+   while ( hasMoreElements )
+   {
+      T const* ptr_a1 = nullptr;
+      hasMoreElements = processor_a1.accessMaxElements( ptr_a1 );
+      op( ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements() );
    }
 }
 DECLARE_NAMESPACE_END

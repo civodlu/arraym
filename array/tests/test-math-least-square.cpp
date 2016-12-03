@@ -25,8 +25,41 @@ struct TestLeastSquare
       iterate_array(array, op);
    }
 
+   void test_norm2()
+   {
+      test_norm2_impl<Array<float, 2>>();
+      test_norm2_impl<Array<int, 2>>();
+      test_norm2_impl<Array_row_major_multislice<float, 2>>();
+   }
+
+   template <class T>
+   T sqr( T v )
+   {
+      return v * v;
+   }
+
+   template <class Array>
+   void test_norm2_impl()
+   {
+      Array a1( 2, 3 );
+      a1 = { 1, 2, 3, 4, 5, 6 };
+
+      const auto n = norm2( a1 );
+      const double expected = std::sqrt(
+         sqr( a1( 0, 0 ) ) +
+         sqr( a1( 0, 1 ) ) +
+         sqr( a1( 0, 2 ) ) +
+         sqr( a1( 1, 0 ) ) +
+         sqr( a1( 1, 1 ) ) +
+         sqr( a1( 1, 2 ) ) );
+
+      TESTER_ASSERT( fabs( expected - n ) < 1e-4 );
+      std::cout << n << std::endl;
+   }
+
    void test_simple()
    {
+      
       for (unsigned int n = 0; n < 10000; ++n)
       {
          srand(n);
@@ -53,5 +86,6 @@ struct TestLeastSquare
 };
 
 TESTER_TEST_SUITE(TestLeastSquare);
+TESTER_TEST( test_norm2 );
 TESTER_TEST(test_simple);
 TESTER_TEST_SUITE_END();

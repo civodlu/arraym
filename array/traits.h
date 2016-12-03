@@ -152,4 +152,17 @@ struct is_callable_with
 {
    static const bool value = std::is_same<std::true_type, decltype(details::can_call_test::f<Function, Params...>(0))>::value;
 };
+
+template <class T>
+struct PromoteFloating
+{
+   using type = float;
+};
+
+template <>
+struct PromoteFloating<double>
+{
+   using type = double;
+};
+
 DECLARE_NAMESPACE_END

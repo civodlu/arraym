@@ -65,6 +65,20 @@ Array_NaiveEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
    return a1;
 }
 
+template <class T, int N, class Config>
+typename PromoteFloating<T>::type norm2( const Array<T, N, Config>& a1 )
+{
+   using return_type = typename PromoteFloating<T>::type;
+   return_type accum = 0;
+   auto op = [&]( T const * ptr, ui32 stride, ui32 elements )
+   {
+      accum += norm2_naive_sqr( ptr, stride, elements );
+   };
+
+   iterate_array( a1, op );
+   return std::sqrt( accum );
+}
+
 /**
  @brief Display matrices
  */
