@@ -14,10 +14,8 @@
  Dependencies are hidded in the cpp
  */
 
-namespace nll
-{
-namespace core
-{
+DECLARE_NAMESPACE_NLL
+
 namespace blas
 {
 namespace detail
@@ -84,7 +82,7 @@ ARRAY_API BlasInt dgels_cblas(CBLAS_ORDER matrix_layout, char trans, BlasInt m, 
                               BlasInt ldb);
 }
 }
-}
-}
+
+DECLARE_NAMESPACE_END
 
 #endif

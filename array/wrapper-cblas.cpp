@@ -14,10 +14,8 @@
 #include <lapacke.h>
 #include <cblas.h>
 
-namespace nll
-{
-namespace core
-{
+DECLARE_NAMESPACE_NLL
+
 namespace blas
 {
 namespace detail
@@ -203,7 +201,7 @@ BlasInt dgels_cblas(CBLAS_ORDER matrix_order, char trans, BlasInt m, BlasInt n, 
 }
 }
 }
-}
-}
+
+DECLARE_NAMESPACE_END
 
 #endif
