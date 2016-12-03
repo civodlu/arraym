@@ -84,7 +84,7 @@ Accum norm2_naive(const T* v1, size_t size)
 
  Copy from a strided array x to another strided array y
  */
-template <class T, class Accum = T>
+template <class T>
 void copy_naive(T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
 {
    if (y_stride == 1 && x_stride == 1)
@@ -99,6 +99,49 @@ void copy_naive(T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, 
       {
          *y_pointer = *x_pointer;
       }
+   }
+}
+
+/**
+@brief y = f(x)
+
+Apply a function on a strided array x and assign it to another strided array y
+*/
+template <class T, class F>
+void apply_naive2(T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements, const F& f)
+{
+   const T* y_end = y_pointer + y_stride * nb_elements;
+   for (; y_pointer != y_end; y_pointer += y_stride, x_pointer += x_stride)
+   {
+      *y_pointer = f(*x_pointer);
+   }
+}
+
+/**
+@brief y = f(y)
+
+*/
+template <class T, class F>
+void apply_naive1(T* y_pointer, ui32 y_stride, ui32 nb_elements, const F& f)
+{
+   const T* y_end = y_pointer + y_stride * nb_elements;
+   for (; y_pointer != y_end; y_pointer += y_stride)
+   {
+      *y_pointer = f(*y_pointer);
+   }
+}
+
+/**
+@brief y = value
+
+*/
+template <class T>
+void set_naive(T* y_pointer, ui32 y_stride, ui32 nb_elements, T value)
+{
+   const T* y_end = y_pointer + y_stride * nb_elements;
+   for (; y_pointer != y_end; y_pointer += y_stride)
+   {
+      *y_pointer = value;
    }
 }
 

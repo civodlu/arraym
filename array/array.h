@@ -194,12 +194,12 @@ public:
 
    void write(std::ostream& f) const
    {
-      ensure(0, "TODO implement");
+      ensure(0, "@TODO implement");
    }
 
    void read(std::istream& f)
    {
-      ensure(0, "TODO implement");
+      ensure(0, "@TODO implement");
    }
 
    size_t size() const
@@ -255,7 +255,7 @@ public:
       {
          NLL_FAST_ASSERT(min_index_inclusive[n] < this->shape()[n], "out of bounds!");
          NLL_FAST_ASSERT(max_index_inclusive[n] < this->shape()[n], "out of bounds!");
-         NLL_FAST_ASSERT(min_index_inclusive[n] <= min_index_inclusive[n], "min > max!");
+         NLL_FAST_ASSERT(min_index_inclusive[n] <= max_index_inclusive[n], "min > max!");
       }
 #endif
       const auto size = max_index_inclusive - min_index_inclusive + 1;
@@ -414,6 +414,21 @@ public:
    ArrayRef& operator=(const array_type& array)
    {
       ensure(array.shape() == this->shape(), "must have the same shape!");
+      auto op = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
+      {
+         details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
+      };
+      iterate_array_constarray(*this, array, op);
+      return *this;
+   }
+
+   ArrayRef& operator=(T value)
+   {
+      auto op = [&](T* y_pointer, ui32 y_stride, ui32 nb_elements)
+      {
+         details::set_naive(y_pointer, y_stride, nb_elements, value);
+      };
+      iterate_array(*this, op);
       return *this;
    }
 };
@@ -505,6 +520,8 @@ struct IsArrayLayoutContiguous
    static const bool value = std::is_base_of<memory_layout_contiguous, typename Array::Memory>::value;
 };
 
+
+
 /**
 @brief Returns true if an array is based on a single slice or multiple slices of contiguous memory
 @note this doesn't mean there is not gap between dimensions (e.g., we have a sub-array)
@@ -516,78 +533,15 @@ struct IsArrayLayoutLinear
 };
 
 /**
-@brief Returns true if an array is based on a single slice or multiple slices of contiguous memory
-@note this doesn't mean there is not gap between dimensions (e.g., we have a sub-array)
-*/
-template <class Memory>
-struct IsMemoryLayoutLinear
-{
-   static const bool value = std::is_base_of<memory_layout_linear, Memory>::value;
-};
-
-namespace details
-{
-template <class Array>
-struct IsArrayFullyContiguous
-{
-   static bool value(const Array& array, std::integral_constant<bool, true> UNUSED(isContiguous))
-   {
-      auto stride = array.getMemory().getIndexMapper()._getPhysicalStrides();
-
-      std::array<std::pair<ui32, size_t>, Array::RANK> stride_index;
-      for (size_t n = 0; n < Array::RANK; ++n)
-      {
-         stride_index[n] = std::make_pair(stride[n], n);
-      }
-
-      // sort by increasing stride. Stride must start at 1 and multiplied by the corresponding shape's
-      // index
-
-      std::sort(stride_index.begin(), stride_index.end());
-      if (stride_index[0].first != 1)
-      {
-         return false;
-      }
-
-      ui32 current = 1;
-      for (size_t n = 0; n < Array::RANK; ++n)
-      {
-         const auto dim = stride_index[n].second;
-         // this test is not perfect when we have a dimension == 1 as we can't know which is
-         // the true fastest dimension, so the result of the sort may not be correct, so discard
-         // if array.shape()[dim] != 1
-         if (array.shape()[dim] != 1 && stride_index[n].first != current)
-         {
-            return false;
-         }
-         current *= array.shape()[stride_index[n].second];
-      }
-      return true;
-   }
-
-   static bool value(const Array& UNUSED(array), std::integral_constant<bool, false> UNUSED(isContiguous))
-   {
-      return false;
-   }
-};
-}
-/**
  @brief Returns true if the array is fully contiguous, meaning that the array occupies a single block of contiguous memory
         with no gap between elements (i.e., can't generally be a sub-array)
  */
 template <class T, int N, class Config>
 bool is_array_fully_contiguous(const Array<T, N, Config>& a1)
 {
-   using array_type   = Array<T, N, Config>;
-   using index_type   = typename array_type::index_type;
-   using index_mapper = typename Array<T, N, Config>::Memory::index_mapper;
-   if (!IsArrayLayoutContiguous<array_type>::value)
-   {
-      return false;
-   }
-
-   // test that the last element of one dimension + 1 equals the first element of the next dimension
-   return details::IsArrayFullyContiguous<array_type>::value(a1, std::integral_constant<bool, IsArrayLayoutContiguous<array_type>::value>());
+   return is_memory_fully_contiguous<typename Array<T, N, Config>::Memory>(a1.getMemory());
 }
+
+
 
 DECLARE_NAMESPACE_END

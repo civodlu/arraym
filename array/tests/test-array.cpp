@@ -1,5 +1,6 @@
 #include <array/forward.h>
 #include <tester/register.h>
+#include "test-utils.h"
 
 using namespace nll;
 
@@ -10,45 +11,6 @@ using vector3ui = StaticVector<ui32, 3>;
 using vector2ui = StaticVector<ui32, 2>;
 using vector1ui = StaticVector<ui32, 1>;
 
-namespace details
-{
-//
-// TODO DO NOT USE RAND() and use thread local generators
-//
-struct UniformDistribution
-{
-   template <class T>
-   static T generate(T min, T max, std::false_type UNUSED(isIntegral))
-   {
-      NLL_FAST_ASSERT(min <= max, "invalid range!");
-      return static_cast<T>(rand()) / RAND_MAX * (max - min) + min;
-   }
-
-   template <class T>
-   static T generate(T min, T max, std::true_type UNUSED(isIntegral))
-   {
-      NLL_FAST_ASSERT(min <= max, "invalid range!");
-      const T interval = max - min + 1;
-      if (interval == 0)
-         return min;
-      return (rand() % interval) + min;
-   }
-};
-}
-
-/**
-@ingroup core
-@brief generate a sample of a specific uniform distribution
-@param min the min of the distribution, inclusive
-@param max the max of the distribution, inclusive
-@return a sample of this distribution
-*/
-template <class T>
-T generateUniformDistribution(T min, T max)
-{
-   static_assert(std::is_arithmetic<T>::value, "must be a numeric type!");
-   return details::UniformDistribution::generate<T>(min, max, std::is_integral<T>());
-}
 
 DECLARE_NAMESPACE_END
 
@@ -116,9 +78,9 @@ struct TestArray
       for (int n = 0; n < 1000; ++n)
       {
          srand(n);
-         const NAMESPACE_NLL::vector3ui displacement = {NAMESPACE_NLL::generateUniformDistribution<ui32>(0, sub_size[0] - 1),
-                                                        NAMESPACE_NLL::generateUniformDistribution<ui32>(0, sub_size[1] - 1),
-                                                        NAMESPACE_NLL::generateUniformDistribution<ui32>(0, sub_size[2] - 1)};
+         const NAMESPACE_NLL::vector3ui displacement = {generateUniformDistribution<ui32>(0, sub_size[0] - 1),
+                                                        generateUniformDistribution<ui32>(0, sub_size[1] - 1),
+                                                        generateUniformDistribution<ui32>(0, sub_size[2] - 1)};
          auto value    = *memory_ref.at(displacement);
          auto expected = *memory.at(origin + displacement * sub_strides);
          TESTER_ASSERT(value == expected);
@@ -135,9 +97,9 @@ struct TestArray
       for (int n = 0; n < 1000; ++n)
       {
          srand(n);
-         const NAMESPACE_NLL::vector3ui displacement = {NAMESPACE_NLL::generateUniformDistribution<ui32>(0, sub_size2[0] - 1),
-                                                        NAMESPACE_NLL::generateUniformDistribution<ui32>(0, sub_size2[1] - 1),
-                                                        NAMESPACE_NLL::generateUniformDistribution<ui32>(0, sub_size2[2] - 1)};
+         const NAMESPACE_NLL::vector3ui displacement = {generateUniformDistribution<ui32>(0, sub_size2[0] - 1),
+                                                        generateUniformDistribution<ui32>(0, sub_size2[1] - 1),
+                                                        generateUniformDistribution<ui32>(0, sub_size2[2] - 1)};
          const auto value          = *memory_ref2.at(displacement);
          const auto index_original = (origin2 + (displacement)*sub_strides2) * sub_strides + origin;
          const auto expected       = *memory.at(index_original);
@@ -151,9 +113,9 @@ struct TestArray
       TESTER_ASSERT(memory_cpy.shape() == memory_ref2.shape());
       for (size_t n = 0; n < 500; ++n)
       {
-         const NAMESPACE_NLL::vector3ui displacement = {NAMESPACE_NLL::generateUniformDistribution<ui32>(0, memory_ref2.shape()[0] - 1),
-                                                        NAMESPACE_NLL::generateUniformDistribution<ui32>(0, memory_ref2.shape()[1] - 1),
-                                                        NAMESPACE_NLL::generateUniformDistribution<ui32>(0, memory_ref2.shape()[2] - 1)};
+         const NAMESPACE_NLL::vector3ui displacement = {generateUniformDistribution<ui32>(0, memory_ref2.shape()[0] - 1),
+                                                        generateUniformDistribution<ui32>(0, memory_ref2.shape()[1] - 1),
+                                                        generateUniformDistribution<ui32>(0, memory_ref2.shape()[2] - 1)};
          TESTER_ASSERT(*memory_cpy.at(displacement) == *memory_ref2.at(displacement));
       }
    }
@@ -558,16 +520,16 @@ struct TestArray
       for (size_t nn = 0; nn < 100; ++nn)
       {
          srand((unsigned)nn);
-         NAMESPACE_NLL::vector3ui size(NAMESPACE_NLL::generateUniformDistribution(1, 20), NAMESPACE_NLL::generateUniformDistribution(1, 20),
-                                       NAMESPACE_NLL::generateUniformDistribution(1, 20));
+         NAMESPACE_NLL::vector3ui size(generateUniformDistribution(1, 20), generateUniformDistribution(1, 20),
+                                       generateUniformDistribution(1, 20));
 
          Array a1(size);
          short index = 0;
          NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
 
-         const auto origin = NAMESPACE_NLL::vector3ui{NAMESPACE_NLL::generateUniformDistribution<size_t>(0, size[0] - 1),
-                                                      NAMESPACE_NLL::generateUniformDistribution<size_t>(0, size[1] - 1),
-                                                      NAMESPACE_NLL::generateUniformDistribution<size_t>(0, size[2] - 1)};
+         const auto origin = NAMESPACE_NLL::vector3ui{generateUniformDistribution<size_t>(0, size[0] - 1),
+                                                      generateUniformDistribution<size_t>(0, size[1] - 1),
+                                                      generateUniformDistribution<size_t>(0, size[2] - 1)};
 
          auto& memory = a1.getMemory();
          auto sliced  = memory.slice<2>(origin);
@@ -601,16 +563,16 @@ struct TestArray
       for (size_t nn = 0; nn < 100; ++nn)
       {
          srand((unsigned)nn + 1);
-         NAMESPACE_NLL::vector3ui size(NAMESPACE_NLL::generateUniformDistribution(1, 20), NAMESPACE_NLL::generateUniformDistribution(1, 20),
-                                       NAMESPACE_NLL::generateUniformDistribution(1, 20));
+         NAMESPACE_NLL::vector3ui size(generateUniformDistribution(1, 20), generateUniformDistribution(1, 20),
+                                       generateUniformDistribution(1, 20));
 
          Array a1(size);
          short index = 0;
          NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
 
-         const auto origin = NAMESPACE_NLL::vector3ui{NAMESPACE_NLL::generateUniformDistribution<size_t>(0, size[0] - 1),
-                                                      NAMESPACE_NLL::generateUniformDistribution<size_t>(0, size[1] - 1),
-                                                      NAMESPACE_NLL::generateUniformDistribution<size_t>(0, size[2] - 1)};
+         const auto origin = NAMESPACE_NLL::vector3ui{generateUniformDistribution<size_t>(0, size[0] - 1),
+                                                      generateUniformDistribution<size_t>(0, size[1] - 1),
+                                                      generateUniformDistribution<size_t>(0, size[2] - 1)};
 
          auto& memory = a1.getMemory();
          auto sliced  = memory.slice<0>(origin);
@@ -639,8 +601,8 @@ struct TestArray
    void testArraySlice_impl()
    {
       srand((unsigned)1);
-      NAMESPACE_NLL::vector3ui size(NAMESPACE_NLL::generateUniformDistribution(5, 20), NAMESPACE_NLL::generateUniformDistribution(5, 20),
-                                    NAMESPACE_NLL::generateUniformDistribution(5, 20));
+      NAMESPACE_NLL::vector3ui size(generateUniformDistribution(5, 20), generateUniformDistribution(5, 20),
+                                    generateUniformDistribution(5, 20));
 
       Array a1(size);
       short index = 0;

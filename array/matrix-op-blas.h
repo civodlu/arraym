@@ -91,9 +91,6 @@ void gemm( T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& 
    blas::BlasInt ldb = 0;
    blas::BlasInt ldc = 0;
 
-   //
-   // TODO REFACTOR
-   //
    const auto& stride_a = opa.getMemory().getIndexMapper()._getPhysicalStrides();
    const auto& stride_b = opb.getMemory().getIndexMapper()._getPhysicalStrides();
    if ( memory_order_a == MatrixMemoryOrder::COLUMN_MAJOR )

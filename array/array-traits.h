@@ -20,7 +20,7 @@ struct ArrayTraitsConfig
 };
 
 /**
-We need <Config> for VS2013. Type is not fully constructed when ArrayTraits is instantiated
+We need @p Config for VS2013. Type is not fully constructed when ArrayTraits is instantiated
 */
 template <class Array, class Config, class Enable = void>
 class ArrayTraits;
@@ -34,7 +34,7 @@ public:
    {
       auto& array = static_cast<Array&>(*this);
       //detail::generic_fill( array, f );
-      ensure(0, "TODO implement");
+      ensure(0, "@TODO implement");
    }
 };
 
@@ -80,6 +80,16 @@ public:
    {
       auto& array = static_cast<const Array&>(*this);
       return array.shape()[1];
+   }
+
+   size_t sizex() const
+   {
+      return columns();
+   }
+
+   size_t sizey() const
+   {
+      return rows();
    }
 };
 DECLARE_NAMESPACE_END

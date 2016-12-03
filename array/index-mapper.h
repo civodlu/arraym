@@ -139,7 +139,7 @@ public:
    }
 
    /**
-   @param physical_strides the strides of the area to map, considering the underlying memory (i.e,
+   @param physicalStrides the strides of the area to map, considering the underlying memory (i.e,
    if we reference a sub-block, this must be factored in the stride)
    */
    void init(const index_type& physicalStrides)
@@ -171,13 +171,13 @@ public:
    }
 
    /**
-    @brief slice an array following <dimension> at the position <index>
+    @brief slice an array following @p dimension at the position @p index
     */
    template <size_t dimension>
    typename rebind<N - 1>::other slice(const index_type& UNUSED(index)) const
    {
       typename rebind<N - 1>::other sliced_index;
-      sliced_index._origin = 0; // the <_data> will be set to index so start from 0
+      sliced_index._origin = 0; // the _data will be set to index so start from 0
 
       size_t current_dim = 0;
       for (size_t n = 0; n < N; ++n)
@@ -252,8 +252,6 @@ public:
 
    /**
    @param shape the size of the area to map
-   @param physical_strides the strides of the area to map, considering the underlying memory (i.e,
-   if we reference a sub-block, this must be factored in the stride)
    */
    void init(ui32 origin, const index_type& shape)
    {

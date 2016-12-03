@@ -9,6 +9,11 @@ template <class T, size_t N, class Config>
 using Matrix_NaiveEnabled =
     typename std::enable_if<array_use_naive<Array<T, N, Config>>::value && is_matrix<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
 
+template <class T, size_t N, class Config>
+using Matrix_Enabled =
+typename std::enable_if<is_matrix<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
+
+
 namespace details
 {
 /**
@@ -38,6 +43,23 @@ Matrix_NaiveEnabled<T, 2, Config> array_mul_array(const Array<T, 2, Config>& op1
    }
    return m;
 }
+}
+
+/**
+ @brief Transpose a matrix
+ */
+template <class T, class Config>
+Matrix_Enabled<T, 2, Config> transpose(const Array<T, 2, Config>& m)
+{
+   Array<T, 2, Config> r(m.sizex(), m.sizey());
+   for (size_t nx = 0; nx < r.sizex(); ++nx)
+   {
+      for (size_t ny = 0; ny < r.sizey(); ++ny)
+      {
+         r(ny, nx) = m(nx, ny);
+      }
+   }
+   return r;
 }
 
 DECLARE_NAMESPACE_END

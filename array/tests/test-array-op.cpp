@@ -21,7 +21,19 @@ struct TestArrayOp
       static_assert(IsArrayLayoutLinear<Array_column_major<int, 2>>::value, "column major is contiguous layout!");
       static_assert(IsArrayLayoutLinear<Array_row_major_multislice<int, 2>>::value, "slice based memory is contiguous layout by slice!");
 
-      
+      {
+         // trick for the slice based array, we share the implementation
+         using array_type = Array_row_major_multislice<int, 3>;
+         auto array = array_type(4, 6, 10);
+         TESTER_ASSERT(details::IsMemoryFullyContiguous<array_type::Memory>::value(array.getMemory(), std::integral_constant<bool, true>()));
+      }
+
+      {
+         // trick for the slice based array, we share the implementation
+         using array_type = Array_row_major_multislice<int, 3>;
+         auto array = array_type(10, 6, 4);
+         TESTER_ASSERT(details::IsMemoryFullyContiguous<array_type::Memory>::value(array.getMemory(), std::integral_constant<bool, true>()));
+      }
 
       TESTER_ASSERT(!is_array_fully_contiguous(Array_row_major_multislice<int, 2>(4, 6))); // multi-slices: not contiguous!
 
@@ -275,12 +287,10 @@ struct TestArrayOp
       testArray_div_cte_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       testArray_div_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
 
-      /*
       testArray_div_cte_right_impl<NAMESPACE_NLL::Array<int, 2>>();                      // naive, contiguous
       testArray_div_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>(); // naive, non fully contiguous
       testArray_div_cte_right_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       testArray_div_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
-      */
    }
 
    template <class Array>
@@ -293,6 +303,25 @@ struct TestArrayOp
       Array cpy = a1;
 
       cpy /= static_cast<Array::value_type>(2);
+      TESTER_ASSERT(cpy(0, 0) == a1(0, 0) / 2);
+      TESTER_ASSERT(cpy(1, 0) == a1(1, 0) / 2);
+
+      TESTER_ASSERT(cpy(0, 1) == a1(0, 1) / 2);
+      TESTER_ASSERT(cpy(1, 1) == a1(1, 1) / 2);
+
+      TESTER_ASSERT(cpy(0, 2) == a1(0, 2) / 2);
+      TESTER_ASSERT(cpy(1, 2) == a1(1, 2) / 2);
+   }
+
+   template <class Array>
+   void testArray_div_cte_right_impl()
+   {
+      Array a1(2, 3);
+      a1 = { 11, 21, 31, 40, 50, 60 };
+
+      std::cout << a1 << std::endl;
+      Array cpy = a1 / static_cast<Array::value_type>(2);
+
       TESTER_ASSERT(cpy(0, 0) == a1(0, 0) / 2);
       TESTER_ASSERT(cpy(1, 0) == a1(1, 0) / 2);
 
@@ -365,6 +394,33 @@ struct TestArrayOp
          TESTER_ASSERT(order == MatrixMemoryOrder::UNKNOWN);
       }
    }
+
+   void testMatrix_transpose()
+   {
+      testMatrix_transpose_impl<NAMESPACE_NLL::Matrix_row_major<int>>();      // naive, contiguous
+      testMatrix_transpose_impl<NAMESPACE_NLL::Matrix_column_major<int>>();   // naive, contiguous
+      testMatrix_transpose_impl<NAMESPACE_NLL::Matrix_row_major<float>>();    // BLAS, contiguous
+      testMatrix_transpose_impl<NAMESPACE_NLL::Matrix_column_major<float>>(); // BLAS, contiguous
+   }
+
+   template <class Array>
+   void testMatrix_transpose_impl()
+   {
+      Array m1(3, 2);
+      m1 = { 1, 2, 3, 4, 5, 6 };
+      const auto m1t = transpose(m1);
+      std::cout << m1 << std::endl;
+      std::cout << transpose(m1) << std::endl;
+
+      TESTER_ASSERT(m1t.shape() == vector2ui(2, 3));
+      TESTER_ASSERT(m1t(0, 0) == 1);
+      TESTER_ASSERT(m1t(0, 1) == 2);
+      TESTER_ASSERT(m1t(0, 2) == 3);
+
+      TESTER_ASSERT(m1t(1, 0) == 4);
+      TESTER_ASSERT(m1t(1, 1) == 5);
+      TESTER_ASSERT(m1t(1, 2) == 6);
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayOp);
@@ -376,4 +432,5 @@ TESTER_TEST(testArray_mul_cte);
 TESTER_TEST(testArray_div_cte);
 TESTER_TEST(testArray_mul_array);
 TESTER_TEST(testArray_matrix_memoryOrder);
+TESTER_TEST(testMatrix_transpose);
 TESTER_TEST_SUITE_END();

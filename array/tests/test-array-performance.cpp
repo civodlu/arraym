@@ -72,8 +72,7 @@ struct TestArrayPerformance
       array_type array(shape);
 
       auto functor = [](const array_type::index_type&) { return array_type::value_type(rand() % 1000); };
-
-      //fill(array, functor);
+      fill(array, functor);
       return array;
    }
 

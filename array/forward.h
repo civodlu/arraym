@@ -22,8 +22,9 @@ DECLARE_NAMESPACE_END
 #include "array-op-blas.h"
 
 #include "wrapper-common.h"
-#include "matrix-op-blas.h"
 #include "matrix-op-naive.h"
+#include "matrix-op-blas.h"
+#include "matrix-op-blas-inv.h"
 
 #include "blas-wrapper.h"
 #include "array-exp.h"

@@ -13,6 +13,98 @@ namespace details
 }
 
 /**
+@brief Returns true if an array is based on a single slice of contiguous memory
+@note this doesn't mean there is not gap between dimensions (e.g., we have a sub-array)
+*/
+template <class Memory>
+struct IsMemoryLayoutContiguous
+{
+   static const bool value = std::is_base_of<memory_layout_contiguous, Memory>::value;
+};
+
+/**
+@brief Returns true if an array is based on a single slice or multiple slices of contiguous memory
+@note this doesn't mean there is not gap between dimensions (e.g., we have a sub-array)
+*/
+template <class Memory>
+struct IsMemoryLayoutLinear
+{
+   static const bool value = std::is_base_of<memory_layout_linear, Memory>::value;
+};
+
+namespace details
+{
+   template <class Memory>
+   struct IsMemoryFullyContiguous
+   {
+      static bool value(const Memory& memory, std::integral_constant<bool, true> UNUSED(isContiguous))
+      {
+         auto stride = memory.getIndexMapper()._getPhysicalStrides();
+
+         std::array<std::pair<ui32, size_t>, Memory::RANK> stride_index;
+         for (size_t n = 0; n < Memory::RANK; ++n)
+         {
+            stride_index[n] = std::make_pair(stride[n], n);
+         }
+
+         // sort by increasing stride. Stride must start at 1 and multiplied by the corresponding shape's
+         // index
+
+         std::sort(stride_index.begin(), stride_index.end());
+
+         size_t first_index = 0;
+         if (stride_index[0].first == 0)
+         {
+            // discard the <0> so we can share the implementation with the slice based memory
+            ++first_index;
+         }
+
+         if (stride_index[first_index].first != 1)
+         {
+            return false;
+         }
+
+         ui32 current = 1;
+         for (size_t n = first_index; n < Memory::RANK; ++n)
+         {
+            const auto dim = stride_index[n].second;
+            // this test is not perfect when we have a dimension == 1 as we can't know which is
+            // the true fastest dimension, so the result of the sort may not be correct, so discard
+            // if memory.shape()[dim] != 1
+            if (memory.shape()[dim] != 1 && stride_index[n].first != current)
+            {
+               return false;
+            }
+            current *= memory.shape()[stride_index[n].second];
+         }
+         return true;
+      }
+
+      static bool value(const Memory& UNUSED(memory), std::integral_constant<bool, false> UNUSED(isContiguous))
+      {
+         return false;
+      }
+   };
+}
+
+/**
+@brief Returns true if the array is fully contiguous, meaning that the array occupies a single block of contiguous memory
+with no gap between elements (i.e., can't generally be a sub-array)
+*/
+template <class memory_type>
+bool is_memory_fully_contiguous(const memory_type& a1)
+{
+   if (!IsMemoryLayoutContiguous<memory_type>::value)
+   {
+      return false;
+   }
+
+   // test that the last element of one dimension + 1 equals the first element of the next dimension
+   return details::IsMemoryFullyContiguous<memory_type>::value(a1, std::integral_constant<bool, IsMemoryLayoutContiguous<memory_type>::value>());
+}
+
+
+/**
 @brief Memory composed of multi-slices
 
 Value based semantics, except when using sub-memory blocks which keeps a reference of the memory.
@@ -118,9 +210,9 @@ public:
    }
 
    /**
-   @param slices pre-existing slices. if <slicesAllocated>, allocator will be used to deallocate the memory. Else the user is responsible
+   @param slices pre-existing slices. if @p slicesAllocated, allocator will be used to deallocate the memory. Else the user is responsible
    for deallocation
-   @param slicesAllocated if true, <allocator> will be used to deallocate the memory. Else the user is responsible for the slice's memory
+   @param slicesAllocated if true, @p allocator will be used to deallocate the memory. Else the user is responsible for the slice's memory
    */
    Memory_contiguous(const index_type& shape, T* data, const allocator_type& allocator = allocator_type(), bool dataAllocated = false)
        : _shape(shape), _allocator(allocator)
@@ -131,9 +223,9 @@ public:
    }
 
    /**
-   @param slices pre-existing slices. if <slicesAllocated>, allocator will be used to deallocate the memory. Else the user is responsible
+   @param data pre-existing memory elements. if @p dataAllocated, allocator will be used to deallocate the memory. Else the user is responsible
    for deallocation
-   @param slicesAllocated if true, <allocator> will be used to deallocate the memory. Else the user is responsible for the slice's memory
+   @param dataAllocated if true, @p allocator will be used to deallocate the memory. Else the user is responsible for the slice's memory
    */
    Memory_contiguous(const index_type& shape, T* data, const index_type& physicalStrides, const allocator_type& allocator = allocator_type(),
                      bool dataAllocated = false)
@@ -145,9 +237,9 @@ public:
    }
 
    /**
-   @brief Slice the memory such that we keep only the slice along dimension <dimension> passing through <point>
+   @brief Slice the memory such that we keep only the slice along dimension @p dimension passing through @p index
 
-   Create a reference of <this>, so do NOT destroy the memory while using the sliced mempory
+   Create a reference of this object, so do NOT destroy the memory while using the sliced mempory
    */
    template <size_t dimension>
    typename rebind<T, N - 1>::other slice(const index_type& index) const
@@ -177,10 +269,10 @@ public:
 
    /**
    @brief reference an existing sub-memory block
-   @param strides the stride (spacing between data elements) to be used to access the <ref>. (i.e., this doesn't depend on the
-   stride of <ref> itself
+   @param strides the stride (spacing between data elements) to be used to access the @p ref. (i.e., this doesn't depend on the
+   stride of @p ref itself
    @param shape the size of the actual memory
-   @param min_index the index in <ref> to be used as the first data element
+   @param min_index the index in @p ref to be used as the first data element
    */
    Memory_contiguous(Memory_contiguous& ref, const index_type& min_index, const index_type& shape, const index_type& strides) : _shape(shape)
    {
@@ -299,7 +391,7 @@ private:
       const ui32 other_linearSize = other._sharedView ? other._sharedView->_linearSize() : other._linearSize();
 
       _allocateSlices(T(), this_linearSize);
-      if (this_linearSize == other_linearSize)  // TODO we want fully contiguous slice! We we construct the memory with a stride != 1
+      if (this_linearSize == other_linearSize && is_memory_fully_contiguous(other))  // if we have a non stride (1,...,1) stride, use iterator
       {
          // this means the deep copy is the FULL buffer
          const auto size_bytes = sizeof(T) * this_linearSize;
@@ -313,7 +405,7 @@ private:
          // we have a subarray, potentially with stride so we need to use a processor
          auto op_cpy = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
          {
-            // TODO add the BLAS copy
+            // @TODO add the BLAS copy
             details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
          };
          iterate_memory_constmemory(*this, other, op_cpy);

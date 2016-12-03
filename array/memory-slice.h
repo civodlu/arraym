@@ -131,9 +131,9 @@ public:
    }
 
    /**
-   @param slices pre-existing slices. if <slicesAllocated>, allocator will be used to deallocate the memory. Else the user is responsible
+   @param slices pre-existing slices. if @p slicesAllocated, allocator will be used to deallocate the memory. Else the user is responsible
    for deallocation
-   @param slicesAllocated if true, <allocator> will be used to deallocate the memory. Else the user is responsible for the slice's memory
+   @param slicesAllocated if true, @p allocator will be used to deallocate the memory. Else the user is responsible for the slice's memory
    */
    Memory_multislice(const index_type& shape, const std::vector<T*>& slices, const allocator_type& allocator = allocator_type(), bool slicesAllocated = false)
        : _shape(shape), _allocator(allocator)
@@ -154,10 +154,10 @@ public:
 
    /**
    @brief reference an existing sub-memory block
-   @param strides the stride (spacing between data elements) to be used to access the <ref>. (i.e., this doesn't depend on the
-   stride of <ref> itself
+   @param strides the stride (spacing between data elements) to be used to access the @p ref. (i.e., this doesn't depend on the
+   stride of @p ref itself
    @param shape the size of the actual memory
-   @param min_index the index in <ref> to be used as the first data element
+   @param min_index the index in @p ref to be used as the first data element
    */
    Memory_multislice(Memory_multislice& ref, const index_type& min_index, const index_type& shape, const index_type& strides) : _shape(shape)
    {
@@ -221,7 +221,7 @@ private:
    //       this is not correct.
    struct SliceImpl_notz
    {
-      static_assert(Z_INDEX == N - 1, "TODO not handled yet. Need a mechanism to reassign Z_INDEX");
+      static_assert(Z_INDEX == N - 1, "@TODO not handled yet. Need a mechanism to reassign Z_INDEX");
       using other = Memory_multislice<T, N - 1, typename IndexMapper::template rebind<N - 1, Z_INDEX - 1>::other, allocator_type>;
 
       template <size_t slice_dim>
@@ -291,9 +291,9 @@ private:
 
 public:
    /**
-   @brief Slice the memory such that we keep only the slice along dimension <dimension> passing through <point>
+   @brief Slice the memory such that we keep only the slice along dimension @p dimension passing through @p point
 
-   Create a reference of <this>, so do NOT destroy the memory while using the sliced mempory
+   Create a reference of this object, so do NOT destroy the memory while using the sliced mempory
 
    Workaround for VS2013 internal compiler bug with
    "SliceImpl = std::conditional<slice_dim == Z_INDEX, SliceImpl_z, SliceImpl_notz>::type;"
@@ -366,10 +366,11 @@ private:
 
       const auto size_per_slice_bytes = sizeof(T) * this_inSliceSize;
       _allocateSlices(T(), this_inSliceSize);
-      if (this_inSliceSize == other_inSliceSize) // TODO we want fully contiguous slice! We we construct the memory with a stride != 1
+      if (this_inSliceSize == other_inSliceSize &&
+         details::IsMemoryFullyContiguous<Memory>::value(other, std::integral_constant<bool, true>())
+         ) // we want fully contiguous slice! Else if the stride is not (1, ..., 1) the memcpy would be invalid
       {
-         // same size so there was no sub-array: we can
-         // 
+         // same size so there was no sub-array: we can directly copy the memory in a single block
          for (size_t n = 0; n < _shape[Z_INDEX]; ++n)
          {
             static_assert(std::is_standard_layout<T>::value, "must have standard layout!");
@@ -383,7 +384,7 @@ private:
          // we have a subarray, potentially with stride so we need to use a processor
          auto op_cpy = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
          {
-            // TODO add the BLAS copy
+            /// @TODO add the BLAS copy
             details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
          };
          iterate_memory_constmemory(*this, other, op_cpy);

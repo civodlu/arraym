@@ -22,17 +22,17 @@ BlasDispatcherImpl::BlasDispatcherImpl(const std::string& path)
 
 void BlasDispatcherImpl::runBenchmark()
 {
-   // TODO
+   // @TODO
 }
 
 void BlasDispatcherImpl::readConfiguration(const std::string&)
 {
-   // TODO
+   // @TODO
 }
 
 void BlasDispatcherImpl::writeConfiguration(const std::string&) const
 {
-   // TODO
+   // @TODO
 }
 }
 }

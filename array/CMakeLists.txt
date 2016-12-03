@@ -13,6 +13,7 @@ set(Headers    array.h
                array-op-naive.h
 			   array-op-blas.h
 			   matrix-op-blas.h
+			   matrix-op-blas-inv.h
 			   matrix-op-naive.h
                op-naive.h
                forward.h

@@ -143,7 +143,7 @@ protected:
 
 
 public:
-   // TODO fix these issues with friends
+   // @TODO fix these issues with friends
    ui32 _maxAccessElements;     // maximum number of steps in the fastest varying dimension possible without increasing the other indexes
    Array& _array;
 
@@ -284,7 +284,7 @@ public:
 
    This is defined only for memory locality as this is the only method guarantying contiguous memory access
 
-   IMPORTANT, <ptrToValue> if accessed in a contiguous fashion must account for the stride in the direction of access using <stride()>
+   IMPORTANT, @p ptrToValue if accessed in a contiguous fashion must account for the stride in the direction of access using stride()
    */
    bool accessMaxElements(pointer_type& ptrToValue)
    {
@@ -322,7 +322,7 @@ public:
 
    This is defined only for memory locality as this is the only method guarantying contiguous memory access
 
-   IMPORTANT, <ptrToValue> if accessed in a contiguous fashion must account for the stride in the direction of access using <stride()>
+   IMPORTANT, @p ptrToValue if accessed in a contiguous fashion must account for the stride in the direction of access using <stride()>
    */
    bool accessMaxElements(pointer_type& ptrToValue)
    {
@@ -363,7 +363,7 @@ public:
 
    This is defined only for memory locality as this is the only method guarantying contiguous memory access
 
-   IMPORTANT, <ptrToValue> if accessed in a contiguous fashion must account for the stride in the direction of access using <stride()>
+   IMPORTANT, @p ptrToValue if accessed in a contiguous fashion must account for the stride in the direction of access using stride()
    */
    bool accessMaxElements(value_type const*& ptrToValue)
    {
@@ -404,7 +404,7 @@ public:
 
    This is defined only for memory locality as this is the only method guarantying contiguous memory access
 
-   IMPORTANT, <ptrToValue> if accessed in a contiguous fashion must account for the stride in the direction of access using <stride()>
+   IMPORTANT, @p ptrToValue if accessed in a contiguous fashion must account for the stride in the direction of access using stride()
    */
    bool accessMaxElements(value_type const*& ptrToValue)
    {
