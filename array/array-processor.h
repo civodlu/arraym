@@ -350,7 +350,7 @@ public:
 
    ui32 getMaxAccessElements() const
    {
-      return _processor._maxAccessElements;
+      return this->_processor._maxAccessElements;
    }
 
    ui32 stride() const
@@ -391,7 +391,7 @@ public:
 
    ui32 getMaxAccessElements() const
    {
-      return _processor._maxAccessElements;
+      return this->_processor._maxAccessElements;
    }
 
    ui32 stride() const
@@ -442,7 +442,12 @@ public:
 template <class Array>
 class ConstArrayProcessor_contiguous_byDimension : public details::ConstArrayProcessor_contiguous_base<Array>
 {
-   static index_type getIndexes(const Array&)
+public:
+    using base         = details::ConstArrayProcessor_contiguous_base<Array>;
+    using pointer_type = typename base::pointer_type;
+    using index_type = typename base::index_type;
+
+    static index_type getIndexes(const Array&)
    {
       index_type indexes;
       for (ui32 n = 0; n < Array::RANK; ++n)
@@ -451,10 +456,6 @@ class ConstArrayProcessor_contiguous_byDimension : public details::ConstArrayPro
       }
       return indexes;
    }
-
-public:
-   using base         = details::ConstArrayProcessor_contiguous_base<Array>;
-   using pointer_type = typename base::pointer_type;
 
    ConstArrayProcessor_contiguous_byDimension(const Array& array) : base(array, &getIndexes)
    {

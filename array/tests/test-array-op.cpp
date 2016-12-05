@@ -367,31 +367,31 @@ struct TestArrayOp
       {
          Matrix_row_major<int> m1(4, 10);
          auto order = getMatrixMemoryOrder(m1);
-         TESTER_ASSERT(order == MatrixMemoryOrder::ROW_MAJOR);
+         TESTER_ASSERT(order == CBLAS_ORDER::CblasRowMajor);
       }
 
       {
          Matrix_row_major<int> m1(10, 4);
          auto order = getMatrixMemoryOrder(m1);
-         TESTER_ASSERT(order == MatrixMemoryOrder::ROW_MAJOR);
+         TESTER_ASSERT(order == CBLAS_ORDER::CblasRowMajor);
       }
 
       {
          Matrix_column_major<int> m1(4, 10);
          auto order = getMatrixMemoryOrder(m1);
-         TESTER_ASSERT(order == MatrixMemoryOrder::COLUMN_MAJOR);
+         TESTER_ASSERT(order == CBLAS_ORDER::CblasColMajor);
       }
 
       {
          Matrix_column_major<int> m1(10, 4);
          auto order = getMatrixMemoryOrder(m1);
-         TESTER_ASSERT(order == MatrixMemoryOrder::COLUMN_MAJOR);
+         TESTER_ASSERT(order == CBLAS_ORDER::CblasColMajor);
       }
 
       {
          Array<int, 2> m1(10, 4); // not a matrix, just an array!
          auto order = getMatrixMemoryOrder(m1);
-         TESTER_ASSERT(order == MatrixMemoryOrder::UNKNOWN);
+         TESTER_ASSERT(order == CBLAS_ORDER::UnkwownMajor);
       }
    }
 

@@ -6,13 +6,6 @@ template <class T, size_t N, class Config>
 using Matrix_BlasEnabled =
     typename std::enable_if<array_use_blas<Array<T, N, Config>>::value && is_matrix<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
 
-enum MatrixMemoryOrder
-{
-   ROW_MAJOR,
-   COLUMN_MAJOR,
-   UNKNOWN
-};
-
 namespace details
 {
 /**
@@ -22,9 +15,9 @@ namespace details
 template <class Array>
 struct MatrixMemoryOrder_
 {
-   static MatrixMemoryOrder compute(const Array&)
+   static CBLAS_ORDER compute(const Array&)
    {
-      return MatrixMemoryOrder::UNKNOWN;
+      return CBLAS_ORDER::UnkwownMajor;
    }
 };
 
@@ -33,14 +26,14 @@ struct MatrixMemoryOrder_<Matrix_column_major<T, Allocator>>
 {
    using Array = Matrix_column_major<T, Allocator>;
 
-   static MatrixMemoryOrder compute(const Array& array)
+   static CBLAS_ORDER compute(const Array& array)
    {
       const auto& stride = array.getMemory().getIndexMapper()._getPhysicalStrides();
       if (stride[0] < stride[1])
       {
-         return MatrixMemoryOrder::COLUMN_MAJOR;
+         return CBLAS_ORDER::CblasColMajor;
       }
-      return MatrixMemoryOrder::ROW_MAJOR;
+      return CBLAS_ORDER::CblasRowMajor;
    }
 };
 
@@ -49,20 +42,20 @@ struct MatrixMemoryOrder_<Matrix_row_major<T, Allocator>>
 {
    using Array = Matrix_row_major<T, Allocator>;
 
-   static MatrixMemoryOrder compute(const Array& array)
+   static CBLAS_ORDER compute(const Array& array)
    {
       const auto& stride = array.getMemory().getIndexMapper()._getPhysicalStrides();
       if (stride[0] < stride[1])
       {
-         return MatrixMemoryOrder::COLUMN_MAJOR;
+         return CBLAS_ORDER::CblasColMajor;
       }
-      return MatrixMemoryOrder::ROW_MAJOR;
+      return CBLAS_ORDER::CblasRowMajor;
    }
 };
 }
 
 template <class Array>
-MatrixMemoryOrder getMatrixMemoryOrder(const Array& array)
+CBLAS_ORDER getMatrixMemoryOrder(const Array& array)
 {
    return details::MatrixMemoryOrder_<Array>::compute(array);
 }
@@ -84,8 +77,8 @@ void gemm( T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& 
    const auto memory_order_c = getMatrixMemoryOrder( opc );
    ensure( memory_order_a == memory_order_b, "matrix must have the same memory order" );
    ensure( memory_order_a == memory_order_c, "matrix must have the same memory order" );
-   ensure( memory_order_a != MatrixMemoryOrder::UNKNOWN, "unkown memory order!" );
-   const auto order = memory_order_a == MatrixMemoryOrder::ROW_MAJOR ? blas::CBLAS_ORDER::CblasRowMajor : blas::CBLAS_ORDER::CblasColMajor;
+   ensure( memory_order_a != CBLAS_ORDER::UnkwownMajor, "unkown memory order!" );
+   const auto order = memory_order_a == CBLAS_ORDER::CblasRowMajor ? CBLAS_ORDER::CblasRowMajor : CBLAS_ORDER::CblasColMajor;
 
    blas::BlasInt lda = 0;
    blas::BlasInt ldb = 0;
@@ -93,7 +86,7 @@ void gemm( T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& 
 
    const auto& stride_a = opa.getMemory().getIndexMapper()._getPhysicalStrides();
    const auto& stride_b = opb.getMemory().getIndexMapper()._getPhysicalStrides();
-   if ( memory_order_a == MatrixMemoryOrder::COLUMN_MAJOR )
+   if ( memory_order_a == CBLAS_ORDER::CblasColMajor )
    {
       ensure( stride_a[ 0 ] == 1, "stride in x dim must be 1 to use BLAS" );
       ensure( stride_b[ 0 ] == 1, "stride in x dim must be 1 to use BLAS" );

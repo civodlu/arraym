@@ -5,19 +5,19 @@
 
 DECLARE_NAMESPACE_NLL
 
+enum CBLAS_ORDER
+{
+   CblasRowMajor = 101,
+   CblasColMajor = 102,
+   UnkwownMajor = 999
+};
+
 namespace blas
 {
 enum CBLAS_TRANSPOSE
 {
    CblasNoTrans = 112,
    CblasTrans   = 111
-};
-
-enum CBLAS_ORDER
-{
-   CblasRowMajor = 101,
-   CblasColMajor = 102,
-   UnkwownMajor  = 999
 };
 
 using BlasInt        = int;

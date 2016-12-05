@@ -301,7 +301,7 @@ public:
    template <int dimension>
    typename SliceImpl<dimension>::type::other slice(const index_type& point) const
    {
-      using Impl = SliceImpl<dimension>::type;
+      using Impl = typename SliceImpl<dimension>::type;
       return Impl::slice<dimension>(*this, point);
    }
 

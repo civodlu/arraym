@@ -15,6 +15,9 @@ namespace details
 {
 template <class T, ui32 N, class ConfigT>
 StaticVector<ui32, N> getFastestVaryingIndexes(const Array<T, N, ConfigT>& array);
+
+    template <class T, ui32 N, class ConfigT>
+    StaticVector<ui32, N> getFastestVaryingIndexesMemory(const Array<T, N, ConfigT>& array);
 }
 
 /**
@@ -83,7 +86,9 @@ public:
    struct is_unpacked_arguments
    {
       static const bool value = sizeof...(Values) == RANK && is_same<Values...>::value && std::is_integral<typename first<Values...>::type>::value &&
-                                !std::is_same<array_type, typename remove_cvr<typename first<Values...>::type>>::value;
+                                !std::is_same<array_type,
+                                        typename remove_cvr<typename first<Values...>::type>::type
+                                >::value;
    };
 
    // is this an example of: https://connect.microsoft.com/VisualStudio/feedback/details/1571800/false-positive-warning-c4520-multiple-default-constructors-specified

@@ -63,9 +63,9 @@ struct TestLeastSquare
       for (unsigned int n = 0; n < 10000; ++n)
       {
          srand(n);
-         const auto nb = generateUniformDistribution<size_t>(10, 20);
-         const auto dim = generateUniformDistribution<size_t>(3, 10);
-         const auto bdim = generateUniformDistribution<size_t>(1, 5);
+         const auto nb = generateUniformDistribution<ui32>(10, 20);
+         const auto dim = generateUniformDistribution<ui32>( 3, 10 );
+         const auto bdim = generateUniformDistribution<ui32>( 1, 5 );
 
          Matrix<float> a(vector2ui(nb, dim ));
          Matrix<float> x(vector2ui(dim, bdim ));
@@ -74,13 +74,13 @@ struct TestLeastSquare
          random(x);
          
          const auto b = a * x;
-         /*
+         
          auto x_found = least_square(a, b);
-         const auto b_ax = b - a * x_found;
+         //const auto b_ax = b - a * x_found;
 
-         std::cout << b_ax << std::endl;
-         const double residual = norm2(b_ax);
-         TESTER_ASSERT(residual < 1e-4f);*/
+         //std::cout << b_ax << std::endl;
+         //const double residual = norm2(b_ax);
+         //TESTER_ASSERT(residual < 1e-4f);
       }
    }
 };
