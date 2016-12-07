@@ -15,8 +15,11 @@ struct ArrayTraitsConfig
    /**
    @brief Rebind the trait to a different type
    */
-   //template <class T2>
-   //using rebind_trait = ArrayTraitsConfig<T2, N, IndexMapperT, typename Allocator::template rebind<T2>::other>;
+   template <class T2>
+   struct rebind
+   {
+      using other = ArrayTraitsConfig<T2, N, typename Allocator::template rebind<T2>::other, typename MemoryT::template rebind<T2>::other>;
+   };
 };
 
 /**

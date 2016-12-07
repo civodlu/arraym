@@ -122,15 +122,35 @@ public:
    using pointer_type    = T*;
    using value_type      = T;
    using Memory          = Memory_contiguous<T, N, IndexMapper, Allocator>;
-
+   
    static const size_t RANK = N;
 
+private:
+   /**
+    @brief Rebind type & dimension
+    */
    template <class T2, size_t N2>
-   struct rebind
+   struct rebind_type_dim
    {
       // using other = int;
-      using other = Memory_contiguous<T2, N2, typename IndexMapper::template rebind<N2>::other, typename Allocator::template rebind<T2>::other>;
+      using other = Memory_contiguous<
+         T2,
+         N2,
+         typename IndexMapper::template rebind<N2>::other,
+         typename Allocator::template rebind<T2>::other>;
    };
+
+public:
+   /**
+   @brief Rebind the memory with another type
+   */
+   template <class T2>
+   struct rebind
+   {
+      using other = typename rebind_type_dim<T2, N>::other;
+   };
+
+   using ConstMemory = typename Memory::template rebind<const T>::other;
 
    template <class TT>
    class diterator_t : public std::iterator<std::random_access_iterator_tag, TT>
@@ -242,14 +262,14 @@ public:
    Create a reference of this object, so do NOT destroy the memory while using the sliced mempory
    */
    template <size_t dimension>
-   typename rebind<T, N - 1>::other slice(const index_type& index) const
+   typename rebind_type_dim<T, N - 1>::other slice(const index_type& index) const
    {
       // we start at the beginning of the slice
       index_type index_slice;
       index_slice[dimension] = index[dimension];
       T* ptr                 = const_cast<T*>(this->at(index_slice));
 
-      using Other = typename rebind<T, N - 1>::other;
+      using Other = typename rebind_type_dim<T, N - 1>::other;
       Other memory;
       memory._indexMapper   = _indexMapper.slice<dimension>(index_slice);
       memory._data          = const_cast<T*>(ptr);
@@ -290,6 +310,11 @@ public:
          // new reference
          _sharedView = &ref;
       }
+   }
+
+   ConstMemory asConst() const
+   {
+      return ConstMemory(shape(), _data, _indexMapper._getPhysicalStrides());
    }
 
    diterator beginDim(ui32 dim, const index_type& indexN)
@@ -352,7 +377,9 @@ private:
          {
             allocator_trait::destroy(_allocator, _data + nn);
          }
-         allocator_trait::deallocate(_allocator, _data, linear_size);
+         // handle the const T* case for const arrays
+         using unconst_value = typename std::remove_cv<T>::type;
+         allocator_trait::deallocate(_allocator, const_cast<unconst_value*>(_data), linear_size);
       }
 
       _data       = nullptr;

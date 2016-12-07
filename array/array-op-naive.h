@@ -75,7 +75,7 @@ typename PromoteFloating<T>::type norm2( const Array<T, N, Config>& a1 )
       accum += norm2_naive_sqr( ptr, stride, elements );
    };
 
-   iterate_array( a1, op );
+   iterate_constarray( a1, op );
    return std::sqrt( accum );
 }
 

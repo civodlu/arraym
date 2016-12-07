@@ -67,7 +67,10 @@ class Array : public ArrayTraits<Array<T, N, ConfigT>, ConfigT>
 public:
    using Config               = ConfigT;
    using Memory               = typename Config::Memory;
+   using ConstMemory          = typename Memory::ConstMemory;
    using allocator_type       = typename Config::allocator_type;
+   using ConstArray           = Array<const T, N, typename Config::template rebind<const T>::other>;
+
    using value_type           = T;
    using array_type           = Array<T, N, Config>;
    using array_type_ref       = ArrayRef<T, N, Config>;
@@ -81,6 +84,12 @@ public:
    using const_diterator      = typename Memory::const_diterator;
 
    static const size_t RANK = N;
+
+   template <class T2>
+   struct rebind
+   {
+      using other = Array<T2, N, typename ConfigT::template rebind<T2>::other>;
+   };
 
    template <class... Values>
    struct is_unpacked_arguments
@@ -255,6 +264,11 @@ public:
 
    array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive)
    {
+      return subarray(min_index_inclusive, max_index_inclusive);
+   }
+
+   array_type_ref subarray(const index_type& min_index_inclusive, const index_type& max_index_inclusive)
+   {
 #ifndef NDEBUG
       for (int n = 0; n < N; ++n)
       {
@@ -266,6 +280,24 @@ public:
       const auto size = max_index_inclusive - min_index_inclusive + 1;
       return array_type_ref(*this, min_index_inclusive, size, index_type(1));
    }
+
+   ConstArray asConst() const
+   {
+      ConstMemory m = this->getMemory().asConst();
+      auto array = ConstArray(std::move(m));
+      return array;
+   }
+
+   /*
+   typename ConstArray::array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive) const
+   {
+      ensure(0, "TODO");
+   }*/
+   /*
+   const array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive) const
+   {
+      return const_cast<Array&>(*this)(min_index_inclusive, max_index_inclusive);
+   }*/
 
    diterator beginDim(ui32 dim, const index_type& indexN)
    {

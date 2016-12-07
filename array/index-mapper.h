@@ -195,10 +195,27 @@ public:
    index_type _physicalStrides;
 };
 
+//template <class Mapper>
+//using IndexMapper_contiguous_matrix = IndexMapper_contiguous<2, Mapper>;
+
+/**
+ @brief Here we create a different mapper so that we can clearly identity if the type is a matrix, with the specific
+        matrix semantic
+ */
 template <class Mapper>
-class IndexMapper_contiguous_matrix : public IndexMapper_contiguous<2, Mapper>
+struct IndexMapper_contiguous_matrix : public IndexMapper_contiguous<2, Mapper>
 {
+   
+   IndexMapper_contiguous_matrix(const IndexMapper_contiguous<2, Mapper>& base)
+   {
+      this->_origin = base._origin;
+      this->_physicalStrides = base._physicalStrides;
+   }
+   
+   IndexMapper_contiguous_matrix()
+   {}
 };
+
 
 template <size_t N>
 using IndexMapper_contiguous_row_major = IndexMapper_contiguous<N, details::Mapper_stride_row_major<N>>;

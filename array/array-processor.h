@@ -541,7 +541,7 @@ void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config
 
 /**
 @brief iterate array
-@tparam must be callable using (T* a1_pointer, a1_stride, nb elements)
+@tparam must be callable using (T* a1_pointer, ui32 a1_stride, ui32 nb_elements)
 @note this is only instantiated for linear memory
 */
 template <class T, int N, class Config, class Op,
@@ -561,12 +561,12 @@ void iterate_array(Array<T, N, Config>& a1, Op& op)
 
 /**
 @brief iterate array
-@tparam must be callable using (T const* a1_pointer, a1_stride, nb elements)
+@tparam must be callable using (T const* a1_pointer, ui32 a1_stride, ui32 nb_elements)
 @note this is only instantiated for linear memory
 */
 template <class T, int N, class Config, class Op,
    typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
-   void iterate_array( const Array<T, N, Config>& a1, Op& op )
+   void iterate_constarray( const Array<T, N, Config>& a1, Op& op )
 {
    ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1( a1 );
 

@@ -26,6 +26,17 @@ public:
    static const size_t Z_INDEX = index_mapper::Z_INDEX; /// this is the index where the slices will be created (i.e., all others will be in contiguous memory)
    static const size_t RANK    = N;
 
+   /**
+   @brief Rebind the memory with another type
+    */
+   template <class T2>
+   struct rebind
+   {
+      using other = Memory_multislice<T2, N, IndexMapper, typename Allocator::template rebind<T2>::other>;
+   };
+
+   using ConstMemory = typename Memory::template rebind<const T>::other;
+
    template <class TT>
    class diterator_t : public std::iterator<std::random_access_iterator_tag, TT>
    {
@@ -184,6 +195,11 @@ public:
          // create a reference
          _sharedView = &ref;
       }
+   }
+
+   ConstMemory asConst() const
+   {
+      return ConstMemory(shape(), reinterpret_cast<const std::vector<const T*>&>(_slices), getIndexMapper()._getPhysicalStrides());
    }
 
    const allocator_type& getAllocator() const
@@ -345,7 +361,9 @@ private:
             {
                allocator_trait::destroy(_allocator, p + nn);
             }
-            allocator_trait::deallocate(_allocator, p, in_slice_size);
+            // handle the const T* case for const arrays
+            using unconst_value = typename std::remove_cv<T>::type;
+            allocator_trait::deallocate(_allocator, const_cast<unconst_value*>(p), in_slice_size);
          }
       }
 
