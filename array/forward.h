@@ -29,6 +29,9 @@ DECLARE_NAMESPACE_END
 #include "array-noexp.h"
 
 #include "matrix-op-naive.h"
-#include "matrix-op-blas.h"
+#include "matrix-op-identity.h"
 
+// BLAS based operations
+#include "matrix-op-blas.h"
+#include "matrix-op-blas-least-square.h"
 #include "matrix-op-blas-inv.h"

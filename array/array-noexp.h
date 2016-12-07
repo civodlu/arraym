@@ -82,7 +82,7 @@ Array_NaiveOperatorEnabled<T, N, Config1> operator/(Array<T, N, Config1>& lhs, T
 }
 
 template <class T, size_t N, class Config1, class Config2>
-Array_NaiveOperatorEnabled<T, N, Config1> operator*(const Array<T, N, Config1>& lhs, Array<T, N, Config2>& rhs)
+Array_NaiveOperatorEnabled<T, N, Config1> operator*(const Array<T, N, Config1>& lhs, const Array<T, N, Config2>& rhs)
 {
    return array_mul_array(lhs, rhs);
 }

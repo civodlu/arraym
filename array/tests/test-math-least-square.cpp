@@ -27,7 +27,7 @@ struct TestLeastSquare
 
    void test_simple()
    {
-      for (unsigned int n = 0; n < 10000; ++n)
+      for (unsigned int n = 0; n < 1000; ++n)
       {
          srand(n);
          const auto nb = generateUniformDistribution<size_t>(10, 20);
@@ -46,7 +46,7 @@ struct TestLeastSquare
          auto x_found = least_square(a, b);
          const auto b_ax = b - a * x_found;
 
-         std::cout << b_ax << std::endl;
+         //std::cout << b_ax << std::endl;
          const double residual = norm2(b_ax);
          TESTER_ASSERT(residual < 1e-4f);
          

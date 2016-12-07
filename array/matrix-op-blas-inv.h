@@ -3,50 +3,60 @@
 DECLARE_NAMESPACE_NLL
 
 /**
-@brief compute the least square solution min_x ||B - A * X||_2   using QR decomposition
-
-if a_transposed == true, solves min_x ||B - A^t * X||_2 instead
-@return B
+@brief return the inverse of the input
+@note Do no throw if the matrix is singular. Instead, the returned size if (0,0)
 */
 template <class T, class Config>
-Matrix_BlasEnabled<T, 2, Config> least_square(const Array<T, 2, Config>& a, const Array<T, 2, Config>& b, bool a_transposed = false)
+Matrix_BlasEnabled<T, 2, Config> inv_nothrow( const Array<T, 2, Config>& a)
 {
-   using matrix_type = Matrix_BlasEnabled<T, 2, Config>;
-   const auto memory_order_a = getMatrixMemoryOrder(a);
-   const auto memory_order_b = getMatrixMemoryOrder(b);
-   ensure(memory_order_a == memory_order_b, "matrix must have the same memory order");
+   using matrix_type = Array<T, 2, Config>;
+   ensure( a.rows() == a.columns(), "must be square!" );
+   matrix_type i = a;
 
+   const auto size = static_cast<blas::BlasInt>( a.rows() );
+   std::unique_ptr<blas::BlasInt> IPIV( new blas::BlasInt[ size + 1 ] );
 
-   matrix_type a_cpy = a;  // will have the result of the factorization
-   matrix_type b_cpy = b;
-
+   const auto memory_order = getMatrixMemoryOrder( a );
    blas::BlasInt lda;
-   blas::BlasInt ldb;
    const auto& stride_a = a.getMemory().getIndexMapper()._getPhysicalStrides();
-   const auto& stride_b = b.getMemory().getIndexMapper()._getPhysicalStrides();
-   if (memory_order_a == CBLAS_ORDER::CblasColMajor)
+   if ( memory_order == CBLAS_ORDER::CblasColMajor )
    {
-      lda = stride_a[1];
-      ldb = stride_b[1];
-   }
-   else
+      lda = stride_a[ 1 ];
+      ensure( stride_a[ 0 ] == 1, "can't have stride != 1 " );
+   } else
    {
-      lda = stride_a[0];
-      ldb = stride_b[0];
+      lda = stride_a[ 0 ];
+      ensure( stride_a[ 1 ] == 1, "can't have stride != 1 " );
    }
 
-   const auto m = static_cast<blas::BlasInt>(a.rows());
-   const auto n = static_cast<blas::BlasInt>(a.columns());
-   const auto nrhs = static_cast<blas::BlasInt>(b.columns());
+   const auto r = core::blas::getrf<T>( memory_order, size, size, &i(0, 0), lda, IPIV.get() );
+   if ( r != 0 )
+   {
+      // something is wrong... just return an empty array
+      return matrix_type();
+   }
 
-   //const auto info = blas::gels<T>(blas::CBLAS_ORDER::CblasColMajor, a_transposed ? 'T' : 'N', m, n, nrhs, &a_cpy(0, 0), lda, &a_cpy(0, 0), ldb);
-   
-   const auto info = blas::gels<T>(memory_order_a, a_transposed ? 'T' : 'N', m, n, nrhs, &a_cpy(0, 0), lda, &a_cpy(0, 0), ldb);
-   ensure(info == 0, "blas::gels<T> failed!");
-   
-   auto result_b_based = b_cpy.subarray(matrix_type::index_type(0, 0),
-      matrix_type::index_type(n - 1, nrhs - 1));
-   return result_b_based;
+   const auto r2 = core::blas::getri<T>( memory_order, size, &i( 0, 0 ), lda, IPIV.get() );
+   if ( r2 != 0 )
+   {
+      // something is wrong... just return an empty array
+      return matrix_type();
+   }
+
+   return i;
+}
+
+/**
+@brief return the inverse of the input
+
+Throw an exception if the inverse failed
+*/
+template <class T, class Config>
+Matrix_BlasEnabled<T, 2, Config> inv( const Array<T, 2, Config>& a )
+{
+   auto r = inv_nothrow( a );
+   ensure( r.size() != 0, "inv failed!" );
+   return r;
 }
 
 DECLARE_NAMESPACE_END
