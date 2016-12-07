@@ -25,21 +25,32 @@ struct TestMatrixInv
       iterate_array( array, op );
    }
 
-   void test_simple()
+   void test_random()
    {
-      for ( unsigned int n = 0; n < 10000; ++n )
+      test_random_impl<Matrix_row_major<float>>();
+      test_random_impl<Matrix_column_major<float>>();
+      test_random_impl<Matrix_row_major<double>>();
+      test_random_impl<Matrix_column_major<double>>();
+   }
+
+   template <class Matrix>
+   void test_random_impl()
+   {
+      for ( unsigned int n = 0; n < 1000; ++n )
       {
          srand( n );
          const auto nb = generateUniformDistribution<size_t>( 3, 10 );
 
+         Matrix id( vector2ui( nb, nb ) );
+         identity( id );
 
-         Matrix<float> a( vector2ui( nb, nb ) );
+         Matrix a( vector2ui( nb, nb ) );
          random( a );
 
-         const Matrix<float> b = inv( a );
+         const Matrix b = inv( a );
 
          {
-            const auto i2 = b * a - identity<float>( nb );
+            const auto i2 = b * a - id;
             const double residual = norm2( i2 );
             if( residual > 1e-2 )
             {
@@ -49,7 +60,7 @@ struct TestMatrixInv
          }
 
          {
-            const auto i2 = a * b - identity<float>( nb );
+            const auto i2 = a * b - id;
             const double residual = norm2( i2 );
             if ( residual > 1e-2 )
             {
@@ -64,5 +75,5 @@ struct TestMatrixInv
 };
 
 TESTER_TEST_SUITE( TestMatrixInv );
-TESTER_TEST( test_simple );
+TESTER_TEST( test_random );
 TESTER_TEST_SUITE_END();
