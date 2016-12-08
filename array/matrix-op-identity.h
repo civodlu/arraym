@@ -6,14 +6,14 @@ DECLARE_NAMESPACE_NLL
 @brief identity matrix
 */
 template <class T>
-Matrix<T> identity( size_t rank )
+Matrix<T> identity(size_t rank)
 {
-   Matrix<T> m( static_cast<ui32>( rank ), static_cast<ui32>( rank ) );
-   for ( size_t n = 0; n < rank; ++n )
+   Matrix<T> m(static_cast<ui32>(rank), static_cast<ui32>(rank));
+   for (size_t n = 0; n < rank; ++n)
    {
-      m( n, n ) = 1;
+      m(n, n) = 1;
    }
-   
+
    return m;
 }
 
@@ -21,15 +21,12 @@ Matrix<T> identity( size_t rank )
 @brief fill the matrix as identity
 */
 template <class T, class Config>
-void identity( Array<T, 2, Config>& m )
+void identity(Array<T, 2, Config>& m)
 {
    ensure(m.shape()[0] == m.shape()[1], "must be square!");
-   
-   auto op = [](const Array<T, 2, Config>::index_type& i)
-   {
-      return static_cast<T>(i[ 0 ] == i[ 1 ]);
-   };
-   fill( m, op );
+
+   auto op = [](const Array<T, 2, Config>::index_type& i) { return static_cast<T>(i[0] == i[1]); };
+   fill(m, op);
 }
 
 DECLARE_NAMESPACE_END

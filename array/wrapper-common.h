@@ -9,7 +9,7 @@ enum CBLAS_ORDER
 {
    CblasRowMajor = 101,
    CblasColMajor = 102,
-   UnkwownMajor = 999
+   UnkwownMajor  = 999
 };
 
 namespace blas

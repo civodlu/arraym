@@ -374,19 +374,19 @@ private:
    {
       _deallocateSlices(); // if any memory is allocated or referenced, they are not needed anymore
 
-      _shape           = other._shape;
+      _shape = other._shape;
       _indexMapper.init(0, _shape);
       _allocator       = other._allocator;
       _slicesAllocated = true;
 
-      const ui32 this_inSliceSize = _inSliceSize();
+      const ui32 this_inSliceSize  = _inSliceSize();
       const ui32 other_inSliceSize = other._sharedView ? other._sharedView->_inSliceSize() : other._inSliceSize();
 
       const auto size_per_slice_bytes = sizeof(T) * this_inSliceSize;
       _allocateSlices(T(), this_inSliceSize);
       if (this_inSliceSize == other_inSliceSize &&
-         details::IsMemoryFullyContiguous<Memory>::value(other, std::integral_constant<bool, true>())
-         ) // we want fully contiguous slice! Else if the stride is not (1, ..., 1) the memcpy would be invalid
+          details::IsMemoryFullyContiguous<Memory>::value(
+              other, std::integral_constant<bool, true>())) // we want fully contiguous slice! Else if the stride is not (1, ..., 1) the memcpy would be invalid
       {
          // same size so there was no sub-array: we can directly copy the memory in a single block
          for (size_t n = 0; n < _shape[Z_INDEX]; ++n)
@@ -400,8 +400,7 @@ private:
       else
       {
          // we have a subarray, potentially with stride so we need to use a processor
-         auto op_cpy = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
-         {
+         auto op_cpy = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements) {
             /// @TODO add the BLAS copy
             details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
          };

@@ -2,14 +2,13 @@
 
 DECLARE_NAMESPACE_NLL
 
-
 namespace details
 {
-   template <class Memory>
-   class ConstMemoryProcessor_contiguous_byMemoryLocality;
+template <class Memory>
+class ConstMemoryProcessor_contiguous_byMemoryLocality;
 
-   template <class Memory>
-   class MemoryProcessor_contiguous_byMemoryLocality;
+template <class Memory>
+class MemoryProcessor_contiguous_byMemoryLocality;
 }
 
 /**
@@ -34,57 +33,57 @@ struct IsMemoryLayoutLinear
 
 namespace details
 {
-   template <class Memory>
-   struct IsMemoryFullyContiguous
+template <class Memory>
+struct IsMemoryFullyContiguous
+{
+   static bool value(const Memory& memory, std::integral_constant<bool, true> UNUSED(isContiguous))
    {
-      static bool value(const Memory& memory, std::integral_constant<bool, true> UNUSED(isContiguous))
+      auto stride = memory.getIndexMapper()._getPhysicalStrides();
+
+      std::array<std::pair<ui32, size_t>, Memory::RANK> stride_index;
+      for (size_t n = 0; n < Memory::RANK; ++n)
       {
-         auto stride = memory.getIndexMapper()._getPhysicalStrides();
-
-         std::array<std::pair<ui32, size_t>, Memory::RANK> stride_index;
-         for (size_t n = 0; n < Memory::RANK; ++n)
-         {
-            stride_index[n] = std::make_pair(stride[n], n);
-         }
-
-         // sort by increasing stride. Stride must start at 1 and multiplied by the corresponding shape's
-         // index
-
-         std::sort(stride_index.begin(), stride_index.end());
-
-         size_t first_index = 0;
-         if (stride_index[0].first == 0)
-         {
-            // discard the <0> so we can share the implementation with the slice based memory
-            ++first_index;
-         }
-
-         if (stride_index[first_index].first != 1)
-         {
-            return false;
-         }
-
-         ui32 current = 1;
-         for (size_t n = first_index; n < Memory::RANK; ++n)
-         {
-            const auto dim = stride_index[n].second;
-            // this test is not perfect when we have a dimension == 1 as we can't know which is
-            // the true fastest dimension, so the result of the sort may not be correct, so discard
-            // if memory.shape()[dim] != 1
-            if (memory.shape()[dim] != 1 && stride_index[n].first != current)
-            {
-               return false;
-            }
-            current *= memory.shape()[stride_index[n].second];
-         }
-         return true;
+         stride_index[n] = std::make_pair(stride[n], n);
       }
 
-      static bool value(const Memory& UNUSED(memory), std::integral_constant<bool, false> UNUSED(isContiguous))
+      // sort by increasing stride. Stride must start at 1 and multiplied by the corresponding shape's
+      // index
+
+      std::sort(stride_index.begin(), stride_index.end());
+
+      size_t first_index = 0;
+      if (stride_index[0].first == 0)
+      {
+         // discard the <0> so we can share the implementation with the slice based memory
+         ++first_index;
+      }
+
+      if (stride_index[first_index].first != 1)
       {
          return false;
       }
-   };
+
+      ui32 current = 1;
+      for (size_t n = first_index; n < Memory::RANK; ++n)
+      {
+         const auto dim = stride_index[n].second;
+         // this test is not perfect when we have a dimension == 1 as we can't know which is
+         // the true fastest dimension, so the result of the sort may not be correct, so discard
+         // if memory.shape()[dim] != 1
+         if (memory.shape()[dim] != 1 && stride_index[n].first != current)
+         {
+            return false;
+         }
+         current *= memory.shape()[stride_index[n].second];
+      }
+      return true;
+   }
+
+   static bool value(const Memory& UNUSED(memory), std::integral_constant<bool, false> UNUSED(isContiguous))
+   {
+      return false;
+   }
+};
 }
 
 /**
@@ -102,7 +101,6 @@ bool is_memory_fully_contiguous(const memory_type& a1)
    // test that the last element of one dimension + 1 equals the first element of the next dimension
    return details::IsMemoryFullyContiguous<memory_type>::value(a1, std::integral_constant<bool, IsMemoryLayoutContiguous<memory_type>::value>());
 }
-
 
 /**
 @brief Memory composed of multi-slices
@@ -122,7 +120,7 @@ public:
    using pointer_type    = T*;
    using value_type      = T;
    using Memory          = Memory_contiguous<T, N, IndexMapper, Allocator>;
-   
+
    static const size_t RANK = N;
 
 private:
@@ -133,11 +131,7 @@ private:
    struct rebind_type_dim
    {
       // using other = int;
-      using other = Memory_contiguous<
-         T2,
-         N2,
-         typename IndexMapper::template rebind<N2>::other,
-         typename Allocator::template rebind<T2>::other>;
+      using other = Memory_contiguous<T2, N2, typename IndexMapper::template rebind<N2>::other, typename Allocator::template rebind<T2>::other>;
    };
 
 public:
@@ -408,17 +402,17 @@ private:
    {
       _deallocateSlices(); // if any memory is allocated or referenced, they are not needed anymore
 
-      _shape         = other._shape;
+      _shape = other._shape;
       _indexMapper.init(0, _shape);
       _allocator     = other._allocator;
       _dataAllocated = true;
 
       // now deep copy...
-      const ui32 this_linearSize = _linearSize();
+      const ui32 this_linearSize  = _linearSize();
       const ui32 other_linearSize = other._sharedView ? other._sharedView->_linearSize() : other._linearSize();
 
       _allocateSlices(T(), this_linearSize);
-      if (this_linearSize == other_linearSize && is_memory_fully_contiguous(other))  // if we have a non stride (1,...,1) stride, use iterator
+      if (this_linearSize == other_linearSize && is_memory_fully_contiguous(other)) // if we have a non stride (1,...,1) stride, use iterator
       {
          // this means the deep copy is the FULL buffer
          const auto size_bytes = sizeof(T) * this_linearSize;
@@ -427,11 +421,10 @@ private:
          const auto dst = _data;
          memcpy(dst, src, size_bytes);
       }
-      else 
+      else
       {
          // we have a subarray, potentially with stride so we need to use a processor
-         auto op_cpy = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
-         {
+         auto op_cpy = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements) {
             // @TODO add the BLAS copy
             details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
          };

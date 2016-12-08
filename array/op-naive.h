@@ -73,11 +73,11 @@ void addmul_naive(T* v1, size_t stride_v1, const T* v2, size_t stride_v2, T mul,
 @brief compute sum(v1^2)
 */
 template <class T, class Accum = T>
-Accum norm2_naive_sqr( T const* v1, size_t stride_v1, size_t nb_elements )
+Accum norm2_naive_sqr(T const* v1, size_t stride_v1, size_t nb_elements)
 {
    const T* end = v1 + nb_elements * stride_v1;
-   Accum accum = 0;
-   for ( ; v1 != end; v1 += stride_v1)
+   Accum accum  = 0;
+   for (; v1 != end; v1 += stride_v1)
    {
       accum += *v1 * *v1;
    }
@@ -97,7 +97,7 @@ void copy_naive(T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, 
       const size_t size_bytes = nb_elements * sizeof(T);
       memcpy(y_pointer, x_pointer, size_bytes);
    }
-   else 
+   else
    {
       const T* y_end = y_pointer + y_stride * nb_elements;
       for (; y_pointer != y_end; y_pointer += y_stride, x_pointer += x_stride)
@@ -149,7 +149,6 @@ void set_naive(T* y_pointer, ui32 y_stride, ui32 nb_elements, T value)
       *y_pointer = value;
    }
 }
-
 }
 
 template <class T, class Accum = T>

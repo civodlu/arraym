@@ -11,16 +11,11 @@ struct TestMatrixSvd
    template <class Array>
    void random(Array& array)
    {
-      auto f = [](typename Array::value_type)
-      {
-         return generateUniformDistribution<float>(-5, 5);
-      };
+      auto f = [](typename Array::value_type) { return generateUniformDistribution<float>(-5, 5); };
 
-      auto op = [&](typename Array::value_type* y_pointer, ui32 y_stride, ui32 nb_elements)
-      {
+      auto op = [&](typename Array::value_type* y_pointer, ui32 y_stride, ui32 nb_elements) {
          NAMESPACE_NLL::details::apply_naive1(y_pointer, y_stride, nb_elements, f);
       };
-
 
       iterate_array(array, op);
    }
@@ -46,8 +41,8 @@ struct TestMatrixSvd
 
          svd(a, u, s, vt);
          const auto a_reconstructed = u * svd_construct_s(u, s, vt) * vt;
-         const auto diff = a_reconstructed - a;
-         const auto error = norm2(diff);
+         const auto diff            = a_reconstructed - a;
+         const auto error           = norm2(diff);
          TESTER_ASSERT(error < 1e-3);
 
          for (size_t n = 0; n < s.size() - 1; ++n)

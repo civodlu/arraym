@@ -141,10 +141,9 @@ protected:
       }
    };
 
-
 public:
    // @TODO fix these issues with friends
-   ui32 _maxAccessElements;     // maximum number of steps in the fastest varying dimension possible without increasing the other indexes
+   ui32 _maxAccessElements; // maximum number of steps in the fastest varying dimension possible without increasing the other indexes
    Array& _array;
 
 protected:
@@ -443,11 +442,11 @@ template <class Array>
 class ConstArrayProcessor_contiguous_byDimension : public details::ConstArrayProcessor_contiguous_base<Array>
 {
 public:
-    using base         = details::ConstArrayProcessor_contiguous_base<Array>;
-    using pointer_type = typename base::pointer_type;
-    using index_type = typename base::index_type;
+   using base         = details::ConstArrayProcessor_contiguous_base<Array>;
+   using pointer_type = typename base::pointer_type;
+   using index_type   = typename base::index_type;
 
-    static index_type getIndexes(const Array&)
+   static index_type getIndexes(const Array&)
    {
       index_type indexes;
       for (ui32 n = 0; n < Array::RANK; ++n)
@@ -490,18 +489,16 @@ void fill(Array<T, N, Config>& array, Functor functor)
    }
 }
 
-
 /**
 @brief iterate array & const array jointly
 @tparam must be callable using (T* a1_pointer, a1_stride, const T* a2_pointer, a2_stride, nb elements)
 @note this is only instantiated for linear memory
 */
-template <class Memory1, class Memory2, class Op,
-   typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
+template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
 void iterate_memory_constmemory(Memory1& a1, const Memory2& a2, const Op& op)
 {
-   using T = typename Memory1::value_type;
-   using T2 = typename Memory2::value_type;
+   using T               = typename Memory1::value_type;
+   using T2              = typename Memory2::value_type;
    static const size_t N = Memory1::RANK;
 
    static_assert(is_callable_with<Op, T*, ui32, const T2*, ui32, ui32>::value, "Op is not callable!");
@@ -516,7 +513,7 @@ void iterate_memory_constmemory(Memory1& a1, const Memory2& a2, const Op& op)
    bool hasMoreElements = true;
    while (hasMoreElements)
    {
-      T* ptr_a1 = nullptr;
+      T* ptr_a1       = nullptr;
       T const* ptr_a2 = nullptr;
       hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
       hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
@@ -532,20 +529,18 @@ void iterate_memory_constmemory(Memory1& a1, const Memory2& a2, const Op& op)
 @note this is only instantiated for linear memory
 */
 template <class T, class T2, int N, class Config, class Config2, class Op,
-   typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
+          typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
 void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op)
 {
    iterate_memory_constmemory(a1.getMemory(), a2.getMemory(), op);
 }
-
 
 /**
 @brief iterate array
 @tparam must be callable using (T* a1_pointer, ui32 a1_stride, ui32 nb_elements)
 @note this is only instantiated for linear memory
 */
-template <class T, int N, class Config, class Op,
-   typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
+template <class T, int N, class Config, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
 void iterate_array(Array<T, N, Config>& a1, Op& op)
 {
    ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
@@ -553,7 +548,7 @@ void iterate_array(Array<T, N, Config>& a1, Op& op)
    bool hasMoreElements = true;
    while (hasMoreElements)
    {
-      T* ptr_a1 = nullptr;
+      T* ptr_a1       = nullptr;
       hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
       op(ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements());
    }
@@ -564,18 +559,17 @@ void iterate_array(Array<T, N, Config>& a1, Op& op)
 @tparam must be callable using (T const* a1_pointer, ui32 a1_stride, ui32 nb_elements)
 @note this is only instantiated for linear memory
 */
-template <class T, int N, class Config, class Op,
-   typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
-   void iterate_constarray( const Array<T, N, Config>& a1, Op& op )
+template <class T, int N, class Config, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
+void iterate_constarray(const Array<T, N, Config>& a1, Op& op)
 {
-   ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1( a1 );
+   ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
 
    bool hasMoreElements = true;
-   while ( hasMoreElements )
+   while (hasMoreElements)
    {
       T const* ptr_a1 = nullptr;
-      hasMoreElements = processor_a1.accessMaxElements( ptr_a1 );
-      op( ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements() );
+      hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
+      op(ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements());
    }
 }
 DECLARE_NAMESPACE_END

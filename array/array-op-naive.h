@@ -66,17 +66,14 @@ Array_NaiveEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
 }
 
 template <class T, int N, class Config>
-typename PromoteFloating<T>::type norm2( const Array<T, N, Config>& a1 )
+typename PromoteFloating<T>::type norm2(const Array<T, N, Config>& a1)
 {
    using return_type = typename PromoteFloating<T>::type;
    return_type accum = 0;
-   auto op = [&]( T const * ptr, ui32 stride, ui32 elements )
-   {
-      accum += norm2_naive_sqr( ptr, stride, elements );
-   };
+   auto op           = [&](T const* ptr, ui32 stride, ui32 elements) { accum += norm2_naive_sqr(ptr, stride, elements); };
 
-   iterate_constarray( a1, op );
-   return std::sqrt( accum );
+   iterate_constarray(a1, op);
+   return std::sqrt(accum);
 }
 
 /**

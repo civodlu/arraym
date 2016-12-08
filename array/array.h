@@ -16,8 +16,8 @@ namespace details
 template <class T, ui32 N, class ConfigT>
 StaticVector<ui32, N> getFastestVaryingIndexes(const Array<T, N, ConfigT>& array);
 
-    template <class T, ui32 N, class ConfigT>
-    StaticVector<ui32, N> getFastestVaryingIndexesMemory(const Array<T, N, ConfigT>& array);
+template <class T, ui32 N, class ConfigT>
+StaticVector<ui32, N> getFastestVaryingIndexesMemory(const Array<T, N, ConfigT>& array);
 }
 
 /**
@@ -65,11 +65,11 @@ template <class T, int N, class ConfigT = ArrayTraitsConfig<T, N>>
 class Array : public ArrayTraits<Array<T, N, ConfigT>, ConfigT>
 {
 public:
-   using Config               = ConfigT;
-   using Memory               = typename Config::Memory;
-   using ConstMemory          = typename Memory::ConstMemory;
-   using allocator_type       = typename Config::allocator_type;
-   using ConstArray           = Array<const T, N, typename Config::template rebind<const T>::other>;
+   using Config         = ConfigT;
+   using Memory         = typename Config::Memory;
+   using ConstMemory    = typename Memory::ConstMemory;
+   using allocator_type = typename Config::allocator_type;
+   using ConstArray     = Array<const T, N, typename Config::template rebind<const T>::other>;
 
    using value_type           = T;
    using array_type           = Array<T, N, Config>;
@@ -95,9 +95,7 @@ public:
    struct is_unpacked_arguments
    {
       static const bool value = sizeof...(Values) == RANK && is_same<Values...>::value && std::is_integral<typename first<Values...>::type>::value &&
-                                !std::is_same<array_type,
-                                        typename remove_cvr<typename first<Values...>::type>::type
-                                >::value;
+                                !std::is_same<array_type, typename remove_cvr<typename first<Values...>::type>::type>::value;
    };
 
    // is this an example of: https://connect.microsoft.com/VisualStudio/feedback/details/1571800/false-positive-warning-c4520-multiple-default-constructors-specified
@@ -284,7 +282,7 @@ public:
    ConstArray asConst() const
    {
       ConstMemory m = this->getMemory().asConst();
-      auto array = ConstArray(std::move(m));
+      auto array    = ConstArray(std::move(m));
       return array;
    }
 
@@ -454,8 +452,7 @@ public:
    ArrayRef& operator=(const array_type& array)
    {
       ensure(array.shape() == this->shape(), "must have the same shape!");
-      auto op = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
-      {
+      auto op = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements) {
          details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
       };
       iterate_array_constarray(*this, array, op);
@@ -464,10 +461,7 @@ public:
 
    ArrayRef& operator=(T value)
    {
-      auto op = [&](T* y_pointer, ui32 y_stride, ui32 nb_elements)
-      {
-         details::set_naive(y_pointer, y_stride, nb_elements, value);
-      };
+      auto op = [&](T* y_pointer, ui32 y_stride, ui32 nb_elements) { details::set_naive(y_pointer, y_stride, nb_elements, value); };
       iterate_array(*this, op);
       return *this;
    }
@@ -560,8 +554,6 @@ struct IsArrayLayoutContiguous
    static const bool value = std::is_base_of<memory_layout_contiguous, typename Array::Memory>::value;
 };
 
-
-
 /**
 @brief Returns true if an array is based on a single slice or multiple slices of contiguous memory
 @note this doesn't mean there is not gap between dimensions (e.g., we have a sub-array)
@@ -581,7 +573,5 @@ bool is_array_fully_contiguous(const Array<T, N, Config>& a1)
 {
    return is_memory_fully_contiguous<typename Array<T, N, Config>::Memory>(a1.getMemory());
 }
-
-
 
 DECLARE_NAMESPACE_END

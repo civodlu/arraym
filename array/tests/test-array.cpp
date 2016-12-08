@@ -11,7 +11,6 @@ using vector3ui = StaticVector<ui32, 3>;
 using vector2ui = StaticVector<ui32, 2>;
 using vector1ui = StaticVector<ui32, 1>;
 
-
 DECLARE_NAMESPACE_END
 
 struct TestArray
@@ -520,15 +519,13 @@ struct TestArray
       for (size_t nn = 0; nn < 100; ++nn)
       {
          srand((unsigned)nn);
-         NAMESPACE_NLL::vector3ui size(generateUniformDistribution(1, 20), generateUniformDistribution(1, 20),
-                                       generateUniformDistribution(1, 20));
+         NAMESPACE_NLL::vector3ui size(generateUniformDistribution(1, 20), generateUniformDistribution(1, 20), generateUniformDistribution(1, 20));
 
          Array a1(size);
          short index = 0;
          NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
 
-         const auto origin = NAMESPACE_NLL::vector3ui{generateUniformDistribution<size_t>(0, size[0] - 1),
-                                                      generateUniformDistribution<size_t>(0, size[1] - 1),
+         const auto origin = NAMESPACE_NLL::vector3ui{generateUniformDistribution<size_t>(0, size[0] - 1), generateUniformDistribution<size_t>(0, size[1] - 1),
                                                       generateUniformDistribution<size_t>(0, size[2] - 1)};
 
          auto& memory = a1.getMemory();
@@ -563,15 +560,13 @@ struct TestArray
       for (size_t nn = 0; nn < 100; ++nn)
       {
          srand((unsigned)nn + 1);
-         NAMESPACE_NLL::vector3ui size(generateUniformDistribution(1, 20), generateUniformDistribution(1, 20),
-                                       generateUniformDistribution(1, 20));
+         NAMESPACE_NLL::vector3ui size(generateUniformDistribution(1, 20), generateUniformDistribution(1, 20), generateUniformDistribution(1, 20));
 
          Array a1(size);
          short index = 0;
          NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
 
-         const auto origin = NAMESPACE_NLL::vector3ui{generateUniformDistribution<size_t>(0, size[0] - 1),
-                                                      generateUniformDistribution<size_t>(0, size[1] - 1),
+         const auto origin = NAMESPACE_NLL::vector3ui{generateUniformDistribution<size_t>(0, size[0] - 1), generateUniformDistribution<size_t>(0, size[1] - 1),
                                                       generateUniformDistribution<size_t>(0, size[2] - 1)};
 
          auto& memory = a1.getMemory();
@@ -601,8 +596,7 @@ struct TestArray
    void testArraySlice_impl()
    {
       srand((unsigned)1);
-      NAMESPACE_NLL::vector3ui size(generateUniformDistribution(5, 20), generateUniformDistribution(5, 20),
-                                    generateUniformDistribution(5, 20));
+      NAMESPACE_NLL::vector3ui size(generateUniformDistribution(5, 20), generateUniformDistribution(5, 20), generateUniformDistribution(5, 20));
 
       Array a1(size);
       short index = 0;

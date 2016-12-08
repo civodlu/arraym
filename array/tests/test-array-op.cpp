@@ -24,14 +24,14 @@ struct TestArrayOp
       {
          // trick for the slice based array, we share the implementation
          using array_type = Array_row_major_multislice<int, 3>;
-         auto array = array_type(4, 6, 10);
+         auto array       = array_type(4, 6, 10);
          TESTER_ASSERT(details::IsMemoryFullyContiguous<array_type::Memory>::value(array.getMemory(), std::integral_constant<bool, true>()));
       }
 
       {
          // trick for the slice based array, we share the implementation
          using array_type = Array_row_major_multislice<int, 3>;
-         auto array = array_type(10, 6, 4);
+         auto array       = array_type(10, 6, 4);
          TESTER_ASSERT(details::IsMemoryFullyContiguous<array_type::Memory>::value(array.getMemory(), std::integral_constant<bool, true>()));
       }
 
@@ -287,8 +287,8 @@ struct TestArrayOp
       testArray_div_cte_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       testArray_div_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
 
-      testArray_div_cte_right_impl<NAMESPACE_NLL::Array<int, 2>>();                      // naive, contiguous
-      testArray_div_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>(); // naive, non fully contiguous
+      testArray_div_cte_right_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
+      testArray_div_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       testArray_div_cte_right_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       testArray_div_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
    }
@@ -317,7 +317,7 @@ struct TestArrayOp
    void testArray_div_cte_right_impl()
    {
       Array a1(2, 3);
-      a1 = { 11, 21, 31, 40, 50, 60 };
+      a1 = {11, 21, 31, 40, 50, 60};
 
       std::cout << a1 << std::endl;
       Array cpy = a1 / static_cast<Array::value_type>(2);
@@ -407,7 +407,7 @@ struct TestArrayOp
    void testMatrix_transpose_impl()
    {
       Array m1(3, 2);
-      m1 = { 1, 2, 3, 4, 5, 6 };
+      m1             = {1, 2, 3, 4, 5, 6};
       const auto m1t = transpose(m1);
       std::cout << m1 << std::endl;
       std::cout << transpose(m1) << std::endl;

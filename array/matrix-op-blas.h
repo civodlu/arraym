@@ -68,16 +68,16 @@ namespace details
 Only call this methods for BLAS supported types (float/double) with Matrix based arrays
 */
 template <class T, class Config, class Config2, class Config3>
-void gemm( T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& opb, T beta, Array<T, 2, Config3>& opc )
+void gemm(T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& opb, T beta, Array<T, 2, Config3>& opc)
 {
-   ensure( opc.rows() == opa.rows(), "must be a opa.rows() * opb.columns()" );
+   ensure(opc.rows() == opa.rows(), "must be a opa.rows() * opb.columns()");
 
-   const auto memory_order_a = getMatrixMemoryOrder( opa );
-   const auto memory_order_b = getMatrixMemoryOrder( opb );
-   const auto memory_order_c = getMatrixMemoryOrder( opc );
-   ensure( memory_order_a == memory_order_b, "matrix must have the same memory order" );
-   ensure( memory_order_a == memory_order_c, "matrix must have the same memory order" );
-   ensure( memory_order_a != CBLAS_ORDER::UnkwownMajor, "unkown memory order!" );
+   const auto memory_order_a = getMatrixMemoryOrder(opa);
+   const auto memory_order_b = getMatrixMemoryOrder(opb);
+   const auto memory_order_c = getMatrixMemoryOrder(opc);
+   ensure(memory_order_a == memory_order_b, "matrix must have the same memory order");
+   ensure(memory_order_a == memory_order_c, "matrix must have the same memory order");
+   ensure(memory_order_a != CBLAS_ORDER::UnkwownMajor, "unkown memory order!");
    const auto order = memory_order_a == CBLAS_ORDER::CblasRowMajor ? CBLAS_ORDER::CblasRowMajor : CBLAS_ORDER::CblasColMajor;
 
    blas::BlasInt lda = 0;
@@ -86,31 +86,32 @@ void gemm( T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& 
 
    const auto& stride_a = opa.getMemory().getIndexMapper()._getPhysicalStrides();
    const auto& stride_b = opb.getMemory().getIndexMapper()._getPhysicalStrides();
-   if ( memory_order_a == CBLAS_ORDER::CblasColMajor )
+   if (memory_order_a == CBLAS_ORDER::CblasColMajor)
    {
-      ensure( stride_a[ 0 ] == 1, "stride in x dim must be 1 to use BLAS" );
-      ensure( stride_b[ 0 ] == 1, "stride in x dim must be 1 to use BLAS" );
-      lda = stride_a[ 1 ];
-      ldb = stride_b[ 1 ];
-      ldc = static_cast<blas::BlasInt>( opa.rows() );
-   } else
+      ensure(stride_a[0] == 1, "stride in x dim must be 1 to use BLAS");
+      ensure(stride_b[0] == 1, "stride in x dim must be 1 to use BLAS");
+      lda = stride_a[1];
+      ldb = stride_b[1];
+      ldc = static_cast<blas::BlasInt>(opa.rows());
+   }
+   else
    {
-      ensure( stride_a[ 1 ] == 1, "stride in x dim must be 1 to use BLAS" );
-      ensure( stride_b[ 1 ] == 1, "stride in x dim must be 1 to use BLAS" );
-      lda = stride_a[ 0 ];
-      ldb = stride_b[ 0 ];
-      ldc = static_cast<blas::BlasInt>( opb.columns() );
+      ensure(stride_a[1] == 1, "stride in x dim must be 1 to use BLAS");
+      ensure(stride_b[1] == 1, "stride in x dim must be 1 to use BLAS");
+      lda = stride_a[0];
+      ldb = stride_b[0];
+      ldc = static_cast<blas::BlasInt>(opb.columns());
    }
 
-   core::blas::gemm<T>( order, blas::CblasNoTrans, blas::CblasNoTrans, ( blas::BlasInt )opa.rows(), ( blas::BlasInt )opb.columns(), ( blas::BlasInt )opa.columns(),
-                        alpha, &opa( 0, 0 ), lda, &opb( 0, 0 ), ldb, beta, &opc( 0, 0 ), ldc );
+   core::blas::gemm<T>(order, blas::CblasNoTrans, blas::CblasNoTrans, (blas::BlasInt)opa.rows(), (blas::BlasInt)opb.columns(), (blas::BlasInt)opa.columns(),
+                       alpha, &opa(0, 0), lda, &opb(0, 0), ldb, beta, &opc(0, 0), ldc);
 }
 
 template <class T, class Config, class Config2>
 Matrix_BlasEnabled<T, 2, Config> array_mul_array(const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& opb)
 {
    Array<T, 2, Config> opc(opa.rows(), opb.columns());
-   gemm( static_cast<T>( 1 ), opa, opb, static_cast<T>( 1 ), opc );
+   gemm(static_cast<T>(1), opa, opb, static_cast<T>(1), opc);
    return opc;
 }
 }

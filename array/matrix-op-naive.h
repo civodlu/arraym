@@ -10,9 +10,7 @@ using Matrix_NaiveEnabled =
     typename std::enable_if<array_use_naive<Array<T, N, Config>>::value && is_matrix<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
 
 template <class T, size_t N, class Config>
-using Matrix_Enabled =
-typename std::enable_if<is_matrix<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
-
+using Matrix_Enabled = typename std::enable_if<is_matrix<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
 
 namespace details
 {

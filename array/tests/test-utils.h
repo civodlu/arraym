@@ -2,28 +2,28 @@
 
 namespace details
 {
-   //
-   // TODO DO NOT USE RAND() and use thread local generators
-   //
-   struct UniformDistribution
+//
+// TODO DO NOT USE RAND() and use thread local generators
+//
+struct UniformDistribution
+{
+   template <class T>
+   static T generate(T min, T max, std::false_type UNUSED(isIntegral))
    {
-      template <class T>
-      static T generate(T min, T max, std::false_type UNUSED(isIntegral))
-      {
-         NLL_FAST_ASSERT(min <= max, "invalid range!");
-         return static_cast<T>(rand()) / RAND_MAX * (max - min) + min;
-      }
+      NLL_FAST_ASSERT(min <= max, "invalid range!");
+      return static_cast<T>(rand()) / RAND_MAX * (max - min) + min;
+   }
 
-      template <class T>
-      static T generate(T min, T max, std::true_type UNUSED(isIntegral))
-      {
-         NLL_FAST_ASSERT(min <= max, "invalid range!");
-         const T interval = max - min + 1;
-         if (interval == 0)
-            return min;
-         return (rand() % interval) + min;
-      }
-   };
+   template <class T>
+   static T generate(T min, T max, std::true_type UNUSED(isIntegral))
+   {
+      NLL_FAST_ASSERT(min <= max, "invalid range!");
+      const T interval = max - min + 1;
+      if (interval == 0)
+         return min;
+      return (rand() % interval) + min;
+   }
+};
 }
 
 /**
