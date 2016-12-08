@@ -35,3 +35,4 @@ DECLARE_NAMESPACE_END
 #include "matrix-op-blas.h"
 #include "matrix-op-blas-least-square.h"
 #include "matrix-op-blas-inv.h"
+#include "matrix-op-blas-svd.h"

@@ -15,6 +15,7 @@ set(Headers    array.h
 			   matrix-op-blas.h
 			   matrix-op-blas-inv.h
 			   matrix-op-blas-least-square.h
+			   matrix-op-blas-svd.h
 			   matrix-op-naive.h
 			   matrix-op-identity.h
                op-naive.h

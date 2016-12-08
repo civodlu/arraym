@@ -18,7 +18,7 @@ Matrix_BlasEnabled<T, 2, Config> inv_nothrow( const Array<T, 2, Config>& a)
 
    const auto memory_order = getMatrixMemoryOrder( a );
    blas::BlasInt lda;
-   const auto& stride_a = a.getMemory().getIndexMapper()._getPhysicalStrides();
+   const auto& stride_a = i.getMemory().getIndexMapper()._getPhysicalStrides();
    if ( memory_order == CBLAS_ORDER::CblasColMajor )
    {
       lda = stride_a[ 1 ];

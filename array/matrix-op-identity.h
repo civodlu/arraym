@@ -20,13 +20,12 @@ Matrix<T> identity( size_t rank )
 /**
 @brief fill the matrix as identity
 */
-template <class T, class Mapper, class Allocator>
-void identity( Matrix<T, Mapper, Allocator>& m )
+template <class T, class Config>
+void identity( Array<T, 2, Config>& m )
 {
-   using matrix_type = Matrix<T, Mapper, Allocator>;
-   ensure( m.rows() == m.columns(), "must be square!" );
+   ensure(m.shape()[0] == m.shape()[1], "must be square!");
    
-   auto op = []( const matrix_type::index_type& i )
+   auto op = [](const Array<T, 2, Config>::index_type& i)
    {
       return static_cast<T>(i[ 0 ] == i[ 1 ]);
    };

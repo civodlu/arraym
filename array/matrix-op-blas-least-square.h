@@ -22,8 +22,8 @@ Matrix_BlasEnabled<T, 2, Config> least_square( const Array<T, 2, Config>& a, con
 
    blas::BlasInt lda;
    blas::BlasInt ldb;
-   const auto& stride_a = a.getMemory().getIndexMapper()._getPhysicalStrides();
-   const auto& stride_b = b.getMemory().getIndexMapper()._getPhysicalStrides();
+   const auto& stride_a = a_cpy.getMemory().getIndexMapper()._getPhysicalStrides();
+   const auto& stride_b = b_cpy.getMemory().getIndexMapper()._getPhysicalStrides();
    if ( memory_order_a == CBLAS_ORDER::CblasColMajor )
    {
       lda = stride_a[ 1 ];
