@@ -80,6 +80,19 @@ Array<T, N, Config> sqrt(const Array<T, N, Config>& array)
 }
 
 /**
+@brief return a copy of array with for each element e is returned e * e
+*/
+template <class T, int N, class Config>
+Array<T, N, Config> sqr( const Array<T, N, Config>& array )
+{
+   auto op = []( T value )
+   {
+      return value * value;
+   };
+   return array_apply_function( array, op );
+}
+
+/**
 @brief return a copy of array with std::abs applied to each element
 */
 template <class T, int N, class Config>
@@ -93,7 +106,33 @@ Array<T, N, Config> abs(const Array<T, N, Config>& array)
 }
 
 /**
-@brief return a copy of array with std::min applied to each element
+@brief return a copy of array with std::log applied to each element
+*/
+template <class T, int N, class Config>
+Array<T, N, Config> log( const Array<T, N, Config>& array )
+{
+   auto op = []( T value )
+   {
+      return std::log( value );
+   };
+   return array_apply_function( array, op );
+}
+
+/**
+@brief return a copy of array with std::exp applied to each element
+*/
+template <class T, int N, class Config>
+Array<T, N, Config> exp( const Array<T, N, Config>& array )
+{
+   auto op = []( T value )
+   {
+      return std::exp( value );
+   };
+   return array_apply_function( array, op );
+}
+
+/**
+@brief return the min value contained in the array
 */
 template <class T, int N, class Config>
 T min(const Array<T, N, Config>& array)
@@ -108,7 +147,7 @@ T min(const Array<T, N, Config>& array)
 }
 
 /**
-@brief return a copy of array with std::max applied to each element
+@brief return the max value contained in the array
 */
 template <class T, int N, class Config>
 T max(const Array<T, N, Config>& array)
@@ -120,6 +159,21 @@ T max(const Array<T, N, Config>& array)
    };
    constarray_apply_function(array, f);
    return max_value;
+}
+
+/**
+@brief return the mean value of all the elements contained in the array
+*/
+template <class T, int N, class Config, class Accum = T>
+Accum mean( const Array<T, N, Config>& array )
+{
+   Accum accum = 0;
+   auto f = [&]( T value )
+   {
+      accum += value;
+   };
+   constarray_apply_function( array, f );
+   return accum / array.size();
 }
 
 DECLARE_NAMESPACE_END

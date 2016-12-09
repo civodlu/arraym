@@ -63,6 +63,18 @@ struct TestArrayOpApply
 
       test_array_apply_functions_max_impl<Array<float, 2>>();
       test_array_apply_functions_max_impl<Array_row_major_multislice<float, 2>>();
+
+      test_array_apply_functions_log_impl<Array<float, 2>>();
+      test_array_apply_functions_log_impl<Array_row_major_multislice<float, 2>>();
+
+      test_array_apply_functions_exp_impl<Array<float, 2>>();
+      test_array_apply_functions_exp_impl<Array_row_major_multislice<float, 2>>();
+
+      test_array_apply_functions_mean_impl<Array<float, 2>>();
+      test_array_apply_functions_mean_impl<Array_row_major_multislice<float, 2>>();
+
+      test_array_apply_functions_sqr_impl<Array<float, 2>>();
+      test_array_apply_functions_sqr_impl<Array_row_major_multislice<float, 2>>();
    }
 
    template <class Array>
@@ -129,6 +141,74 @@ struct TestArrayOpApply
             const auto expected = std::abs(a1(x, y));
             const auto found = a1_fun(x, y);
             TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
+         }
+      }
+   }
+
+   template <class Array>
+   void test_array_apply_functions_sqr_impl()
+   {
+      Array a1( 2, 3 );
+      a1 = { 1, 2, 3, 4, 5, 6 };
+      const auto a1_fun = sqr( a1 );
+      for ( size_t y = 0; y < a1.shape()[ 1 ]; ++y )
+      {
+         for ( size_t x = 0; x < a1.shape()[ 0 ]; ++x )
+         {
+            const auto expected = a1( x, y ) * a1( x, y );
+            const auto found = a1_fun( x, y );
+            TESTER_ASSERT( std::abs( expected - found ) < 1e-4f );
+         }
+      }
+   }
+
+   template <class Array>
+   void test_array_apply_functions_log_impl()
+   {
+      Array a1( 2, 3 );
+      a1 = { 1, 2, 3, 4, 5, 6 };
+      const auto a1_fun = log( a1 );
+      for ( size_t y = 0; y < a1.shape()[ 1 ]; ++y )
+      {
+         for ( size_t x = 0; x < a1.shape()[ 0 ]; ++x )
+         {
+            const auto expected = std::log( a1( x, y ) );
+            const auto found = a1_fun( x, y );
+            TESTER_ASSERT( std::abs( expected - found ) < 1e-4f );
+         }
+      }
+   }
+
+   template <class Array>
+   void test_array_apply_functions_mean_impl()
+   {
+      Array a1( 2, 3 );
+      a1 = { 1, 2, 3, 4, 5, 6 };
+      const auto a1_fun = mean( a1 );
+      for ( size_t y = 0; y < a1.shape()[ 1 ]; ++y )
+      {
+         for ( size_t x = 0; x < a1.shape()[ 0 ]; ++x )
+         {
+            const auto expected = (1+2+3+4+5+6) / (typename Array::value_type)(6);
+            const auto found = a1_fun;
+            TESTER_ASSERT( std::abs( expected - found ) < 1e-4f );
+         }
+      }
+   }
+
+   template <class Array>
+   void test_array_apply_functions_exp_impl()
+   {
+      Array a1( 2, 3 );
+      a1 = { 1, 2, 3, 4, 5, 6 };
+      const auto a1_fun = exp( a1 );
+      for ( size_t y = 0; y < a1.shape()[ 1 ]; ++y )
+      {
+         for ( size_t x = 0; x < a1.shape()[ 0 ]; ++x )
+         {
+            const auto expected = std::exp( a1( x, y ) );
+            const auto found = a1_fun( x, y );
+            TESTER_ASSERT( std::abs( expected - found ) < 1e-4f );
          }
       }
    }
