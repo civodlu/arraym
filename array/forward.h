@@ -23,6 +23,7 @@ DECLARE_NAMESPACE_END
 #include "array-op-naive.h"
 #include "blas-wrapper.h"
 #include "array-op-blas.h"
+#include "array-op.h"
 
 #include "array-exp.h"
 #include "array-noexp.h"

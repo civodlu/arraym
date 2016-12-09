@@ -113,7 +113,7 @@ void copy_naive(T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, 
 Apply a function on a strided array x and assign it to another strided array y
 */
 template <class T, class F>
-void apply_naive2(T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements, const F& f)
+void apply_naive2(T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements, F& f)
 {
    const T* y_end = y_pointer + y_stride * nb_elements;
    for (; y_pointer != y_end; y_pointer += y_stride, x_pointer += x_stride)
@@ -127,12 +127,25 @@ void apply_naive2(T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride
 
 */
 template <class T, class F>
-void apply_naive1(T* y_pointer, ui32 y_stride, ui32 nb_elements, const F& f)
+void apply_naive1(T* y_pointer, ui32 y_stride, ui32 nb_elements, F& f)
 {
    const T* y_end = y_pointer + y_stride * nb_elements;
    for (; y_pointer != y_end; y_pointer += y_stride)
    {
       *y_pointer = f(*y_pointer);
+   }
+}
+
+/**
+@brief apply f(y), no result
+*/
+template <class T, class F>
+void apply_naive1_const(T const* y_pointer, ui32 y_stride, ui32 nb_elements, F& f)
+{
+   const T* y_end = y_pointer + y_stride * nb_elements;
+   for (; y_pointer != y_end; y_pointer += y_stride)
+   {
+      f(*y_pointer);
    }
 }
 

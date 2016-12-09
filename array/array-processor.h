@@ -491,7 +491,7 @@ void fill(Array<T, N, Config>& array, Functor functor)
 
 /**
 @brief iterate array & const array jointly
-@tparam must be callable using (T* a1_pointer, a1_stride, const T* a2_pointer, a2_stride, nb elements)
+@tparam must be callable using (T* a1_pointer, a1_stride, const T* a2_pointer, a2_stride, nb_elements)
 @note this is only instantiated for linear memory
 */
 template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
@@ -525,7 +525,7 @@ void iterate_memory_constmemory(Memory1& a1, const Memory2& a2, const Op& op)
 
 /**
 @brief iterate array & const array jointly
-@tparam must be callable using (T* a1_pointer, a1_stride, const T* a2_pointer, a2_stride, nb elements)
+@tparam Op must be callable using (T* a1_pointer, a1_stride, const T* a2_pointer, a2_stride, nb_elements)
 @note this is only instantiated for linear memory
 */
 template <class T, class T2, int N, class Config, class Config2, class Op,

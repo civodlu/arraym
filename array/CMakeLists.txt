@@ -12,6 +12,7 @@ set(Headers    array.h
 			   array-noexp.h
                array-op-naive.h
 			   array-op-blas.h
+			   array-op.h
 			   matrix-op-blas.h
 			   matrix-op-blas-inv.h
 			   matrix-op-blas-least-square.h
