@@ -165,7 +165,7 @@ T max(const Array<T, N, Config>& array)
 @brief return the mean value of all the elements contained in the array
 */
 template <class T, int N, class Config, class Accum = T>
-Accum mean( const Array<T, N, Config>& array )
+Accum sum( const Array<T, N, Config>& array )
 {
    Accum accum = 0;
    auto f = [&]( T value )
@@ -173,7 +173,16 @@ Accum mean( const Array<T, N, Config>& array )
       accum += value;
    };
    constarray_apply_function( array, f );
-   return accum / array.size();
+   return accum;
+}
+
+/**
+@brief return the mean value of all the elements contained in the array
+*/
+template <class T, int N, class Config, class Accum = T>
+Accum mean( const Array<T, N, Config>& array )
+{
+   return sum(array) / array.size();
 }
 
 DECLARE_NAMESPACE_END
