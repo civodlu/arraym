@@ -74,6 +74,7 @@ public:
    using value_type           = T;
    using array_type           = Array<T, N, Config>;
    using array_type_ref       = ArrayRef<T, N, Config>;
+   using const_array_type_ref = typename ConstArray::array_type_ref;
    using traits_type          = ArrayTraits<Array<T, N, ConfigT>, ConfigT>;
    using pointer_type         = T*;
    using reference_type       = T&;
@@ -286,16 +287,65 @@ public:
       return array;
    }
 
-   /*
-   typename ConstArray::array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive) const
+   const_array_type_ref subarray(const index_type& min_index_inclusive, const index_type& max_index_inclusive) const
    {
-      ensure(0, "TODO");
-   }*/
-   /*
-   const array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive) const
+      // here we create a new array type which embed the const in the data type so that we really can't modify the array
+      return asConst().subarray(min_index_inclusive, max_index_inclusive);
+   }
+   
+   const_array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive) const
    {
-      return const_cast<Array&>(*this)(min_index_inclusive, max_index_inclusive);
-   }*/
+      return subarray(min_index_inclusive, max_index_inclusive);
+   }
+
+   /**
+    @brief If the argument is a list of @ref Range the value is true, false otherwise
+    */
+   template <typename... Args>
+   struct is_range_list
+   {
+      static const bool value = is_same_nocvr<Range, Args...>::value && sizeof...(Args) == N;
+   };
+
+   template <typename... Args, typename = typename std::enable_if<is_range_list<Args...>::value>::type>
+   array_type_ref operator()(Args&&...args)
+   {
+      const Range ranges[N] = { args... };
+      index_type min_index_inclusive;
+      index_type max_index_inclusive;
+
+      for (size_t n = 0; n < N; ++n)
+      {
+         auto min_value = ranges[n].min;
+         auto max_value = ranges[n].max;
+         if (ranges[n] != rangeAll)
+         {
+            if (min_value < 0)
+            {
+               min_value = shape()[n] + min_value;
+            }
+            if (max_value < 0)
+            {
+               max_value = shape()[n] + max_value;
+            }
+         }
+         else
+         {
+            min_value = 0;
+            max_value = shape()[n] - 1;
+         }
+         NLL_FAST_ASSERT(min_value <= max_value, "min > max");
+         min_index_inclusive[n] = min_value;
+         max_index_inclusive[n] = max_value;
+      }
+      return subarray(min_index_inclusive, max_index_inclusive);
+   }
+
+   template <typename... Args, typename = typename std::enable_if<is_range_list<Args...>::value>::type>
+   const_array_type_ref operator()(Args&&...args) const
+   {
+      return asConst()(std::forward<Args>(args)...);
+   }
 
    diterator beginDim(ui32 dim, const index_type& indexN)
    {

@@ -17,6 +17,7 @@ DECLARE_NAMESPACE_END
 #include "index-mapper.h"
 #include "memory-contiguous.h"
 #include "memory-slice.h"
+#include "range.h"
 #include "array-traits.h"
 #include "array.h"
 #include "array-processor.h"

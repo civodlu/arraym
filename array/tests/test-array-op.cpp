@@ -299,7 +299,6 @@ struct TestArrayOp
       Array a1(2, 3);
       a1 = {11, 21, 31, 40, 50, 60};
 
-      std::cout << a1 << std::endl;
       Array cpy = a1;
 
       cpy /= static_cast<Array::value_type>(2);
@@ -319,7 +318,6 @@ struct TestArrayOp
       Array a1(2, 3);
       a1 = {11, 21, 31, 40, 50, 60};
 
-      std::cout << a1 << std::endl;
       Array cpy = a1 / static_cast<Array::value_type>(2);
 
       TESTER_ASSERT(cpy(0, 0) == a1(0, 0) / 2);
@@ -349,8 +347,6 @@ struct TestArrayOp
       Array a2(3, 2);
       a2 = {20, 30, 40, 50, 60, 70};
 
-      std::cout << a1 << std::endl;
-      std::cout << a2 << std::endl;
 
       Array result = a1 * a2;
       TESTER_ASSERT(result.shape() == vector2ui(2, 2));
@@ -359,7 +355,6 @@ struct TestArrayOp
       TESTER_ASSERT(result(1, 0) == 490);
       TESTER_ASSERT(result(0, 1) == 760);
       TESTER_ASSERT(result(1, 1) == 940);
-      std::cout << result << std::endl;
    }
 
    void testArray_matrix_memoryOrder()
@@ -409,8 +404,6 @@ struct TestArrayOp
       Array m1(3, 2);
       m1             = {1, 2, 3, 4, 5, 6};
       const auto m1t = transpose(m1);
-      std::cout << m1 << std::endl;
-      std::cout << transpose(m1) << std::endl;
 
       TESTER_ASSERT(m1t.shape() == vector2ui(2, 3));
       TESTER_ASSERT(m1t(0, 0) == 1);

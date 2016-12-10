@@ -6,6 +6,7 @@ set(ApiFile    "${CMAKE_BINARY_DIR}/${LIBNAME}/${LIBNAME}-api.h")
 set(Headers    array.h 
                ${ApiFile}
                array.h
+			   range.h
                array-processor.h
                array-traits.h
                array-exp.h
