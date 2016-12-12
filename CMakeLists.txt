@@ -44,7 +44,9 @@ endif()
 
 # platform configuration
 if(UNIX)
+#-L C:/cygwin64/lib/gcc/x86_64-pc-cygwin/5.4.0 -lgfortran -L C:/cygwin64/usr/src/openblas-0.2.14-1.src/OpenBLAS-0.2.14/OpenBLAS-0.2.14
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp")
+    SET( OpenBLAS_LIB ${OpenBLAS_LIB} -lgfortran) # require gfortran. Beware of the order of inclusion!
 endif()
 
 if (MSVC)

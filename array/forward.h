@@ -19,6 +19,7 @@ DECLARE_NAMESPACE_END
  - API ease of use, 
  - Interoperability with other array objects: can be wrapped with no data copy in most cases.
  - Basic linear algebra (e.g., inverse, SVD, LU, determinant, least square)
+ - cross platform (VS2013, GCC, Clang)
 
  @section Examples
  The array can simply be accessed using subscripting or indices:
