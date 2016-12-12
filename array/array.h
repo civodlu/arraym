@@ -16,8 +16,8 @@ namespace details
 template <class T, ui32 N, class ConfigT>
 StaticVector<ui32, N> getFastestVaryingIndexes(const Array<T, N, ConfigT>& array);
 
-template <class T, ui32 N, class ConfigT>
-StaticVector<ui32, N> getFastestVaryingIndexesMemory(const Array<T, N, ConfigT>& array);
+template <class Memory>
+StaticVector<ui32, Memory::RANK> getFastestVaryingIndexesMemory(const Memory& memory);
 }
 
 /**
@@ -67,7 +67,6 @@ class Array : public ArrayTraits<Array<T, N, ConfigT>, ConfigT>
 public:
    using Config         = ConfigT;
    using Memory         = typename Config::Memory;
-   using ConstMemory    = typename Memory::ConstMemory;
    using allocator_type = typename Config::allocator_type;
    using ConstArray     = Array<const T, N, typename Config::template rebind<const T>::other>;
 
@@ -282,7 +281,7 @@ public:
 
    ConstArray asConst() const
    {
-      ConstMemory m = this->getMemory().asConst();
+      auto m = this->getMemory().asConst();
       auto array    = ConstArray(std::move(m));
       return array;
    }
@@ -417,8 +416,9 @@ public:
       return false;
    }
 
+   
    template <size_t slicing_dimension>
-   using SlicingMemory = decltype(array_type().getMemory().slice<slicing_dimension>(index_type()));
+   using SlicingMemory = typename Memory::template rebind_type_dim<T, slicing_dimension>::other;
 
    template <size_t slicing_dimension>
    using SlicingArray = Array<T, N - 1, ArrayTraitsConfig<T, N - 1, allocator_type, SlicingMemory<slicing_dimension>>>;

@@ -130,8 +130,10 @@ private:
    template <class T2, size_t N2>
    struct rebind_type_dim
    {
-      // using other = int;
-      using other = Memory_contiguous<T2, N2, typename IndexMapper::template rebind<N2>::other, typename Allocator::template rebind<T2>::other>;
+      using unconst_type = typename std::remove_const<T2>::type;
+
+      // do NOT use the const in the allocator: this is underfined and won't compile for GCC/Clang
+      using other = Memory_contiguous<T2, N2, typename IndexMapper::template rebind<N2>::other, typename Allocator::template rebind<unconst_type>::other>;
    };
 
 public:
@@ -249,6 +251,11 @@ public:
       _data          = data;
       _dataAllocated = dataAllocated;
    }
+
+   
+   //template <int dimension, typename = typename std::enable_if<N >= 2>::type>
+   //using slice_type = typename rebind_type_dim<T, N - 1>::other;
+   
 
    /**
    @brief Slice the memory such that we keep only the slice along dimension @p dimension passing through @p index

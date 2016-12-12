@@ -231,7 +231,7 @@ struct TestArrayOp
 
       Array cpy = a1;
 
-      cpy *= static_cast<Array::value_type>(2);
+      cpy *= static_cast<typename Array::value_type>(2);
       TESTER_ASSERT(cpy(0, 0) == a1(0, 0) * 2);
       TESTER_ASSERT(cpy(1, 0) == a1(1, 0) * 2);
 
@@ -250,7 +250,7 @@ struct TestArrayOp
 
       Array cpy;
 
-      cpy = a1 * static_cast<Array::value_type>(2);
+      cpy = a1 * static_cast<typename Array::value_type>(2);
       TESTER_ASSERT(cpy(0, 0) == a1(0, 0) * 2);
       TESTER_ASSERT(cpy(1, 0) == a1(1, 0) * 2);
 
@@ -269,7 +269,7 @@ struct TestArrayOp
 
       Array cpy;
 
-      cpy = static_cast<Array::value_type>(2) * a1;
+      cpy = static_cast<typename Array::value_type>(2) * a1;
       TESTER_ASSERT(cpy(0, 0) == a1(0, 0) * 2);
       TESTER_ASSERT(cpy(1, 0) == a1(1, 0) * 2);
 
@@ -301,7 +301,7 @@ struct TestArrayOp
 
       Array cpy = a1;
 
-      cpy /= static_cast<Array::value_type>(2);
+      cpy /= static_cast<typename Array::value_type>(2);
       TESTER_ASSERT(cpy(0, 0) == a1(0, 0) / 2);
       TESTER_ASSERT(cpy(1, 0) == a1(1, 0) / 2);
 
@@ -318,7 +318,7 @@ struct TestArrayOp
       Array a1(2, 3);
       a1 = {11, 21, 31, 40, 50, 60};
 
-      Array cpy = a1 / static_cast<Array::value_type>(2);
+      Array cpy = a1 / static_cast<typename Array::value_type>(2);
 
       TESTER_ASSERT(cpy(0, 0) == a1(0, 0) / 2);
       TESTER_ASSERT(cpy(1, 0) == a1(1, 0) / 2);

@@ -32,7 +32,10 @@ public:
    template <class T2>
    struct rebind
    {
-      using other = Memory_multislice<T2, N, IndexMapper, typename Allocator::template rebind<T2>::other>;
+      using unconst_type = typename std::remove_const<T2>::type;
+
+      // do NOT use the const in the allocator: this is underfined and won't compile for GCC/Clang
+      using other = Memory_multislice<T2, N, IndexMapper, typename Allocator::template rebind<unconst_type>::other>;
    };
 
    using ConstMemory = typename Memory::template rebind<const T>::other;
@@ -305,7 +308,19 @@ private:
    template <size_t slice_dim>
    using SliceImpl = std::conditional<slice_dim == Z_INDEX, SliceImpl_z, SliceImpl_notz>;
 
+   template <class T2, size_t N2>
+   struct rebind_type_dim
+   {
+      // @TODO adaptor for Array slicing type. Refactor
+      using other = typename SliceImpl<N2>::type::other;
+   };
+
 public:
+   /*
+   template <int dimension>
+   using slice_type = typename SliceImpl<dimension>::type::other;
+   */
+
    /**
    @brief Slice the memory such that we keep only the slice along dimension @p dimension passing through @p point
 

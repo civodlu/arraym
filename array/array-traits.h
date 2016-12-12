@@ -18,7 +18,9 @@ struct ArrayTraitsConfig
    template <class T2>
    struct rebind
    {
-      using other = ArrayTraitsConfig<T2, N, typename Allocator::template rebind<T2>::other, typename MemoryT::template rebind<T2>::other>;
+      using Memory = typename MemoryT::template rebind<T2>::other;
+
+      using other = ArrayTraitsConfig<T2, N, typename Memory::allocator_type, Memory>;
    };
 };
 

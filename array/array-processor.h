@@ -94,7 +94,6 @@ public:
       return _indexesOrder;
    }
 
-protected:
    bool _accessElements(pointer_type& ptrToValue, ui32 nbElements)
    {
       if (_pointer_invalid)
@@ -112,6 +111,7 @@ protected:
       return hasMoreElements;
    }
 
+protected:
    template <int I, bool B>
    struct Increment
    {
