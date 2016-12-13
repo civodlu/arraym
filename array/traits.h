@@ -24,10 +24,24 @@ struct is_same<T> : public std::true_type
 {
 };
 
+namespace details
+{
+   struct ImpossibleType{};
+}
+
+template <class... args>
+struct first;
+
 template <class T1, class... Tx>
-struct first
+struct first<T1, Tx...>
 {
    using type = T1;
+};
+
+template <>
+struct first<>
+{
+   using type = details::ImpossibleType;
 };
 
 template <typename... Args>
