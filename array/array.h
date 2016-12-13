@@ -11,15 +11,6 @@ class Expr;
 template <class Array>
 class ArrayProcessor_contiguous_byDimension;
 
-namespace details
-{
-template <class T, ui32 N, class ConfigT>
-StaticVector<ui32, N> getFastestVaryingIndexes(const Array<T, N, ConfigT>& array);
-
-template <class Memory>
-StaticVector<ui32, Memory::RANK> getFastestVaryingIndexesMemory(const Memory& memory);
-}
-
 /**
  @brief Represents a multi-dimensional array with value based semantic
 
@@ -573,6 +564,16 @@ struct array_use_naive_operator : public std::true_type
 };
 #endif
 
+
+namespace details
+{
+   template <class T, size_t N, class ConfigT>
+   StaticVector<ui32, N> getFastestVaryingIndexes( const Array<T, N, ConfigT>& array );
+
+   template <class Memory>
+   StaticVector<ui32, Memory::RANK> getFastestVaryingIndexesMemory( const Memory& memory );
+}
+
 /**
 @brief returns true if two array have similar data ordering. (i.e., using an iterator, we point to the same
 index for both arrays)
@@ -581,8 +582,8 @@ index for both arrays)
 template <class T, int N, class Config, class Config2>
 bool same_data_ordering(const Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
-   const auto i1 = details::getFastestVaryingIndexes(a1);
-   const auto i2 = details::getFastestVaryingIndexes(a2);
+   const auto i1 = details::getFastestVaryingIndexes<T, N, Config>(a1);
+   const auto i2 = details::getFastestVaryingIndexes<T, N, Config2>( a2 );
    return i1 == i2;
 }
 

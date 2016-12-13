@@ -26,7 +26,7 @@ struct is_same<T> : public std::true_type
 
 namespace details
 {
-   struct ImpossibleType{};
+   struct TypelistEmpty{};
 }
 
 template <class... args>
@@ -41,7 +41,7 @@ struct first<T1, Tx...>
 template <>
 struct first<>
 {
-   using type = details::ImpossibleType;
+   using type = details::TypelistEmpty;
 };
 
 template <typename... Args>

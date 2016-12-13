@@ -246,7 +246,7 @@ StaticVector<ui32, Memory::RANK> getFastestVaryingIndexesMemory(const Memory& me
    return fastestVaryingIndexes;
 }
 
-template <class T, ui32 N, class ConfigT>
+template <class T, size_t N, class ConfigT>
 StaticVector<ui32, N> getFastestVaryingIndexes(const Array<T, N, ConfigT>& array)
 {
    return getFastestVaryingIndexesMemory(array.getMemory());
