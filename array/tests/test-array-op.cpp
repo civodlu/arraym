@@ -11,6 +11,17 @@ using vector1ui = StaticVector<ui32, 1>;
 
 struct TestArrayOp
 {
+   void test_static()
+   {
+#ifdef WITH_OPENBLAS
+      using A = Matrix<float>;
+      static_assert(array_use_blas<A>::value, "BLAS should be enabled for this type");
+      static_assert(std::is_same<A, Matrix_BlasEnabled<A::value_type, 2, A::Config>>::value, "BLAS should be enabled for this type");
+#endif
+
+   }
+
+   
    void test_is_fully_contiguous()
    {
       static_assert(IsArrayLayoutContiguous<Array_row_major<int, 2>>::value, "row major is contiguous layout!");
@@ -52,7 +63,7 @@ struct TestArrayOp
       TESTER_ASSERT(!is_array_fully_contiguous(a1(vector3ui(1, 1, 1), vector3ui(3, 3, 3))));
       TESTER_ASSERT(is_array_fully_contiguous(a1(vector3ui(0, 0, 5), vector3ui(9, 10, 8))));
    }
-
+   
    void test_same_data_ordering()
    {
       TESTER_ASSERT(same_data_ordering(Array<int, 2>(2, 2), Array<int, 2>(2, 2)));

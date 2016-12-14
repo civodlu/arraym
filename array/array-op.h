@@ -7,7 +7,7 @@ DECLARE_NAMESPACE_NLL
 
  @tparam Function must be callable with (T value)
  */
-template <class T, int N, class Config, class Function>
+template <class T, size_t N, class Config, class Function>
 Array<T, N, Config> array_apply_function(const Array<T, N, Config>& array, Function& f)
 {
    static_assert(is_callable_with<Function, T>::value, "Op is not callable!");
@@ -25,7 +25,7 @@ Array<T, N, Config> array_apply_function(const Array<T, N, Config>& array, Funct
 @brief Simply apply op(array)
 @tparam Function must be callable with (T value)
 */
-template <class T, int N, class Config, class Op>
+template <class T, size_t N, class Config, class Op>
 void constarray_apply_function(const Array<T, N, Config>& array, Op& op)
 {
    auto f = [&](T value)
@@ -43,7 +43,7 @@ void constarray_apply_function(const Array<T, N, Config>& array, Op& op)
 /**
  @brief return a copy of array with std::cos applied to each element
  */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 Array<T, N, Config> cos(const Array<T, N, Config>& array)
 {
    auto op = [](T value)
@@ -56,7 +56,7 @@ Array<T, N, Config> cos(const Array<T, N, Config>& array)
 /**
 @brief return a copy of array with std::sin applied to each element
 */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 Array<T, N, Config> sin(const Array<T, N, Config>& array)
 {
    auto op = [](T value)
@@ -69,7 +69,7 @@ Array<T, N, Config> sin(const Array<T, N, Config>& array)
 /**
 @brief return a copy of array with std::sqrt applied to each element
 */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 Array<T, N, Config> sqrt(const Array<T, N, Config>& array)
 {
    auto op = [](T value)
@@ -82,7 +82,7 @@ Array<T, N, Config> sqrt(const Array<T, N, Config>& array)
 /**
 @brief return a copy of array with for each element e is returned e * e
 */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 Array<T, N, Config> sqr( const Array<T, N, Config>& array )
 {
    auto op = []( T value )
@@ -95,7 +95,7 @@ Array<T, N, Config> sqr( const Array<T, N, Config>& array )
 /**
 @brief return a copy of array with std::abs applied to each element
 */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 Array<T, N, Config> abs(const Array<T, N, Config>& array)
 {
    auto op = [](T value)
@@ -108,7 +108,7 @@ Array<T, N, Config> abs(const Array<T, N, Config>& array)
 /**
 @brief return a copy of array with std::log applied to each element
 */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 Array<T, N, Config> log( const Array<T, N, Config>& array )
 {
    auto op = []( T value )
@@ -121,7 +121,7 @@ Array<T, N, Config> log( const Array<T, N, Config>& array )
 /**
 @brief return a copy of array with std::exp applied to each element
 */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 Array<T, N, Config> exp( const Array<T, N, Config>& array )
 {
    auto op = []( T value )
@@ -134,7 +134,7 @@ Array<T, N, Config> exp( const Array<T, N, Config>& array )
 /**
 @brief return the min value contained in the array
 */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 T min(const Array<T, N, Config>& array)
 {
    T min_value = std::numeric_limits<T>::max();
@@ -149,7 +149,7 @@ T min(const Array<T, N, Config>& array)
 /**
 @brief return the max value contained in the array
 */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 T max(const Array<T, N, Config>& array)
 {
    T max_value = std::numeric_limits<T>::min();
@@ -164,7 +164,7 @@ T max(const Array<T, N, Config>& array)
 /**
 @brief return the mean value of all the elements contained in the array
 */
-template <class T, int N, class Config, class Accum = T>
+template <class T, size_t N, class Config, class Accum = T>
 Accum sum( const Array<T, N, Config>& array )
 {
    Accum accum = 0;
@@ -179,7 +179,7 @@ Accum sum( const Array<T, N, Config>& array )
 /**
 @brief return the mean value of all the elements contained in the array
 */
-template <class T, int N, class Config, class Accum = T>
+template <class T, size_t N, class Config, class Accum = T>
 Accum mean( const Array<T, N, Config>& array )
 {
    return sum(array) / array.size();

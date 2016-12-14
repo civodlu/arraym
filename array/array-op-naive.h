@@ -13,7 +13,7 @@ DECLARE_NAMESPACE_NLL
 /**
  @brief Simplify the std::enable_if expression so that it is readable
  */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 using Array_NaiveEnabled = typename std::enable_if<array_use_naive<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
 
 namespace details
@@ -21,7 +21,7 @@ namespace details
 /**
 @brief Computes a1 += a2
 */
-template <class T, int N, class Config, class Config2>
+template <class T, size_t N, class Config, class Config2>
 Array_NaiveEnabled<T, N, Config>& array_add(Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
    auto op = &add_naive<T>;
@@ -32,7 +32,7 @@ Array_NaiveEnabled<T, N, Config>& array_add(Array<T, N, Config>& a1, const Array
 /**
 @brief Computes a1 -= a2
 */
-template <class T, int N, class Config, class Config2>
+template <class T, size_t N, class Config, class Config2>
 Array_NaiveEnabled<T, N, Config>& array_sub(Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
    auto op = &sub_naive<T>;
@@ -43,7 +43,7 @@ Array_NaiveEnabled<T, N, Config>& array_sub(Array<T, N, Config>& a1, const Array
 /**
 @brief Computes a1 *= cte
 */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 Array_NaiveEnabled<T, N, Config>& array_mul(Array<T, N, Config>& a1, T a2)
 {
    auto op = [&](T* ptr, ui32 stride, ui32 elements) { mul_naive(ptr, stride, a2, elements); };
@@ -56,7 +56,7 @@ Array_NaiveEnabled<T, N, Config>& array_mul(Array<T, N, Config>& a1, T a2)
  @brief Computes a1 /= cte
  @note we can't just use array_mul with 1/a2 for integral types so use a div function
  */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 Array_NaiveEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
 {
    auto op = [&](T* ptr, ui32 stride, ui32 elements) { div_naive(ptr, stride, a2, elements); };
@@ -65,7 +65,7 @@ Array_NaiveEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
    return a1;
 }
 
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 typename PromoteFloating<T>::type norm2(const Array<T, N, Config>& a1)
 {
    using return_type = typename PromoteFloating<T>::type;

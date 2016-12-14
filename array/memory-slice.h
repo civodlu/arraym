@@ -308,6 +308,8 @@ private:
    template <size_t slice_dim>
    using SliceImpl = std::conditional<slice_dim == Z_INDEX, SliceImpl_z, SliceImpl_notz>;
 
+
+public:
    template <class T2, size_t N2>
    struct rebind_type_dim
    {
@@ -317,7 +319,7 @@ private:
 
 public:
    /*
-   template <int dimension>
+   template <size_t dimension>
    using slice_type = typename SliceImpl<dimension>::type::other;
    */
 
@@ -329,11 +331,11 @@ public:
    Workaround for VS2013 internal compiler bug with
    "SliceImpl = std::conditional<slice_dim == Z_INDEX, SliceImpl_z, SliceImpl_notz>::type;"
    */
-   template <int dimension>
+   template <size_t dimension>
    typename SliceImpl<dimension>::type::other slice(const index_type& point) const
    {
       using Impl = typename SliceImpl<dimension>::type;
-      return Impl::slice<dimension>(*this, point);
+      return Impl::template slice<dimension>(*this, point);
    }
 
 private:

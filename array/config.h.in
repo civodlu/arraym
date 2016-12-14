@@ -1,5 +1,4 @@
-#ifndef NLL_CONFIG_H_
-# define NLL_CONFIG_H_
+#pragma once
 
 /**
  *
@@ -10,13 +9,7 @@
 #cmakedefine WITH_EXTRA_RUNTIME_CHECKS
 #cmakedefine WITH_OMP
 #cmakedefine WITH_CUDA
-#cmakedefine WITH_CLAPACK
 #cmakedefine WITH_OPENBLAS
-#cmakedefine WITH_FFTW
-#cmakedefine WITH_ZLIB
-#cmakedefine WITH_BOOSTSIMD
-#cmakedefine WITH_NUMPY
-#cmakedefine NLL_HAS_EXECINFO
 #cmakedefine WITH_EXPRESSION_TEMPLATE
 
 // configure OpenMP
@@ -26,8 +19,6 @@
 # include <omp.h>
 # pragma message( "NLL multithreading enabled" )
 #endif
-
-#define NLL_VERSION "${APPLICATION_VERSION}"
 
 // if defined, additional security checks will be performed
 #define NLL_SECURE
@@ -109,5 +100,3 @@
 #pragma warning(disable:4503) // decorated names too long
 #pragma warning(disable:4512) // default assignment can't be generated
 #pragma warning(disable:4520) // multiple default constructor false positive
-
-#endif

@@ -2,7 +2,7 @@
 
 DECLARE_NAMESPACE_NLL
 
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 class ArrayRef;
 
 template <class A>
@@ -52,7 +52,7 @@ class ArrayProcessor_contiguous_byDimension;
  - typical operators are defined. If BLAS is enabled and template expression enabled, template based expression operators
    are selected, if not, simple operators.
  */
-template <class T, int N, class ConfigT = ArrayTraitsConfig<T, N>>
+template <class T, size_t N, class ConfigT = ArrayTraitsConfig<T, N>>
 class Array : public ArrayTraits<Array<T, N, ConfigT>, ConfigT>
 {
 public:
@@ -190,7 +190,7 @@ public:
    /**
    @brief Rank of the array
    */
-   static int rank()
+   static size_t rank()
    {
       return N;
    }
@@ -469,7 +469,7 @@ using Vector = Array_row_major<T, 1, Allocator>;
 
  When an ArrayRef is modified, it modifies the referenced array instead of creating a copy
  */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 class ArrayRef : public Array<T, N, Config>
 {
 public:
@@ -579,7 +579,7 @@ namespace details
 index for both arrays)
 @todo needs to be extensible (using class specialization) for custom types!
 */
-template <class T, int N, class Config, class Config2>
+template <class T, size_t N, class Config, class Config2>
 bool same_data_ordering(const Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
    const auto i1 = details::getFastestVaryingIndexes<T, N, Config>(a1);
@@ -619,7 +619,7 @@ struct IsArrayLayoutLinear
  @brief Returns true if the array is fully contiguous, meaning that the array occupies a single block of contiguous memory
         with no gap between elements (i.e., can't generally be a sub-array)
  */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 bool is_array_fully_contiguous(const Array<T, N, Config>& a1)
 {
    return is_memory_fully_contiguous<typename Array<T, N, Config>::Memory>(a1.getMemory());

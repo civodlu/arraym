@@ -10,7 +10,7 @@ DECLARE_NAMESPACE_NLL
 /**
 @brief Simplify the std::enable_if expression so that it is readable
 */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 using Array_NaiveOperatorEnabled = typename std::enable_if<array_use_naive_operator<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
 
 template <class T, size_t N, class Config1, class Config2>

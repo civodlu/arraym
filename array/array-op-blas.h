@@ -13,7 +13,7 @@ DECLARE_NAMESPACE_NLL
 /**
 @brief Alias to simplify the use of std::enable_if for array_use_blas arrays
 */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 using Array_BlasEnabled = typename std::enable_if<array_use_blas<Array<T, N, Config>>::value, Array<T, N, Config>>::type;
 
 namespace details
@@ -21,7 +21,7 @@ namespace details
 /**
  @brief computes Y += a * X using BLAS
  */
-template <class T, int N, class Config, class Config2>
+template <class T, size_t N, class Config, class Config2>
 void axpy(T a, const Array<T, N, Config>& x, Array<T, N, Config2>& y)
 {
    ensure(x.shape() == y.shape(), "must have the same shape!");
@@ -48,7 +48,7 @@ void axpy(T a, const Array<T, N, Config>& x, Array<T, N, Config2>& y)
 /**
 @brief computes Y *= a using BLAS
 */
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 void scal(Array<T, N, Config>& y, T a)
 {
    using index_type = typename Array<T, N, Config>::index_type;
@@ -66,28 +66,28 @@ void scal(Array<T, N, Config>& y, T a)
    }
 }
 
-template <class T, int N, class Config, class Config2>
+template <class T, size_t N, class Config, class Config2>
 Array_BlasEnabled<T, N, Config>& array_add(Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
    axpy(static_cast<T>(1), a2, a1);
    return a1;
 }
 
-template <class T, int N, class Config, class Config2>
+template <class T, size_t N, class Config, class Config2>
 Array_BlasEnabled<T, N, Config>& array_sub(Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
    axpy(static_cast<T>(-1), a2, a1);
    return a1;
 }
 
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 Array_BlasEnabled<T, N, Config>& array_mul(Array<T, N, Config>& a1, T value)
 {
    scal(a1, value);
    return a1;
 }
 
-template <class T, int N, class Config>
+template <class T, size_t N, class Config>
 Array_BlasEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
 {
    return array_mul(a1, static_cast<T>(1) / a2);

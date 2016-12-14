@@ -123,7 +123,7 @@ public:
 
    static const size_t RANK = N;
 
-private:
+public:
    /**
     @brief Rebind type & dimension
     */
@@ -253,7 +253,7 @@ public:
    }
 
    
-   //template <int dimension, typename = typename std::enable_if<N >= 2>::type>
+   //template <size_t dimension, typename = typename std::enable_if<N >= 2>::type>
    //using slice_type = typename rebind_type_dim<T, N - 1>::other;
    
 
@@ -504,7 +504,7 @@ public:
    Memory_contiguous* _sharedView = nullptr; /// the original array
 };
 
-template <class T, int N, class Allocator = std::allocator<T>>
+template <class T, size_t N, class Allocator = std::allocator<T>>
 using Memory_contiguous_row_major = Memory_contiguous<T, N, IndexMapper_contiguous_row_major<N>, Allocator>;
 
 DECLARE_NAMESPACE_END

@@ -45,7 +45,7 @@ Matrix_BlasEnabled<T, 2, Config> least_square(const Array<T, 2, Config>& a, cons
    const auto info = blas::gels<T>(memory_order_a, a_transposed ? 'T' : 'N', m, n, nrhs, &a_cpy(0, 0), lda, &b_cpy(0, 0), ldb);
    ensure(info == 0, "blas::gels<T> failed!");
 
-   auto result_b_based = b_cpy.subarray(matrix_type::index_type(0, 0), matrix_type::index_type(n - 1, nrhs - 1));
+   auto result_b_based = b_cpy.subarray(typename matrix_type::index_type(0, 0), typename matrix_type::index_type(n - 1, nrhs - 1));
    return result_b_based;
 }
 

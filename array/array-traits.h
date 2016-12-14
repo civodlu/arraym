@@ -1,10 +1,10 @@
 #pragma once
 
 DECLARE_NAMESPACE_NLL
-template <class T, int N, class ConfigT>
+template <class T, size_t N, class ConfigT>
 class Array;
 
-template <class T, int N, class Allocator = std::allocator<T>, class MemoryT = Memory_contiguous_row_major<T, N, Allocator>>
+template <class T, size_t N, class Allocator = std::allocator<T>, class MemoryT = Memory_contiguous_row_major<T, N, Allocator>>
 struct ArrayTraitsConfig
 {
    static const size_t RANK = N;

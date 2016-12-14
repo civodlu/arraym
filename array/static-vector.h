@@ -12,7 +12,7 @@ const static No_init_tag no_init_tag;
 @ingroup core
 @brief implement static vectors. Memory is allocated on the heap. Memory is not shared accross instances.
 */
-template <class T, int SIZE>
+template <class T, size_t SIZE>
 class StaticVector
 {
 public:
@@ -76,7 +76,7 @@ public:
    }
 
 private:
-   template <int Dim, typename T2, typename... Args>
+   template <size_t Dim, typename T2, typename... Args>
    FORCE_INLINE void init(const T2& value, const Args&... args)
    {
       begin()[Dim] = static_cast<T>(value);
@@ -84,7 +84,7 @@ private:
    }
 
    // end recursion
-   template <int Dim>
+   template <size_t Dim>
    FORCE_INLINE void init()
    {
    }
@@ -119,7 +119,7 @@ public:
    /**
    @brief return the value at the specified index
    */
-   template <int N>
+   template <size_t N>
    FORCE_INLINE const T& get() const
    {
       static_assert(N < SIZE, "N must be < SIZE");
@@ -239,7 +239,7 @@ protected:
 @ingroup core
 @brief equal operator
 */
-template <class T, int SIZE>
+template <class T, size_t SIZE>
 bool operator==(const StaticVector<T, SIZE>& l, const StaticVector<T, SIZE>& r)
 {
    for (size_t n = 0; n < SIZE; ++n)
@@ -250,13 +250,13 @@ bool operator==(const StaticVector<T, SIZE>& l, const StaticVector<T, SIZE>& r)
    return true;
 }
 
-template <class T, int Size>
+template <class T, size_t Size>
 bool equal(const StaticVector<T, Size>& lhs, const StaticVector<T, Size>& rhs, T eps = (T)1e-5)
 {
    return lhs.equal(rhs, eps);
 }
 
-template <class T, int SIZE>
+template <class T, size_t SIZE>
 std::ostream& operator<<(std::ostream& o, const StaticVector<T, SIZE>& v)
 {
    v.print(o);

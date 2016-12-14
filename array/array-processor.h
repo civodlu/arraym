@@ -465,7 +465,7 @@ public:
 @brief Generic fill of an array. The index order is defined by memory locality
 @param functor will be called using functor(index_type(x, y, z, ...)), i.e., each coordinate components
 */
-template <class T, int N, class Config, class Functor>
+template <class T, size_t N, class Config, class Functor>
 void fill(Array<T, N, Config>& array, Functor functor)
 {
    using functor_return = typename function_traits<Functor>::return_type;
@@ -528,7 +528,7 @@ void iterate_memory_constmemory(Memory1& a1, const Memory2& a2, const Op& op)
 @tparam Op must be callable using (T* a1_pointer, a1_stride, const T* a2_pointer, a2_stride, nb_elements)
 @note this is only instantiated for linear memory
 */
-template <class T, class T2, int N, class Config, class Config2, class Op,
+template <class T, class T2, size_t N, class Config, class Config2, class Op,
           typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
 void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op)
 {
@@ -540,7 +540,7 @@ void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config
 @tparam must be callable using (T* a1_pointer, ui32 a1_stride, ui32 nb_elements)
 @note this is only instantiated for linear memory
 */
-template <class T, int N, class Config, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
+template <class T, size_t N, class Config, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
 void iterate_array(Array<T, N, Config>& a1, Op& op)
 {
    ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
@@ -559,7 +559,7 @@ void iterate_array(Array<T, N, Config>& a1, Op& op)
 @tparam must be callable using (T const* a1_pointer, ui32 a1_stride, ui32 nb_elements)
 @note this is only instantiated for linear memory
 */
-template <class T, int N, class Config, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
+template <class T, size_t N, class Config, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
 void iterate_constarray(const Array<T, N, Config>& a1, Op& op)
 {
    ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);

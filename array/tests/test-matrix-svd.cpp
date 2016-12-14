@@ -37,7 +37,7 @@ struct TestMatrixSvd
          random(a);
 
          MatrixT u, vt;
-         Vector<MatrixT::value_type> s;
+         Vector<typename MatrixT::value_type> s;
 
          svd(a, u, s, vt);
          const auto a_reconstructed = u * svd_construct_s(u, s, vt) * vt;

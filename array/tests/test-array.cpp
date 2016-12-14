@@ -476,6 +476,7 @@ struct TestArray
       //using MemoryRebind = Array::Memory::rebind<int, 2>;
    }
 
+   
    void testMemorySlice()
    {
       testMemorySlice_impl<NAMESPACE_NLL::Array_row_major<short, 2>>();
@@ -489,7 +490,7 @@ struct TestArray
       m = {1, 2, 3, 4, 5, 6};
 
       {
-         auto sliced = m.getMemory().slice<0>({1, 0});
+         auto sliced = m.getMemory().template slice<0>(NAMESPACE_NLL::vector2ui{ 1, 0 });
          TESTER_ASSERT(sliced.shape() == NAMESPACE_NLL::vector1ui{3});
          TESTER_ASSERT(*sliced.at({0}) == 2);
          TESTER_ASSERT(*sliced.at({1}) == 4);
@@ -497,7 +498,7 @@ struct TestArray
       }
 
       {
-         auto sliced = m.getMemory().slice<1>({0, 2});
+         auto sliced = m.getMemory().template slice<1>(NAMESPACE_NLL::vector2ui{ 0, 2 });
          TESTER_ASSERT(sliced.shape() == NAMESPACE_NLL::vector1ui{2});
          TESTER_ASSERT(*sliced.at({0}) == 5);
          TESTER_ASSERT(*sliced.at({1}) == 6);
@@ -529,7 +530,7 @@ struct TestArray
                                                       generateUniformDistribution<size_t>(0, size[2] - 1)};
 
          auto& memory = a1.getMemory();
-         auto sliced  = memory.slice<2>(origin);
+         auto sliced  = memory.template slice<2>(origin);
 
          TESTER_ASSERT(a1({0, 0, origin[dim]}) == *sliced.at({0, 0}));
 
@@ -570,7 +571,7 @@ struct TestArray
                                                       generateUniformDistribution<size_t>(0, size[2] - 1)};
 
          auto& memory = a1.getMemory();
-         auto sliced  = memory.slice<0>(origin);
+         auto sliced  = memory.template slice<(0)>(origin);
 
          TESTER_ASSERT(a1({origin[dim], 0, 0}) == *sliced.at({0, 0}));
 
@@ -585,6 +586,8 @@ struct TestArray
          }
       }
    }
+   
+   
    void testArraySlice()
    {
       testArraySlice_impl<NAMESPACE_NLL::Array_row_major<short, 3>>();
@@ -602,15 +605,20 @@ struct TestArray
       short index = 0;
       NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
 
+      // just to clarify if there is a problem with the template here...
+      using SlicedMemory = typename Array::template SlicingMemory<2>;
+      using Sliced = typename Array::template SlicingArray<2>;
+      
       const int slice_a = 1;
-      auto slice        = a1.slice<2>({2, 3, slice_a});
+      auto slice = a1.template slice<2>(NAMESPACE_NLL::vector3ui{ 2, 3, slice_a });
+      
       TESTER_ASSERT(slice.shape() == NAMESPACE_NLL::vector2ui(a1.shape()[0], a1.shape()[1]));
       TESTER_ASSERT(slice(0, 0) == a1(0, 0, slice_a));
       TESTER_ASSERT(slice(1, 0) == a1(1, 0, slice_a));
       TESTER_ASSERT(slice(0, 1) == a1(0, 1, slice_a));
 
       const int slice_b = 2;
-      auto slice2       = slice.slice<1>({0, slice_b});
+      auto slice2 = slice.template slice<1>(NAMESPACE_NLL::vector2ui{ 0, slice_b });
       TESTER_ASSERT(slice2(0) == a1(0, slice_b, slice_a));
       TESTER_ASSERT(slice2(1) == a1(1, slice_b, slice_a));
       TESTER_ASSERT(slice2(2) == a1(2, slice_b, slice_a));
@@ -792,8 +800,6 @@ struct TestArray
 TESTER_TEST_SUITE(TestArray);
 TESTER_TEST(testMemory_processor_const_column);
 TESTER_TEST(testMemory_processor_column);
-TESTER_TEST(testMemorySliceNonContiguous_not_zslice);
-TESTER_TEST(testMemorySliceNonContiguous_zslice);
 TESTER_TEST(testVolumeConstruction_slices);
 TESTER_TEST(testVolumeConstruction_slices_ref);
 TESTER_TEST(testVolumeMove);
@@ -812,7 +818,8 @@ TESTER_TEST(testInitializerList);
 TESTER_TEST(testIndeMapperRebind);
 TESTER_TEST(testMemorySlice);
 TESTER_TEST(testArraySlice);
+TESTER_TEST(testMemorySliceNonContiguous_not_zslice);
+TESTER_TEST(testMemorySliceNonContiguous_zslice);
 TESTER_TEST(testArray_processor_const_column);
 TESTER_TEST(testArray_processor_const_column2);
-
 TESTER_TEST_SUITE_END();
