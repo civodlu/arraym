@@ -89,6 +89,7 @@ DECLARE_NAMESPACE_END
 #include "memory-slice.h"
 #include "range.h"
 #include "array-traits.h"
+#include "allocator-static.h"
 #include "array.h"
 #include "array-processor.h"
 #include "array-op-naive.h"

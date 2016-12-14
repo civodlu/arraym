@@ -44,7 +44,7 @@ endif()
 
 # platform configuration
 if(UNIX)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp -DNDEBUG -o4")
     SET(OpenBLAS_LIB ${OpenBLAS_LIB} -lgfortran) # require gfortran. Beware of the order of inclusion!
 endif()
 

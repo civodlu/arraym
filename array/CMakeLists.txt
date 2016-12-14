@@ -7,6 +7,7 @@ set(Headers    array.h
                ${ApiFile}
                array.h
 			   range.h
+			   allocator-static.h
                array-processor.h
                array-traits.h
                array-exp.h
