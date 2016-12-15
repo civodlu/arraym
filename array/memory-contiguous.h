@@ -463,6 +463,7 @@ private:
       // now deep copy...
       const ui32 this_linearSize  = _linearSize();
       const ui32 other_linearSize = other._sharedView ? other._sharedView->_linearSize() : other._linearSize();
+      using unconst_type = typename std::remove_const<T>::type;
 
       _allocateSlices(T(), this_linearSize);
       if (this_linearSize == other_linearSize && is_memory_fully_contiguous(other)) // if we have a non stride (1,...,1) stride, use iterator
@@ -472,15 +473,16 @@ private:
          static_assert(std::is_standard_layout<T>::value, "must have standard layout!");
          const auto src = other._data;
          const auto dst = _data;
-         NLL_FAST_ASSERT(!std::is_const<T>::value, "type is CONST!");
-         memcpy(const_cast<typename std::remove_const<T>::type *>(dst), src, size_bytes);
+         NLL_FAST_ASSERT(!std::is_const<T>::value, "type is CONST!");  // _deepCopy can be compiled with a const array, but it should actually never run it...
+         memcpy( const_cast<unconst_type*>( dst ), src, size_bytes );
       }
       else
       {
          // we have a subarray, potentially with stride so we need to use a processor
          auto op_cpy = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements) {
             // @TODO add the BLAS copy
-            details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
+            NLL_FAST_ASSERT( !std::is_const<T>::value, "type is CONST!" );
+            details::copy_naive( const_cast<unconst_type*>( y_pointer ), y_stride, x_pointer, x_stride, nb_elements );
          };
          iterate_memory_constmemory(*this, other, op_cpy);
       }

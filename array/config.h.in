@@ -7,18 +7,9 @@
  */
  
 #cmakedefine WITH_EXTRA_RUNTIME_CHECKS
-#cmakedefine WITH_OMP
 #cmakedefine WITH_CUDA
 #cmakedefine WITH_OPENBLAS
 #cmakedefine WITH_EXPRESSION_TEMPLATE
-
-// configure OpenMP
-#ifndef WITH_OMP
-# pragma message( "NLL multithreading disabled" )
-#else
-# include <omp.h>
-# pragma message( "NLL multithreading enabled" )
-#endif
 
 // if defined, additional security checks will be performed
 #define NLL_SECURE
