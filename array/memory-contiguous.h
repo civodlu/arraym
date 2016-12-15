@@ -2,6 +2,9 @@
 
 DECLARE_NAMESPACE_NLL
 
+template <class T, size_t N, class IndexMapper, class Allocator>
+class Memory_contiguous;
+
 namespace details
 {
 template <class Memory>
@@ -9,7 +12,45 @@ class ConstMemoryProcessor_contiguous_byMemoryLocality;
 
 template <class Memory>
 class MemoryProcessor_contiguous_byMemoryLocality;
+
+/**
+ @brief defines if 
+ */
+template <class Memory>
+class MemoryMoveable
+{
+public:
+   // general case: yes we can!
+   static bool can_move(typename Memory::value_type*, size_t) 
+   {
+      return true;
+   }
+};
+
+template <class T, size_t N, class IndexMapper, class Allocator>
+class MemoryMoveable<Memory_contiguous<T, N, IndexMapper, Allocator>>
+{
+public:
+   using Memory = Memory_contiguous<T, N, IndexMapper, Allocator>;
+
+   // Memory_contiguous is known for "stack based memory", so check the allocator
+   static bool _can_move(std::true_type UNUSED(base_not_moveable), typename Memory::value_type* ptr, size_t size) 
+   {
+      return Allocator::can_move(ptr, size);
+   }
+
+   static bool _can_move(std::false_type UNUSED(moveable), typename Memory::value_type*, size_t) 
+   {
+      return true;
+   }
+public:
+   static bool can_move(typename Memory::value_type* ptr, size_t size) 
+   {
+      return _can_move(std::is_base_of<memory_not_moveable, typename Memory::allocator_type>(), ptr, size);
+   }
+};
 }
+
 
 /**
 @brief Returns true if an array is based on a single slice of contiguous memory
@@ -112,6 +153,9 @@ A sub-block must NOT be accessed when the original memory has been destroyed: da
 template <class T, size_t N, class IndexMapper = IndexMapper_contiguous<N>, class Allocator = std::allocator<T>>
 class Memory_contiguous : public memory_layout_contiguous
 {
+   template <class T2, size_t N2, class IndexMapper2, class Allocator2>
+   friend class Memory_contiguous;
+
 public:
    using index_type      = StaticVector<ui32, N>;
    using allocator_type  = Allocator;
@@ -252,9 +296,11 @@ public:
       _dataAllocated = dataAllocated;
    }
 
-   
-   //template <size_t dimension, typename = typename std::enable_if<N >= 2>::type>
-   //using slice_type = typename rebind_type_dim<T, N - 1>::other;
+   template <size_t dimension>
+   struct slice_type
+   {
+      using type = typename rebind_type_dim<T, N - 1>::other;
+   };
    
 
    /**
@@ -263,14 +309,14 @@ public:
    Create a reference of this object, so do NOT destroy the memory while using the sliced mempory
    */
    template <size_t dimension>
-   typename rebind_type_dim<T, N - 1>::other slice(const index_type& index) const
+   typename slice_type<dimension>::type slice(const index_type& index) const
    {
       // we start at the beginning of the slice
       index_type index_slice;
       index_slice[dimension] = index[dimension];
       T* ptr                 = const_cast<T*>(this->at(index_slice));
 
-      using Other = typename rebind_type_dim<T, N - 1>::other;
+      using Other = typename slice_type<dimension>::type;
       Other memory;
       memory._indexMapper   = _indexMapper.slice<dimension>(index_slice);
       memory._data          = const_cast<T*>(ptr);
@@ -426,7 +472,8 @@ private:
          static_assert(std::is_standard_layout<T>::value, "must have standard layout!");
          const auto src = other._data;
          const auto dst = _data;
-         memcpy(dst, src, size_bytes);
+         NLL_FAST_ASSERT(!std::is_const<T>::value, "type is CONST!");
+         memcpy(const_cast<typename std::remove_const<T>::type *>(dst), src, size_bytes);
       }
       else
       {
@@ -453,12 +500,26 @@ public:
 
    Memory_contiguous(Memory_contiguous&& other)
    {
-      _moveCopy(std::forward<Memory_contiguous>(other));
+      // make sure we don't have non-moveable memory
+      if (details::MemoryMoveable<Memory_contiguous>::can_move(other._data, other._linearSize()))
+      {
+         _moveCopy(std::forward<Memory_contiguous>(other));
+      }
+      else {
+         _deepCopy(other);
+      }
    }
 
    Memory_contiguous& operator=(Memory_contiguous&& other)
    {
-      _moveCopy(std::forward<Memory_contiguous>(other));
+      // make sure we don't have non-moveable memory
+      if (details::MemoryMoveable<Memory_contiguous>::can_move(other._data, other._linearSize()))
+      {
+         _moveCopy(std::forward<Memory_contiguous>(other));
+      }
+      else {
+         _deepCopy(other);
+      }
       return *this;
    }
 
@@ -494,14 +555,14 @@ public:
       return _allocator;
    }
 
-   //private:
+private:
+   // arrange py decreasing size order to help with the structure packing
    IndexMapper _indexMapper;
-   index_type _shape;
    T* _data = nullptr;
+   Memory_contiguous* _sharedView = nullptr; /// the original array
+   index_type _shape;
    allocator_type _allocator;
    bool _dataAllocated = true;
-
-   Memory_contiguous* _sharedView = nullptr; /// the original array
 };
 
 template <class T, size_t N, class Allocator = std::allocator<T>>

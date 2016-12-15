@@ -425,6 +425,34 @@ struct TestArrayOp
       TESTER_ASSERT(m1t(1, 1) == 5);
       TESTER_ASSERT(m1t(1, 2) == 6);
    }
+
+   void testMatrix_vector()
+   {
+      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_row_major<int>>();      // naive, contiguous
+      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_column_major<int>>();   // naive, contiguous
+      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_row_major<float>>();    // BLAS, contiguous
+      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_column_major<float>>(); // BLAS, contiguous
+   }
+
+   template <class Array>
+   void testMatrix_vector_impl()
+   {
+      Array m1(3, 3);
+      m1 = { 1, 0, 0,
+             0, 2, 0,
+             0, 0, 3 };
+
+      using Vector = Vector<typename Array::value_type>;
+
+      Vector v1(3);
+      v1 = { 2, 3, 4 };
+
+      auto r1 = m1 * v1;
+      TESTER_ASSERT(r1.shape() == vector2ui(3, 1));
+      TESTER_ASSERT(r1(0, 0) == 2);
+      TESTER_ASSERT(r1(1, 0) == 6);
+      TESTER_ASSERT(r1(2, 0) == 12);
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayOp);
@@ -437,4 +465,5 @@ TESTER_TEST(testArray_div_cte);
 TESTER_TEST(testArray_mul_array);
 TESTER_TEST(testArray_matrix_memoryOrder);
 TESTER_TEST(testMatrix_transpose);
+TESTER_TEST(testMatrix_vector);
 TESTER_TEST_SUITE_END();

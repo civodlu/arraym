@@ -308,20 +308,13 @@ private:
    template <size_t slice_dim>
    using SliceImpl = std::conditional<slice_dim == Z_INDEX, SliceImpl_z, SliceImpl_notz>;
 
-
 public:
-   template <class T2, size_t N2>
-   struct rebind_type_dim
-   {
-      // @TODO adaptor for Array slicing type. Refactor
-      using other = typename SliceImpl<N2>::type::other;
-   };
-
-public:
-   /*
    template <size_t dimension>
-   using slice_type = typename SliceImpl<dimension>::type::other;
-   */
+   struct slice_type
+   {
+      using type = typename SliceImpl<dimension>::type::other;
+   };
+   
 
    /**
    @brief Slice the memory such that we keep only the slice along dimension @p dimension passing through @p point
@@ -332,7 +325,7 @@ public:
    "SliceImpl = std::conditional<slice_dim == Z_INDEX, SliceImpl_z, SliceImpl_notz>::type;"
    */
    template <size_t dimension>
-   typename SliceImpl<dimension>::type::other slice(const index_type& point) const
+   typename slice_type<dimension>::type slice(const index_type& point) const
    {
       using Impl = typename SliceImpl<dimension>::type;
       return Impl::template slice<dimension>(*this, point);

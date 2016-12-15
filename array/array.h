@@ -408,8 +408,12 @@ public:
    }
 
    
+   //template <size_t slicing_dimension>
+   //using SlicingMemory = typename Memory::template rebind_type_dim<T, slicing_dimension>::other;
+
    template <size_t slicing_dimension>
-   using SlicingMemory = typename Memory::template rebind_type_dim<T, slicing_dimension>::other;
+   using SlicingMemory = typename Memory::template slice_type<slicing_dimension>::type;
+
 
    template <size_t slicing_dimension>
    using SlicingArray = Array<T, N - 1, ArrayTraitsConfig<T, N - 1, allocator_type, SlicingMemory<slicing_dimension>>>;
@@ -463,6 +467,22 @@ using Array_column_major = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory
 
 template <class T, class Allocator = std::allocator<T>>
 using Vector = Array_row_major<T, 1, Allocator>;
+
+/**
+ @brief Matrix row major with a default small stack based memory allocated
+
+ The goal is to improve memory locality
+ */
+template <class T, size_t stack_size>
+using MatrixSmall_row_major = Matrix_row_major<T, AllocatorSingleStaticMemory<T, stack_size>>;
+
+/**
+@brief Vector with a default small stack based memory allocated
+
+The goal is to improve memory locality
+*/
+template <class T, size_t stack_size, class Mapper = IndexMapper_contiguous_matrix_column_major>
+using VectorSmall = Array_row_major<T, 1, AllocatorSingleStaticMemory<T, stack_size>>;
 
 /**
  @brief ArrayRef has a different semantic (reference based) from array (i.e., value based)
