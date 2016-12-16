@@ -119,6 +119,17 @@ public:
 #endif
    }
 
+   template <class T2, class Config2>
+   explicit Array( const Array<T2, N, Config2>& array ) : Array( array.shape() )
+   {
+      auto op = [&]( T* a1_pointer, ui32 a1_stride, const T2* a2_pointer, ui32 a2_stride, ui32 nb_elements )
+      {
+         details::static_cast_naive( a1_pointer, a1_stride, a2_pointer, a2_stride, nb_elements );
+      };
+
+      _iterate_array_constarray( *this, array, op );
+   }
+
    Array(const allocator_type& allocator = allocator_type()) : _memory(allocator)
    {
    }
@@ -417,22 +428,11 @@ public:
    typename rebind<T2>::other staticCastTo() const
    {
       using other = typename rebind<T2>::other;
-
-      auto op = [&](T2* a1_pointer, ui32 a1_stride, const T* a2_pointer, ui32 a2_stride, ui32 nb_elements) {
-         details::static_cast_naive(a1_pointer, a1_stride, a2_pointer, a2_stride, nb_elements);
-      };
-
-      other a(shape());
-      _iterate_array_constarray(a, *this, op);
-      return a;
+      return other( *this );
    }
-   
-   //template <size_t slicing_dimension>
-   //using SlicingMemory = typename Memory::template rebind_type_dim<T, slicing_dimension>::other;
 
    template <size_t slicing_dimension>
    using SlicingMemory = typename Memory::template slice_type<slicing_dimension>::type;
-
 
    template <size_t slicing_dimension>
    using SlicingArray = Array<T, N - 1, ArrayTraitsConfig<T, N - 1, allocator_type, SlicingMemory<slicing_dimension>>>;
