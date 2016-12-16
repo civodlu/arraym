@@ -795,6 +795,36 @@ struct TestArray
       TESTER_ASSERT(ptr[0] == 6);
       TESTER_ASSERT(current_index == NAMESPACE_NLL::vector2ui(1, 2));
    }
+
+   void testStaticCast()
+   {
+      using Array = NAMESPACE_NLL::Array_column_major<float, 2>;
+      Array m(2, 3);
+      m = { 1.1f, 2.0f, 3.6f, 4.9f, 5.0f, 6.0f };
+
+      const auto casted = m.staticCastTo<int>();
+      TESTER_ASSERT(casted(0, 0) == 1);
+      TESTER_ASSERT(casted(1, 0) == 2);
+      TESTER_ASSERT(casted(0, 1) == 3);
+      TESTER_ASSERT(casted(1, 1) == 4);
+      TESTER_ASSERT(casted(0, 2) == 5);
+      TESTER_ASSERT(casted(1, 2) == 6);
+   }
+
+   void testStaticCast_slice()
+   {
+      using Array = NAMESPACE_NLL::Array_row_major_multislice<float, 2>;
+      Array m(2, 3);
+      m = { 1.1f, 2.0f, 3.6f, 4.9f, 5.0f, 6.0f };
+
+      const auto casted = m.staticCastTo<int>();
+      TESTER_ASSERT(casted(0, 0) == 1);
+      TESTER_ASSERT(casted(1, 0) == 2);
+      TESTER_ASSERT(casted(0, 1) == 3);
+      TESTER_ASSERT(casted(1, 1) == 4);
+      TESTER_ASSERT(casted(0, 2) == 5);
+      TESTER_ASSERT(casted(1, 2) == 6);
+   }
 };
 
 TESTER_TEST_SUITE(TestArray);
@@ -822,4 +852,6 @@ TESTER_TEST(testMemorySliceNonContiguous_not_zslice);
 TESTER_TEST(testMemorySliceNonContiguous_zslice);
 TESTER_TEST(testArray_processor_const_column);
 TESTER_TEST(testArray_processor_const_column2);
+TESTER_TEST(testStaticCast);
+TESTER_TEST(testStaticCast_slice);
 TESTER_TEST_SUITE_END();

@@ -26,6 +26,16 @@ void add_naive(T* v1, size_t stride_v1, const T* v2, const size_t stride_v2, siz
 }
 
 template <class T>
+void add_naive_cte(T* v1, size_t stride_v1, size_t size, T value)
+{
+   const T* end = v1 + size * stride_v1;
+   for (; v1 != end; v1 += stride_v1)
+   {
+      *v1 += value;
+   }
+}
+
+template <class T>
 void sub_naive(T* v1, size_t stride_v1, const T* v2, size_t stride_v2, size_t size)
 {
    const T* end = v1 + size * stride_v1;
@@ -66,6 +76,19 @@ void addmul_naive(T* v1, size_t stride_v1, const T* v2, size_t stride_v2, T mul,
    for (; v1 != end; v1 += stride_v1, v2 += stride_v2)
    {
       *v1 -= *v2 * mul;
+   }
+}
+
+/**
+@brief compute v1 = static_cast<T>(v2)
+*/
+template <class T, class T2>
+void static_cast_naive(T* v1, size_t stride_v1, const T2* v2, size_t stride_v2, size_t size)
+{
+   const T* end = v1 + size * stride_v1;
+   for (; v1 != end; v1 += stride_v1, v2 += stride_v2)
+   {
+      *v1 = static_cast<T>( *v2 );
    }
 }
 

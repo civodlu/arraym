@@ -30,6 +30,17 @@ Array_NaiveEnabled<T, N, Config>& array_add(Array<T, N, Config>& a1, const Array
 }
 
 /**
+@brief Computes a1 += a2
+*/
+template <class T, size_t N, class Config>
+Array<T, N, Config>& array_add_cte(Array<T, N, Config>& a1, T a2)
+{
+   auto op = [&](T* ptr, ui32 stride, ui32 elements) { add_naive_cte<T>(ptr, stride, elements, a2); };
+   iterate_array(a1, op);
+   return a1;
+}
+
+/**
 @brief Computes a1 -= a2
 */
 template <class T, size_t N, class Config, class Config2>

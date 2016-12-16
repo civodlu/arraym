@@ -43,41 +43,71 @@ Array_NaiveOperatorEnabled<T, N, Config1> operator-(const Array<T, N, Config1>& 
    return cpy;
 }
 
-template <class T, size_t N, class Config1>
-Array_NaiveOperatorEnabled<T, N, Config1>& operator*=(Array<T, N, Config1>& lhs, T value)
+template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
+Array_NaiveOperatorEnabled<T, N, Config1>& operator*=(Array<T, N, Config1>& lhs, T2 value)
 {
-   details::array_mul(lhs, value);
+   details::array_mul(lhs, static_cast<T>( value ));
    return lhs;
 }
 
-template <class T, size_t N, class Config1>
-Array_NaiveOperatorEnabled<T, N, Config1> operator*(Array<T, N, Config1>& lhs, T value)
+template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
+Array_NaiveOperatorEnabled<T, N, Config1> operator*(Array<T, N, Config1>& lhs, T2 value)
 {
    Array<T, N, Config1> cpy = lhs;
-   cpy *= value;
+   cpy *= static_cast<T>(value);
    return cpy;
 }
 
-template <class T, size_t N, class Config1>
-Array_NaiveOperatorEnabled<T, N, Config1> operator*(T value, Array<T, N, Config1>& rhs)
+template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
+Array_NaiveOperatorEnabled<T, N, Config1>& operator+=(Array<T, N, Config1>& lhs, T2 value)
+{
+   details::array_add_cte(lhs, static_cast<T>(value));
+   return lhs;
+}
+
+template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
+Array_NaiveOperatorEnabled<T, N, Config1> operator+(const Array<T, N, Config1>& lhs, T2 value)
+{
+   Array<T, N, Config1> cpy = lhs;
+   cpy += static_cast<T>(value);
+   return cpy;
+}
+
+template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
+Array_NaiveOperatorEnabled<T, N, Config1>& operator-=(Array<T, N, Config1>& lhs, T2 value)
+{
+   details::array_add_cte(lhs, static_cast<T>(-value));
+   return lhs;
+}
+
+template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
+Array_NaiveOperatorEnabled<T, N, Config1> operator-(const Array<T, N, Config1>& lhs, T2 value)
+{
+   Array<T, N, Config1> cpy = lhs;
+   cpy -= static_cast<T>(value);
+   return cpy;
+}
+
+template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
+Array_NaiveOperatorEnabled<T, N, Config1> operator*(T2 value, Array<T, N, Config1>& rhs)
 {
    Array<T, N, Config1> cpy = rhs;
-   cpy *= value;
+   cpy *= static_cast<T>(value);
    return cpy;
 }
 
-template <class T, size_t N, class Config1>
-Array_NaiveOperatorEnabled<T, N, Config1>& operator/=(Array<T, N, Config1>& lhs, T value)
+template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
+Array_NaiveOperatorEnabled<T, N, Config1>& operator/=(Array<T, N, Config1>& lhs, T2 value)
 {
-   details::array_div(lhs, value);
+   details::array_div(lhs, static_cast<T>(value));
    return lhs;
 }
 
-template <class T, size_t N, class Config1>
-Array_NaiveOperatorEnabled<T, N, Config1> operator/(Array<T, N, Config1>& lhs, T value)
+template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
+Array_NaiveOperatorEnabled<T, N, Config1> operator/(Array<T, N, Config1>& lhs, T2 value)
 {
    Array<T, N, Config1> cpy = lhs;
-   cpy /= value;
+   cpy /= static_cast<T>(value);
    return cpy;
 }
 

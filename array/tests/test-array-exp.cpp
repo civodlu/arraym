@@ -4,35 +4,38 @@
 
 using namespace NAMESPACE_NLL;
 
+using vector3ui = StaticVector<ui32, 3>;
+using vector2ui = StaticVector<ui32, 2>;
+using vector1ui = StaticVector<ui32, 1>;
+
+
 struct TestArrayExp
 {
    void test_expr_add_array_array_impl()
    {
-      test_expr_add_array_array_impl<Array<float, 2>>();
+      test_expr_add_array_array_impl<Matrix<float>>();
+      test_expr_add_array_array_impl<Matrix<int>>();
+      test_expr_add_array_array_impl<Matrix_row_major<float>>();
    }
+
    template <class Array>
    void test_expr_add_array_array_impl()
    {
-      Array a1(2, 3);
-      a1 = {1, 2, 3, 4, 5, 6};
+      using value_type = typename Array::value_type;
+      Array a(2, 2);
+      a = { 1, 2, 
+            3, 4 };
+      a = transpose(a);
 
-      Array a2(2, 3);
-      a2 = {11, 12, 13, 14, 15, 16};
+      std::cout << a << std::endl;
 
-      Array a3(2, 3);
-      a3 = {110, 120, 130, 140, 150, 160};
-      /*
-      auto expr = a1 + a2;
-      Array result = a3 + expr;
-
-      TESTER_ASSERT( result( 0, 0 ) == a1( 0, 0 ) + a2( 0, 0 ) + a3( 0, 0 ) );
-      TESTER_ASSERT( result( 1, 0 ) == a1( 1, 0 ) + a2( 1, 0 ) + a3( 1, 0 ) );
-
-      TESTER_ASSERT( result( 0, 1 ) == a1( 0, 1 ) + a2( 0, 1 ) + a3( 0, 1 ) );
-      TESTER_ASSERT( result( 1, 1 ) == a1( 1, 1 ) + a2( 1, 1 ) + a3( 1, 1 ) );
-
-      TESTER_ASSERT( result( 0, 2 ) == a1( 0, 2 ) + a2( 0, 2 ) + a3( 0, 2 ) );
-      TESTER_ASSERT( result( 1, 2 ) == a1( 1, 2 ) + a2( 1, 2 ) + a3( 1, 2 ) );*/
+      auto result = a * 3.0 + int(1) + a / 1.0f - 3;
+      std::cout << result << std::endl;
+      TESTER_ASSERT(result.shape() == vector2ui(2, 2));
+      TESTER_ASSERT(result(0, 0) == 1 * 4 + 1 - 3);
+      TESTER_ASSERT(result(0, 1) == 2 * 4 + 1 - 3);
+      TESTER_ASSERT(result(1, 0) == 3 * 4 + 1 - 3);
+      TESTER_ASSERT(result(1, 1) == 4 * 4 + 1 - 3);
    }
 };
 

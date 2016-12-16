@@ -11,6 +11,12 @@ class Expr;
 template <class Array>
 class ArrayProcessor_contiguous_byDimension;
 
+namespace details
+{
+   template <class T, class T2, size_t N, class Config, class Config2, class Op>
+   void _iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op);
+}
+
 /**
  @brief Represents a multi-dimensional array with value based semantic
 
@@ -407,6 +413,19 @@ public:
       return false;
    }
 
+   template <class T2>
+   typename rebind<T2>::other staticCastTo() const
+   {
+      using other = typename rebind<T2>::other;
+
+      auto op = [&](T2* a1_pointer, ui32 a1_stride, const T* a2_pointer, ui32 a2_stride, ui32 nb_elements) {
+         details::static_cast_naive(a1_pointer, a1_stride, a2_pointer, a2_stride, nb_elements);
+      };
+
+      other a(shape());
+      _iterate_array_constarray(a, *this, op);
+      return a;
+   }
    
    //template <size_t slicing_dimension>
    //using SlicingMemory = typename Memory::template rebind_type_dim<T, slicing_dimension>::other;

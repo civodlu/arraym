@@ -514,7 +514,7 @@ void iterate_memory_constmemory(Memory1& a1, const Memory2& a2, const Op& op)
    while (hasMoreElements)
    {
       T* ptr_a1       = nullptr;
-      T const* ptr_a2 = nullptr;
+      T2 const* ptr_a2 = nullptr;
       hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
       hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
       NLL_FAST_ASSERT(processor_a1.getMaxAccessElements() == processor_a2.getMaxAccessElements(), "memory line must have the same size");
@@ -533,6 +533,15 @@ template <class T, class T2, size_t N, class Config, class Config2, class Op,
 void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op)
 {
    iterate_memory_constmemory(a1.getMemory(), a2.getMemory(), op);
+}
+
+namespace details
+{
+   template <class T, class T2, size_t N, class Config, class Config2, class Op>
+   void _iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op)
+   {
+      iterate_memory_constmemory(a1.getMemory(), a2.getMemory(), op);
+   }
 }
 
 /**
