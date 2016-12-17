@@ -19,25 +19,9 @@ Matrix_BlasEnabled<T, 2, Config> least_square(const Array<T, 2, Config>& a, cons
    matrix_type a_cpy = a; // will have the result of the factorization
    matrix_type b_cpy = b;
 
-   blas::BlasInt lda;
-   blas::BlasInt ldb;
-   const auto& stride_a = a_cpy.getMemory().getIndexMapper()._getPhysicalStrides();
-   const auto& stride_b = b_cpy.getMemory().getIndexMapper()._getPhysicalStrides();
-   if (memory_order_a == CBLAS_ORDER::CblasColMajor)
-   {
-      lda = stride_a[1];
-      ldb = stride_b[1];
-      ensure(stride_a[0] == 1, "can't have stride != 1 ");
-      ensure(stride_b[0] == 1, "can't have stride != 1 ");
-   }
-   else
-   {
-      lda = stride_a[0];
-      ldb = stride_b[0];
-      ensure(stride_a[1] == 1, "can't have stride != 1 ");
-      ensure(stride_b[1] == 1, "can't have stride != 1 ");
-   }
-
+   const blas::BlasInt lda = leading_dimension<T, Config>(a_cpy);
+   const blas::BlasInt ldb = leading_dimension<T, Config>(b_cpy);
+   
    const auto m    = static_cast<blas::BlasInt>(a.rows());
    const auto n    = static_cast<blas::BlasInt>(a.columns());
    const auto nrhs = static_cast<blas::BlasInt>(b.columns());
@@ -49,4 +33,4 @@ Matrix_BlasEnabled<T, 2, Config> least_square(const Array<T, 2, Config>& a, cons
    return result_b_based;
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

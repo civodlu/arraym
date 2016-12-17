@@ -60,4 +60,4 @@ Matrix_Enabled<T, 2, Config> transpose(const Array<T, 2, Config>& m)
    return r;
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

@@ -53,4 +53,4 @@ const size_t lapack_12 = BlasDispatcher::instance().registerFunction<details::Bl
 
 #endif
 }
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

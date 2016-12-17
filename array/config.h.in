@@ -24,8 +24,8 @@
 #define DECLARE_NAMESPACE_NLL    namespace nll{ namespace core {
 #endif
 
-#ifndef DECLARE_NAMESPACE_END
-#define DECLARE_NAMESPACE_END    } }
+#ifndef DECLARE_NAMESPACE_NLL_END
+#define DECLARE_NAMESPACE_NLL_END    } }
 #endif
 
 #ifndef NAMESPACE_NLL

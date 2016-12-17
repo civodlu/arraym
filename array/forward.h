@@ -4,7 +4,7 @@
 
 DECLARE_NAMESPACE_NLL
 using ui32 = uint32_t;
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END
 
 /**
  @mainpage Arraym
@@ -96,6 +96,7 @@ DECLARE_NAMESPACE_END
 #include "blas-wrapper.h"
 #include "array-op-blas.h"
 #include "array-op.h"
+#include "array-op-axis.h"
 
 #include "array-exp.h"
 #include "array-noexp.h"
@@ -108,3 +109,5 @@ DECLARE_NAMESPACE_END
 #include "matrix-op-blas-least-square.h"
 #include "matrix-op-blas-inv.h"
 #include "matrix-op-blas-svd.h"
+#include "matrix-op-blas-lu.h"
+#include "matrix-op-blas-cov.h"

@@ -55,4 +55,4 @@ static const Range rangeAll = Range(std::numeric_limits<int>::lowest(), std::num
 
 using R = Range; /// short name for range
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

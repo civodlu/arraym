@@ -180,7 +180,6 @@ public:
       using other = Memory_contiguous<T2, N2, typename IndexMapper::template rebind<N2>::other, typename Allocator::template rebind<unconst_type>::other>;
    };
 
-public:
    /**
    @brief Rebind the memory with another type
    */
@@ -188,6 +187,15 @@ public:
    struct rebind
    {
       using other = typename rebind_type_dim<T2, N>::other;
+   };
+
+   /**
+   @brief Rebind with a different dimension
+   */
+   template <size_t N2>
+   struct rebind_dim
+   {
+      using other = typename rebind_type_dim<T, N2>::other;
    };
 
    using ConstMemory = typename Memory::template rebind<const T>::other;
@@ -570,4 +578,4 @@ private:
 template <class T, size_t N, class Allocator = std::allocator<T>>
 using Memory_contiguous_row_major = Memory_contiguous<T, N, IndexMapper_contiguous_row_major<N>, Allocator>;
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

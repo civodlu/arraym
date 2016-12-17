@@ -417,6 +417,7 @@ public:
 template <class Array>
 class ArrayProcessor_contiguous_byDimension : public details::ArrayProcessor_contiguous_base<Array>
 {
+public:
    using base       = details::ArrayProcessor_contiguous_base<Array>;
    using index_type = typename base::index_type;
    static index_type getIndexes(const Array&)
@@ -483,7 +484,7 @@ void fill(Array<T, N, Config>& array, Functor functor)
    while (hasMoreElements)
    {
       typename array_type::value_type* ptr = 0;
-      const auto& currentIndex             = iterator.getArrayIndex();
+      const auto currentIndex              = iterator.getArrayIndex();
       hasMoreElements                      = iterator.accessSingleElement(ptr);
       *ptr                                 = functor(currentIndex);
    }
@@ -581,4 +582,4 @@ void iterate_constarray(const Array<T, N, Config>& a1, Op& op)
       op(ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements());
    }
 }
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

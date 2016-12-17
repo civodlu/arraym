@@ -27,24 +27,9 @@ void svd(const Matrix_BlasEnabled<T, 2, Config>& a, Array<T, 2, Config>& u, Vect
    vt = matrix_type({n, n});
    s  = vector_type(s_size);
 
-   blas::BlasInt lda  = 0;
-   blas::BlasInt ldu  = 0;
-   blas::BlasInt ldvt = 0;
-   // we copy <a>, so we never have to corry about stride or sub-array: the copy will
-   // remove it if any
-   if (matrixOrder == CBLAS_ORDER::CblasColMajor)
-   {
-      lda  = static_cast<blas::BlasInt>(a_cpy.rows());
-      ldu  = static_cast<blas::BlasInt>(u.rows());
-      ldvt = static_cast<blas::BlasInt>(vt.rows());
-   }
-   else
-   {
-      lda  = static_cast<blas::BlasInt>(a_cpy.columns());
-      ldu  = static_cast<blas::BlasInt>(u.columns());
-      ldvt = static_cast<blas::BlasInt>(vt.columns());
-   }
-
+   const blas::BlasInt lda  = leading_dimension<T, Config>(a_cpy);
+   blas::BlasInt ldu = leading_dimension<T, Config>(u);
+   blas::BlasInt ldvt = leading_dimension<T, Config>(vt);
    const auto success = core::blas::gesdd<T>(matrixOrder, 'A', m, n, &a_cpy(0, 0), lda, &s(0), &u(0, 0), ldu, &vt(0, 0), ldvt);
    ensure(success == 0, "gesdd failed!");
 }
@@ -63,4 +48,4 @@ Matrix_BlasEnabled<T, 2, Config> svd_construct_s(const Array<T, 2, Config>& u, c
    return s_matrix;
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

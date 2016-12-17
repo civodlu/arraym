@@ -204,4 +204,4 @@ struct is_same_nocvr<T> : public std::true_type
 {
 };
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

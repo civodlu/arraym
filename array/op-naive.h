@@ -217,4 +217,4 @@ bool equal(const T val1, const T val2, const T tolerance = 2 * std::numeric_limi
    return absolute((double)val1 - (double)val2) <= (double)tolerance;
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

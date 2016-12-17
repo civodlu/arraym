@@ -29,4 +29,4 @@ void identity(Array<T, 2, Config>& m)
    fill(m, op);
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

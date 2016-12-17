@@ -25,7 +25,7 @@ struct TestArrayExp
       Array a(2, 2);
       a = { 1, 2, 
             3, 4 };
-      a = transpose(a);
+      //a = transpose(a);
 
       std::cout << a << std::endl;
 

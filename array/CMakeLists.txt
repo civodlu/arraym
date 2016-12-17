@@ -25,6 +25,9 @@ set(Headers    array.h
                forward.h
                index-mapper.h
                memory-contiguous.h
+			   array-op-axis.h
+			   matrix-op-blas-lu.h
+			   matrix-op-blas-cov.h
                memory-slice.h
                static-vector.h
                static-vector-math.h

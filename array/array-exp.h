@@ -288,6 +288,6 @@ Array_TemplateExpressionEnabled<T, N, Config>& operator*=(Array<T, N, Config>& a
 // TODO reconsider boost.proto:
 // http://web.archive.org/web/20120906070131/http://cpp-next.com/archive/2011/01/expressive-c-expression-optimization/
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END
 
 #endif

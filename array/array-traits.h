@@ -22,6 +22,16 @@ struct ArrayTraitsConfig
 
       using other = ArrayTraitsConfig<T2, N, typename Memory::allocator_type, Memory>;
    };
+
+   /**
+   @brief Rebind the trait to a different type
+   */
+   template <size_t N2>
+   struct rebind_dim
+   {
+      using Memory = typename MemoryT::template rebind_dim<N2>::other;
+      using other = ArrayTraitsConfig<T, N2, typename Memory::allocator_type, Memory>;
+   };
 };
 
 /**
@@ -97,4 +107,4 @@ public:
       return rows();
    }
 };
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

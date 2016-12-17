@@ -32,7 +32,7 @@ struct TestArrayOpApply
       Array a1(2, 3);
       a1 = { 1, 2, 3, 4, 5, 6 };
 
-      const auto a1_fun = array_apply_function(a1, f2x<typename Array::value_type>);
+      const auto a1_fun = constarray_apply_function(a1, f2x<typename Array::value_type>);
       for (size_t y = 0; y < a1.shape()[1]; ++y)
       {
          for (size_t x = 0; x < a1.shape()[0]; ++x)

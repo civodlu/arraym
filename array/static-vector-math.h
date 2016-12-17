@@ -74,4 +74,4 @@ T norm2(const T& lhs)
    return std::abs(lhs);
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

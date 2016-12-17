@@ -94,4 +94,4 @@ Array_BlasEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
 }
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

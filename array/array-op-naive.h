@@ -152,4 +152,4 @@ std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
 }
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

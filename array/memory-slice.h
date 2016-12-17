@@ -38,6 +38,15 @@ public:
       using other = Memory_multislice<T2, N, IndexMapper, typename Allocator::template rebind<unconst_type>::other>;
    };
 
+   /**
+   @brief Rebind with a different dimension
+   */
+   template <size_t N2>
+   struct rebind_dim
+   {
+      using other = Memory_multislice<T, N2, typename IndexMapper::template rebind<N2, N2-1>::other, Allocator>;
+   };
+
    using ConstMemory = typename Memory::template rebind<const T>::other;
 
    template <class TT>
@@ -505,4 +514,4 @@ private:
    Memory_multislice* _sharedView = nullptr; /// the original array
 };
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

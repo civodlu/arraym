@@ -15,6 +15,9 @@ namespace details
 {
    template <class T, class T2, size_t N, class Config, class Config2, class Op>
    void _iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op);
+
+   template <class Array>
+   class ArrayProcessor_contiguous_base;
 }
 
 /**
@@ -86,6 +89,12 @@ public:
    struct rebind
    {
       using other = Array<T2, N, typename ConfigT::template rebind<T2>::other>;
+   };
+
+   template <size_t N2>
+   struct rebind_dim
+   {
+      using other = Array<T, N2, typename ConfigT::template rebind_dim<N2>::other>;
    };
 
    template <class... Values>
@@ -188,7 +197,21 @@ public:
       auto ptr_initializer = list.begin();
 
       bool hasMoreElements = true;
-      ArrayProcessor_contiguous_byDimension<Array> iterator(*this);
+
+      auto getIndexes_matrix = [](const Array&)
+      {
+         index_type index;
+         for (ui32 n = 0; n < RANK; ++n)
+         {
+            index[n] = RANK - n - 1;
+         }
+         return index;
+      };
+
+      // special case for matrices: the storage is always transposed
+      auto index_fun = is_matrix<Array>::value ? getIndexes_matrix : ArrayProcessor_contiguous_byDimension<Array>::getIndexes;
+      details::ArrayProcessor_contiguous_base<Array> iterator(*this, index_fun);
+
       while (hasMoreElements)
       {
          pointer_type ptr_array = 0;
@@ -664,4 +687,4 @@ bool is_array_fully_contiguous(const Array<T, N, Config>& a1)
    return is_memory_fully_contiguous<typename Array<T, N, Config>::Memory>(a1.getMemory());
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

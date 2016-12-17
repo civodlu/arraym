@@ -263,4 +263,4 @@ std::ostream& operator<<(std::ostream& o, const StaticVector<T, SIZE>& v)
    return o;
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

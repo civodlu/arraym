@@ -202,6 +202,6 @@ BlasInt dgels_cblas(CBLAS_ORDER matrix_order, char trans, BlasInt m, BlasInt n, 
 }
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END
 
 #endif

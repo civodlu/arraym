@@ -60,4 +60,4 @@ Matrix_BlasEnabled<T, 2, Config> inv(const Array<T, 2, Config>& a)
    return r;
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

@@ -36,4 +36,4 @@ void BlasDispatcherImpl::writeConfiguration(const std::string&) const
 }
 }
 }
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

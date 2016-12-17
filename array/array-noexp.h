@@ -129,4 +129,4 @@ Array_NaiveOperatorEnabled<T, 2, Config1> operator*(const Array<T, 2, Config1>& 
    return array_mul_array(lhs, rhs_2d);
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

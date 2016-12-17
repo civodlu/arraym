@@ -90,4 +90,4 @@ bool operator!=( const AllocatorSingleStaticMemory<T>&, const AllocatorSingleSta
 }
 */
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

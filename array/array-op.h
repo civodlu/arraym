@@ -8,7 +8,7 @@ DECLARE_NAMESPACE_NLL
  @tparam Function must be callable with (T value)
  */
 template <class T, size_t N, class Config, class Function>
-Array<T, N, Config> array_apply_function(const Array<T, N, Config>& array, Function& f)
+Array<T, N, Config> constarray_apply_function(const Array<T, N, Config>& array, Function& f)
 {
    static_assert(is_callable_with<Function, T>::value, "Op is not callable!");
    auto op = [&](T* a1_pointer, ui32 a1_stride, const T* a2_pointer, ui32 a2_stride, ui32 nb_elements)
@@ -26,7 +26,7 @@ Array<T, N, Config> array_apply_function(const Array<T, N, Config>& array, Funct
 @tparam Function must be callable with (T value)
 */
 template <class T, size_t N, class Config, class Op>
-void constarray_apply_function(const Array<T, N, Config>& array, Op& op)
+void constarray_apply_function_inplace(const Array<T, N, Config>& array, Op& op)
 {
    auto f = [&](T value)
    {
@@ -50,7 +50,7 @@ Array<T, N, Config> cos(const Array<T, N, Config>& array)
    {
       return std::cos(value);
    };
-   return array_apply_function(array, op);
+   return constarray_apply_function(array, op);
 }
 
 /**
@@ -63,7 +63,7 @@ Array<T, N, Config> sin(const Array<T, N, Config>& array)
    {
       return std::sin(value);
    };
-   return array_apply_function(array, op);
+   return constarray_apply_function(array, op);
 }
 
 /**
@@ -76,7 +76,7 @@ Array<T, N, Config> sqrt(const Array<T, N, Config>& array)
    {
       return std::sqrt(value);
    };
-   return array_apply_function(array, op);
+   return constarray_apply_function(array, op);
 }
 
 /**
@@ -89,7 +89,7 @@ Array<T, N, Config> sqr( const Array<T, N, Config>& array )
    {
       return value * value;
    };
-   return array_apply_function( array, op );
+   return constarray_apply_function( array, op );
 }
 
 /**
@@ -102,7 +102,7 @@ Array<T, N, Config> abs(const Array<T, N, Config>& array)
    {
       return std::abs(value);
    };
-   return array_apply_function(array, op);
+   return constarray_apply_function(array, op);
 }
 
 /**
@@ -115,7 +115,7 @@ Array<T, N, Config> log( const Array<T, N, Config>& array )
    {
       return std::log( value );
    };
-   return array_apply_function( array, op );
+   return constarray_apply_function( array, op );
 }
 
 /**
@@ -128,7 +128,7 @@ Array<T, N, Config> exp( const Array<T, N, Config>& array )
    {
       return std::exp( value );
    };
-   return array_apply_function( array, op );
+   return constarray_apply_function( array, op );
 }
 
 /**
@@ -142,7 +142,7 @@ T min(const Array<T, N, Config>& array)
    {
       min_value = std::min(min_value, value);
    };
-   constarray_apply_function(array, f);
+   constarray_apply_function_inplace(array, f);
    return min_value;
 }
 
@@ -157,7 +157,7 @@ T max(const Array<T, N, Config>& array)
    {
       max_value = std::max(max_value, value);
    };
-   constarray_apply_function(array, f);
+   constarray_apply_function_inplace(array, f);
    return max_value;
 }
 
@@ -172,7 +172,7 @@ Accum sum( const Array<T, N, Config>& array )
    {
       accum += value;
    };
-   constarray_apply_function( array, f );
+   constarray_apply_function_inplace( array, f );
    return accum;
 }
 
@@ -182,7 +182,7 @@ Accum sum( const Array<T, N, Config>& array )
 template <class T, size_t N, class Config, class Accum = T>
 Accum mean( const Array<T, N, Config>& array )
 {
-   return sum(array) / array.size();
+   return sum(array) / static_cast<T>(array.size());
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END

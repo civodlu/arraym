@@ -83,6 +83,6 @@ ARRAY_API BlasInt dgels_cblas(CBLAS_ORDER matrix_layout, char trans, BlasInt m, 
 }
 }
 
-DECLARE_NAMESPACE_END
+DECLARE_NAMESPACE_NLL_END
 
 #endif
