@@ -8,31 +8,31 @@ set(Headers    array.h
                array.h
 			   range.h
 			   allocator-static.h
-               array-processor.h
-               array-traits.h
-               array-exp.h
+            array-processor.h
+            array-traits.h
+            array-exp.h
 			   array-noexp.h
-               array-op-naive.h
-			   array-op-blas.h
+            array-op-impl-naive.h
+			   array-op-impl-blas.h
 			   array-op.h
-			   matrix-op-blas.h
+			   matrix-op-impl-blas.h
 			   matrix-op-blas-inv.h
 			   matrix-op-blas-least-square.h
 			   matrix-op-blas-svd.h
-			   matrix-op-naive.h
+			   matrix-op-impl-naive.h
 			   matrix-op-identity.h
-               op-naive.h
-               forward.h
-               index-mapper.h
-               memory-contiguous.h
+            op-naive.h
+            forward.h
+            index-mapper.h
+            memory-contiguous.h
 			   array-op-axis.h
 			   matrix-op-blas-lu.h
 			   matrix-op-blas-cov.h
-               memory-slice.h
-               static-vector.h
-               static-vector-math.h
-               static-vector-op.h
-               traits.h   
+            memory-slice.h
+            static-vector.h
+            static-vector-math.h
+            static-vector-op.h
+            traits.h   
                )
                
 set(BLAS       wrapper-cblas.cpp

@@ -92,20 +92,20 @@ DECLARE_NAMESPACE_NLL_END
 #include "array-traits.h"
 #include "array.h"
 #include "array-processor.h"
-#include "array-op-naive.h"
+#include "array-op-impl-naive.h"
 #include "blas-wrapper.h"
-#include "array-op-blas.h"
+#include "array-op-impl-blas.h"
 #include "array-op.h"
 #include "array-op-axis.h"
 
 #include "array-exp.h"
 #include "array-noexp.h"
 
-#include "matrix-op-naive.h"
+#include "matrix-op-impl-naive.h"
 #include "matrix-op-identity.h"
 
 // BLAS based operations
-#include "matrix-op-blas.h"
+#include "matrix-op-impl-blas.h"
 #include "matrix-op-blas-least-square.h"
 #include "matrix-op-blas-inv.h"
 #include "matrix-op-blas-svd.h"
