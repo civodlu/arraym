@@ -42,10 +42,17 @@ if (${WITH_CLANG})
    find_package(ClangTools REQUIRED)
 endif()
 
+if (${WITH_CUDA})
+   find_package(CUDA REQUIRED)
+   include_directories(${CUDA_INCLUDE_DIRS})
+   include_directories(${CUDA_SDK_ROOT_DIR}/common/inc)
+   message(${CUDA_SDK_ROOT_DIR}/common/inc)
+endif()
+
 # platform configuration
 if(UNIX)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp -DNDEBUG -O3 -ffast-math  ")
-    SET(OpenBLAS_LIB ${OpenBLAS_LIB} -lgfortran) # require gfortran. Beware of the order of inclusion!
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp -DNDEBUG -O3 -ffast-math  ")
+    set(OpenBLAS_LIB ${OpenBLAS_LIB} -lgfortran) # require gfortran. Beware of the order of inclusion!
 endif()
 
 if (MSVC)

@@ -12,7 +12,7 @@ DECLARE_NAMESPACE_NLL_END
  The purpose of this library is to propose a generic multidimensional array with
  written in modern C++. The library features:
  - Efficient memory access patterns using processors,
- - Support for BLAS implementations (cuBLAS & OpenBLAS),
+ - Support for BLAS implementations (cuBLAS-XT & OpenBLAS),
  - Uniform type representation for N-d structures, vectors & matrices, including small object
    optimization,
  - Support for non-contiguous memory based arrays,

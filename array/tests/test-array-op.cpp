@@ -347,6 +347,8 @@ struct TestArrayOp
       testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<int>>();   // naive, contiguous
       testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<float>>();    // BLAS, contiguous
       testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<float>>(); // BLAS, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<double>>();    // BLAS, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<double>>(); // BLAS, contiguous
    }
 
    template <class Array>
@@ -359,6 +361,7 @@ struct TestArrayOp
       a2 = {20, 30, 40, 50, 60, 70};
 
       Array result = a1 * a2;
+
       TESTER_ASSERT(result.shape() == vector2ui(2, 2));
 
       TESTER_ASSERT(result(0, 0) == 400);

@@ -78,5 +78,5 @@ struct TestMatrixCov
 
 TESTER_TEST_SUITE(TestMatrixCov);
 //TESTER_TEST(test_random);
-TESTER_TEST(test_known);
+//TESTER_TEST(test_known);
 TESTER_TEST_SUITE_END();

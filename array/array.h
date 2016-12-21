@@ -131,6 +131,7 @@ public:
    template <class T2, class Config2>
    explicit Array( const Array<T2, N, Config2>& array ) : Array( array.shape() )
    {
+      // TODO: move to memory
       auto op = [&]( T* a1_pointer, ui32 a1_stride, const T2* a2_pointer, ui32 a2_stride, ui32 nb_elements )
       {
          details::static_cast_naive( a1_pointer, a1_stride, a2_pointer, a2_stride, nb_elements );
@@ -193,6 +194,7 @@ public:
     */
    Array& operator=(const std::initializer_list<T>& list)
    {
+      // TODO: move to memory
       ensure(list.size() == this->size(), "initializer and current array must have the same size!");
       auto ptr_initializer = list.begin();
 

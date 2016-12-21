@@ -8,12 +8,14 @@ using namespace NAMESPACE_NLL::blas::details;
 
 struct TestBlasDispatcher
 {
-   static void saxpy_1(int, float, const float*, int, float*, int)
+   static int saxpy_1(int, float, const float*, int, float*, int)
    {
+      return 0;
    }
 
-   static void daxpy_1(int, double, const double*, int, double*, int)
+   static int daxpy_1(int, double, const double*, int, double*, int)
    {
+      return 0;
    }
 
    void test_static()

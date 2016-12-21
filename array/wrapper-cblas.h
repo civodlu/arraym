@@ -20,31 +20,37 @@ namespace blas
 {
 namespace detail
 {
-// CBLAS Bindings provided by OpenBLAS
-ARRAY_API void saxpy_cblas(BlasInt N, BlasReal alpha, const BlasReal* x, BlasInt incx, BlasReal* y, BlasInt incy);
-ARRAY_API void daxpy_cblas(BlasInt N, BlasDoubleReal alpha, const BlasDoubleReal* x, BlasInt incx, BlasDoubleReal* y, BlasInt incy);
+//
+// The CBLAS wrapper doesn't usually return BlasInt. This is added, so that if the function can handle the operation, it returns
+// 0, anything else otherwise. This will enable chaining multiple implementation (i.e., one implementation doesn't have to provide
+// all possible paths)
+//
 
-ARRAY_API void sgemm_cblas(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M, const BlasInt N,
+// CBLAS Bindings provided by OpenBLAS
+ARRAY_API BlasInt saxpy_cblas(BlasInt N, BlasReal alpha, const BlasReal* x, BlasInt incx, BlasReal* y, BlasInt incy);
+ARRAY_API BlasInt daxpy_cblas(BlasInt N, BlasDoubleReal alpha, const BlasDoubleReal* x, BlasInt incx, BlasDoubleReal* y, BlasInt incy);
+
+ARRAY_API BlasInt sgemm_cblas(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M, const BlasInt N,
                            const BlasInt K, const BlasReal alpha, const BlasReal* A, const BlasInt lda, const BlasReal* B, const BlasInt ldb,
                            const BlasReal beta, BlasReal* C, const BlasInt ldc);
-ARRAY_API void dgemm_cblas(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M, const BlasInt N,
+ARRAY_API BlasInt dgemm_cblas(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M, const BlasInt N,
                            const BlasInt K, const BlasDoubleReal alpha, const BlasDoubleReal* A, const BlasInt lda, const BlasDoubleReal* B, const BlasInt ldb,
                            const BlasDoubleReal beta, BlasDoubleReal* C, const BlasInt ldc);
 
-ARRAY_API void sscal_cblas(const BlasInt N, const BlasReal alpha, BlasReal* X, const BlasInt incX);
-ARRAY_API void dscal_cblas(const BlasInt N, const BlasDoubleReal alpha, BlasDoubleReal* X, const BlasInt incX);
+ARRAY_API BlasInt sscal_cblas(const BlasInt N, const BlasReal alpha, BlasReal* X, const BlasInt incX);
+ARRAY_API BlasInt dscal_cblas(const BlasInt N, const BlasDoubleReal alpha, BlasDoubleReal* X, const BlasInt incX);
 
 ARRAY_API BlasReal sdot_cblas(const BlasInt N, const BlasReal* x, const BlasInt incX, const BlasReal* y, const BlasInt incY);
 ARRAY_API BlasDoubleReal ddot_cblas(const BlasInt N, const BlasDoubleReal* x, const BlasInt incX, const BlasDoubleReal* y, const BlasInt incY);
 
-ARRAY_API void sger_cblas(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const BlasReal alpha, const BlasReal* x, const BlasInt incX,
+ARRAY_API BlasInt sger_cblas(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const BlasReal alpha, const BlasReal* x, const BlasInt incX,
                           const BlasReal* y, const BlasInt incY, BlasReal* A, const BlasInt lda);
-ARRAY_API void dger_cblas(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const BlasDoubleReal alpha, const BlasDoubleReal* x, const BlasInt incX,
+ARRAY_API BlasInt dger_cblas(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const BlasDoubleReal alpha, const BlasDoubleReal* x, const BlasInt incX,
                           const BlasDoubleReal* y, const BlasInt incY, BlasDoubleReal* A, const BlasInt lda);
 
-ARRAY_API void sgemv_cblas(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const BlasReal alpha,
+ARRAY_API BlasInt sgemv_cblas(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const BlasReal alpha,
                            const BlasReal* A, const BlasInt lda, const BlasReal* x, const BlasInt incX, const BlasReal beta, BlasReal* y, const BlasInt incY);
-ARRAY_API void dgemv_cblas(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const BlasDoubleReal alpha,
+ARRAY_API BlasInt dgemv_cblas(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const BlasDoubleReal alpha,
                            const BlasDoubleReal* A, const BlasInt lda, const BlasDoubleReal* x, const BlasInt incX, const BlasDoubleReal beta,
                            BlasDoubleReal* y, const BlasInt incY);
 

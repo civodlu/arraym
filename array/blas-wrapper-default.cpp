@@ -1,10 +1,16 @@
 #include <array/forward.h>
 #include "wrapper-cblas.h"
+#include "wrapper-cublas.h"
 
 DECLARE_NAMESPACE_NLL
 
 namespace blas
 {
+#ifdef WITH_CUDA
+   const size_t cuda_01 = BlasDispatcher::instance().registerFunction<details::BlasFunction::sgemm>(detail::sgemm_cublasxt, "sgemm_cublasxt");
+   const size_t cuda_02 = BlasDispatcher::instance().registerFunction<details::BlasFunction::dgemm>(detail::dgemm_cublasxt, "dgemm_cublasxt");
+#endif
+
 #ifdef WITH_OPENBLAS
 const size_t f2c_01 = BlasDispatcher::instance().registerFunction<details::BlasFunction::saxpy>(detail::saxpy_cblas, "saxpy_cblas");
 const size_t f2c_02 = BlasDispatcher::instance().registerFunction<details::BlasFunction::daxpy>(detail::daxpy_cblas, "daxpy_cblas");

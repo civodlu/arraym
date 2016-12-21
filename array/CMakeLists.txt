@@ -42,6 +42,8 @@ set(BLAS       wrapper-cblas.cpp
                blas-dispatcher.cpp
                blas-wrapper.h
                blas-wrapper.cpp
+			   wrapper-cublas.h
+			   wrapper-cublas.cpp
 			   blas-wrapper-default.cpp)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_BINARY_DIR}/${LIBNAME}/config.h)
@@ -50,9 +52,14 @@ source_group(BLAS FILES ${BLAS})
 
 MESSAGE("OpenBLAS=" ${OpenBLAS_LIB})
 
+if(${CUDA_FOUND})
+    # CUDA NVBLAS must be before any other BLAS implementation
+	cuda_add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers})
+else()
+	add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers})
+endif()
 
-add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers})
-target_link_libraries(${LIBNAME} ${NLL_EXTERNAL_LIB} ${OpenBLAS_LIB})
+target_link_libraries(${LIBNAME} ${NLL_EXTERNAL_LIB} ${CUDA_cublas_LIBRARY} ${CUDA_cudart_static_LIBRARY} ${OpenBLAS_LIB})
 
 
 

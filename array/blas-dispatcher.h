@@ -61,40 +61,40 @@ class ARRAY_API BlasDispatcherImpl
 {
 public:
    // these are the expected BLAS & LAPACK interface
-   typedef std::function<void(BlasInt N, BlasReal alpha, const BlasReal* x, BlasInt incx, BlasReal* y, BlasInt incy)> saxpy_t;
-   typedef std::function<void(BlasInt N, BlasDoubleReal alpha, const BlasDoubleReal* x, BlasInt incx, BlasDoubleReal* y, BlasInt incy)> daxpy_t;
+   typedef std::function<BlasInt(BlasInt N, BlasReal alpha, const BlasReal* x, BlasInt incx, BlasReal* y, BlasInt incy)> saxpy_t;
+   typedef std::function<BlasInt(BlasInt N, BlasDoubleReal alpha, const BlasDoubleReal* x, BlasInt incx, BlasDoubleReal* y, BlasInt incy)> daxpy_t;
    typedef std::function<BlasReal(const BlasInt n, const BlasReal* x, const BlasInt incx)> sasum_t;
    typedef std::function<BlasDoubleReal(const BlasInt n, const BlasDoubleReal* x, const BlasInt incx)> dasum_t;
    typedef std::function<BlasReal(const BlasInt N, const BlasReal* X, const BlasInt incX)> snrm2_t;
    typedef std::function<BlasDoubleReal(const BlasInt N, const BlasDoubleReal* X, const BlasInt incX)> dnrm2_t;
 
-   typedef std::function<void(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M, const BlasInt N,
+   typedef std::function<BlasInt(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M, const BlasInt N,
                               const BlasInt K, const BlasReal alpha, const BlasReal* A, const BlasInt lda, const BlasReal* B, const BlasInt ldb,
                               const BlasReal beta, BlasReal* C, const BlasInt ldc)>
        sgemm_t;
-   typedef std::function<void(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M, const BlasInt N,
+   typedef std::function<BlasInt(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M, const BlasInt N,
                               const BlasInt K, const BlasDoubleReal alpha, const BlasDoubleReal* A, const BlasInt lda, const BlasDoubleReal* B,
                               const BlasInt ldb, const BlasDoubleReal beta, BlasDoubleReal* C, const BlasInt ldc)>
        dgemm_t;
 
-   typedef std::function<void(const BlasInt N, const BlasReal alpha, BlasReal* X, const BlasInt incX)> sscal_t;
-   typedef std::function<void(const BlasInt N, const BlasDoubleReal alpha, BlasDoubleReal* X, const BlasInt incX)> dscal_t;
+   typedef std::function<BlasInt(const BlasInt N, const BlasReal alpha, BlasReal* X, const BlasInt incX)> sscal_t;
+   typedef std::function<BlasInt(const BlasInt N, const BlasDoubleReal alpha, BlasDoubleReal* X, const BlasInt incX)> dscal_t;
 
    typedef std::function<BlasReal(const BlasInt N, const BlasReal* x, const BlasInt incX, const BlasReal* y, const BlasInt incY)> sdot_t;
    typedef std::function<BlasDoubleReal(const BlasInt N, const BlasDoubleReal* x, const BlasInt incX, const BlasDoubleReal* y, const BlasInt incY)> ddot_t;
 
-   typedef std::function<void(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const BlasReal alpha, const BlasReal* x, const BlasInt incX,
+   typedef std::function<BlasInt(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const BlasReal alpha, const BlasReal* x, const BlasInt incX,
                               const BlasReal* y, const BlasInt incY, BlasReal* A, const BlasInt lda)>
        sger_t;
-   typedef std::function<void(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const BlasDoubleReal alpha, const BlasDoubleReal* x,
+   typedef std::function<BlasInt(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const BlasDoubleReal alpha, const BlasDoubleReal* x,
                               const BlasInt incX, const BlasDoubleReal* y, const BlasInt incY, BlasDoubleReal* A, const BlasInt lda)>
        dger_t;
 
-   typedef std::function<void(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const BlasReal alpha,
+   typedef std::function<BlasInt(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const BlasReal alpha,
                               const BlasReal* A, const BlasInt lda, const BlasReal* x, const BlasInt incX, const BlasReal beta, BlasReal* y,
                               const BlasInt incY)>
        sgemv_t;
-   typedef std::function<void(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const BlasDoubleReal alpha,
+   typedef std::function<BlasInt(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const BlasDoubleReal alpha,
                               const BlasDoubleReal* A, const BlasInt lda, const BlasDoubleReal* x, const BlasInt incX, const BlasDoubleReal beta,
                               BlasDoubleReal* y, const BlasInt incY)>
        dgemv_t;
@@ -175,9 +175,20 @@ public:
    template <BlasFunction F, typename... Args>
    function_return_t<F> call(Args&&... args)
    {
-      NLL_FAST_ASSERT(std::get<F>(_functions).size() > 0, "no registered BLAS wrapper!");
+      auto& functions = std::get<F>(_functions);
+      NLL_FAST_ASSERT(functions.size() > 0, "no registered BLAS wrapper!");
       static_assert(is_callable_with<function_t<F>, Args...>::value, "Expected arguments do not match the provided arguments");
-      return std::get<F>(_functions)[0](std::forward<Args>(args)...); // @TODO find best dispatch!
+      for (size_t func_try = 0; func_try < functions.size(); ++func_try)
+      {
+         // @TODO find better dispatch!
+         // for now squentially try in order the different BLAS implementations, return the first one that succeeds
+         auto r = functions[func_try](std::forward<Args>(args)...);
+         if (!std::is_same<BlasInt, function_return_t<F>>::value || r == 0) // if the return type is NOT BlasInt, it means it is not a status flag and so the function necessarily succeeded
+         {
+            return r;
+         }
+      }
+      ensure(0, "All BLAS function calls failed!");
    }
 
    template <BlasFunction F>
