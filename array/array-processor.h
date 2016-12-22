@@ -37,11 +37,6 @@ namespace details
 template <class Array>
 class ArrayProcessor_contiguous_base
 {
-   friend class ConstArrayProcessor_contiguous_byMemoryLocality<Array>;
-   friend class ConstArrayProcessor_contiguous_base<Array>;
-   friend class ConstMemoryProcessor_contiguous_byMemoryLocality<Array>;
-   friend class ConstMemoryProcessor_contiguous_base<Array>;
-
    using diterator = typename Array::diterator;
    static_assert(std::is_base_of<memory_layout_linear, typename Array::Memory>::value, "must be a linear index mapper!");
 
@@ -96,6 +91,7 @@ public:
 
    bool _accessElements(pointer_type& ptrToValue, ui32 nbElements)
    {
+      NLL_FAST_ASSERT(nbElements == 1 || nbElements == _maxAccessElements, "TODO handle different nbElements!");
       if (_pointer_invalid)
       {
          _iterator        = _array.beginDim(_indexesOrder[0], getArrayIndex());
@@ -141,11 +137,12 @@ protected:
       }
    };
 
+
 public:
-   // @TODO fix these issues with friends
+   // TODO fix the access as protected
    ui32 _maxAccessElements; // maximum number of steps in the fastest varying dimension possible without increasing the other indexes
    Array& _array;
-
+   
 protected:
    diterator _iterator;
    bool _pointer_invalid = true;

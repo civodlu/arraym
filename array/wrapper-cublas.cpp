@@ -54,8 +54,7 @@ namespace detail
       {
       }
 
-      //void init(int device = -1)
-      void init(int device = 0)
+      void init(int device = -1)
       {
          if (_handle == nullptr)
          {
@@ -71,7 +70,10 @@ namespace detail
 
       ~CublasXtConfig()
       {
-         CHECK_CUDA(cublasXtDestroy(_handle));
+         if (_handle != nullptr)
+         {
+            CHECK_CUDA(cublasXtDestroy(_handle));
+         }
       }
 
       cublasXtHandle_t handle() const

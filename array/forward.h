@@ -91,6 +91,7 @@ DECLARE_NAMESPACE_NLL_END
 #include "range.h"
 #include "array-traits.h"
 #include "array.h"
+#include "array-chunking.h"
 #include "array-processor.h"
 #include "array-op-impl-naive.h"
 #include "blas-wrapper.h"
@@ -103,6 +104,7 @@ DECLARE_NAMESPACE_NLL_END
 
 #include "matrix-op-impl-naive.h"
 #include "matrix-op-identity.h"
+#include "matrix-vector.h"
 
 // BLAS based operations
 #include "matrix-op-impl-blas.h"

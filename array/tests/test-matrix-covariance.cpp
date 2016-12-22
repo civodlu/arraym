@@ -74,9 +74,47 @@ struct TestMatrixCov
       TESTER_ASSERT(equal<double>(covariance(2, 1), 0.00135, 1e-5));
       TESTER_ASSERT(equal<double>(covariance(2, 2), 0.00043, 1e-5));
    }
+
+   void test_vector_asMatrix_rowMajor()
+   {
+      Vector<int> vec(5);
+      vec = { 1, 2, 3, 4, 5 };
+
+      auto m = as_matrix_row_major(vec, vector2ui(5, 1));
+      TESTER_ASSERT(&m(0, 0) == &vec(0)); // must share the same buffer!
+      TESTER_ASSERT(m(0, 0) == 1);
+      TESTER_ASSERT(m(1, 0) == 2);
+      TESTER_ASSERT(m(2, 0) == 3);
+      TESTER_ASSERT(m(3, 0) == 4);
+      TESTER_ASSERT(m(4, 0) == 5);
+
+      auto vec2 = as_vector(m);
+      TESTER_ASSERT(vec2.shape() == vec.shape());
+      TESTER_ASSERT(&vec2(0) == &vec(0));
+   }
+
+   void test_vector_asMatrix_colMajor()
+   {
+      Vector<int> vec(5);
+      vec = { 1, 2, 3, 4, 5 };
+
+      auto m = as_matrix_row_major(vec, vector2ui(5, 1));
+      TESTER_ASSERT(&m(0, 0) == &vec(0)); // must share the same buffer!
+      TESTER_ASSERT(m(0, 0) == 1);
+      TESTER_ASSERT(m(1, 0) == 2);
+      TESTER_ASSERT(m(2, 0) == 3);
+      TESTER_ASSERT(m(3, 0) == 4);
+      TESTER_ASSERT(m(4, 0) == 5);
+
+      auto vec2 = as_vector(m);
+      TESTER_ASSERT(vec2.shape() == vec.shape());
+      TESTER_ASSERT(&vec2(0) == &vec(0));
+   }
 };
 
 TESTER_TEST_SUITE(TestMatrixCov);
+TESTER_TEST(test_vector_asMatrix_rowMajor);
+TESTER_TEST(test_vector_asMatrix_colMajor);
 //TESTER_TEST(test_random);
 //TESTER_TEST(test_known);
 TESTER_TEST_SUITE_END();

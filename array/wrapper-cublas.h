@@ -7,7 +7,7 @@
 #ifdef WITH_CUDA
 
 /**
-@brief this file defines a wrapper for nvblas
+@brief this file defines a wrapper for cublas/cublas-XT
 */
 
 DECLARE_NAMESPACE_NLL
