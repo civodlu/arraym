@@ -46,7 +46,7 @@ public:
    using pointer_type = typename Array::pointer_type;
 
    template <class FunctorGetDimensionOrder>
-   ArrayProcessor_contiguous_base(Array& array, const FunctorGetDimensionOrder& functor) : Base(array, functor)
+   ArrayProcessor_contiguous_base( Array& array, const FunctorGetDimensionOrder& functor ) : Base( array.shape(), functor( array ) ), _array( array )
    {}
 
    bool accessSingleElement(pointer_type& ptrToValue)
@@ -56,7 +56,9 @@ public:
 
    bool _accessElements(pointer_type& ptrToValue, ui32 nbElements)
    {
-      if (this->_pointer_invalid)
+      NLL_FAST_ASSERT(nbElements == 1 || nbElements == _maxAccessElements, "TODO handle different nbElements!");
+
+      if ( this->_pointer_invalid )
       {
          _iterator = this->_array.beginDim( this->_indexesOrder[ 0 ], this->getArrayIndex() );
          this->_pointer_invalid = false;
@@ -68,9 +70,16 @@ public:
       ptrToValue = &(*_iterator);
       return this->Base::_accessElements( nbElements );
    }
+
+protected:
+   
+public:
+   // TODO fix the access as protected
+   Array& _array;
    
 protected:
    diterator _iterator;
+   
 };
 
 /**

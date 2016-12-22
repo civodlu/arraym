@@ -578,4 +578,7 @@ private:
 template <class T, size_t N, class Allocator = std::allocator<T>>
 using Memory_contiguous_row_major = Memory_contiguous<T, N, IndexMapper_contiguous_row_major<N>, Allocator>;
 
+template <class T, size_t N, class Allocator = std::allocator<T>>
+using Memory_contiguous_column_major = Memory_contiguous<T, N, IndexMapper_contiguous_column_major<N>, Allocator>;
+
 DECLARE_NAMESPACE_NLL_END

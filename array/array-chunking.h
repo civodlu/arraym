@@ -21,16 +21,15 @@ class ArrayChunking_contiguous_base
 public:
    using index_type = typename Array::index_type;
 
-   template <class FunctorGetDimensionOrder>
-   ArrayChunking_contiguous_base(Array& array, const FunctorGetDimensionOrder& functor) : _array(array)
+   ArrayChunking_contiguous_base(const index_type& shape, const index_type& indexesOrder) : _shape(shape)
    {
-      _indexesOrder = functor(array);
+      _indexesOrder = indexesOrder;
       for (ui32 n = 0; n < _indexesOrder.size(); ++n)
       {
          _indexesOrderInv[_indexesOrder[n]] = n;
-         _sizeOrder[n] = array.shape()[_indexesOrder[n]];
+         _sizeOrder[n] = shape[_indexesOrder[n]];
       }
-      _maxAccessElements = array.shape()[_indexesOrder[0]];
+      _maxAccessElements = shape[_indexesOrder[0]];
    }
 
    // <nbElements> minimum = 1
@@ -104,7 +103,7 @@ protected:
    bool       _pointer_invalid = true;
    ui32       _maxAccessElements; // maximum number of steps in the fastest varying dimension possible without increasing the other indexes
    index_type _iterator_index;  // the current index
-   Array&     _array;
+   index_type _shape;           // shape of the mapped array
    index_type _sizeOrder;       // the size, ordered by <_indexesOrder>
    index_type _indexesOrder;    // the order of the traversal
    index_type _indexesOrderInv; // the order of the traversal

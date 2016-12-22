@@ -14,13 +14,27 @@ public:
    index_type operator()(const index_type& shape) const
    {
       index_type strides;
-      ui32 stride = 1;
-      for (size_t n = 0; n < N; ++n)
-      {
-         strides[n] = stride;
-         stride *= shape[n];
-      }
+      strides[0] = 1;
+      extend_stride(strides, shape, 1, 0);
       return strides;
+   }
+
+   /**
+    @brief Extend an existing physical striding to more dimensions
+    @param index_start first first index to fill. Assuming [physicalStrides:index_start-1] are already correctly populated
+    @param last_index the last known index which physical stride populated. This will be used as seed to extend the physical strides
+
+    [index_start..N] : these are the dimensions to be extended
+    [0..index_start-1] : these are the already mapped dimensions
+    */
+   void extend_stride(index_type& physicalStrides, const index_type& shape, int index_start, int last_index) const
+   {
+      for (int n = index_start; n < N; ++n)
+      {
+         const ui32 stride = physicalStrides[last_index] * shape[last_index];
+         last_index = n;
+         physicalStrides[n] = stride;
+      }
    }
 
    template <size_t dim>
@@ -79,6 +93,24 @@ public:
       return strides;
    }
 
+   /**
+    @brief Extend an existing physical striding to more dimensions
+    @param index_start first first index to fill. Assuming [physicalStrides:index_start-1] are already correctly populated
+    @param last_index the last known index which physical stride populated. This will be used as seed to extend the physical strides
+
+    [index_start..N] : these are the dimensions to be extended
+    [0..index_start-1] : these are the already mapped dimensions
+    */
+   void extend_stride(index_type& physicalStrides, const index_type& shape, int index_start, int last_index) const
+   {
+      for (int n = N - 1; n >= index_start; --n)
+      {
+         const ui32 stride = shape[n] * physicalStrides[last_index];
+         physicalStrides[n] = stride;
+         last_index = n;
+      }
+   }
+
    template <size_t dim>
    struct rebind
    {
@@ -120,6 +152,7 @@ class IndexMapper_contiguous : public memory_layout_contiguous
 public:
    using index_type  = StaticVector<ui32, N>;
    using IndexMapper = IndexMapper_contiguous<N, Mapper>;
+   using mapper_type = Mapper;
 
    template <size_t dim>
    struct rebind
@@ -262,6 +295,7 @@ public:
    using index_type            = StaticVector<ui32, N>;
    static const size_t Z_INDEX = Z_INDEX_;
    using IndexMapper           = IndexMapper_multislice<N, Z_INDEX, Mapper>;
+   using mapper_type           = Mapper;
 
    // if NEW_Z_INDEX < 0, this means we have destroyed the Z_INDEX
    template <size_t dim, size_t NEW_Z_INDEX>

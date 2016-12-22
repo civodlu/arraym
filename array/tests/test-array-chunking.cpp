@@ -17,7 +17,7 @@ struct TestArrayChunking
       Array a(2, 3);
       a = { 1, 2, 3, 4, 5, 6 };
 
-      ArrayChunking_contiguous_base<Array> chunking(a, [](const Array&){return vector2ui(0, 1); });
+      ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(0, 1));
 
       bool done;
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 0));
@@ -52,7 +52,7 @@ struct TestArrayChunking
       Array a(2, 3);
       a = { 1, 2, 3, 4, 5, 6 };
 
-      ArrayChunking_contiguous_base<Array> chunking(a, [](const Array&){return vector2ui(1, 0); });
+      ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(1, 0));
 
       bool done;
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 0));
@@ -87,7 +87,7 @@ struct TestArrayChunking
       Array a(2, 3);
       a = { 1, 2, 3, 4, 5, 6 };
 
-      ArrayChunking_contiguous_base<Array> chunking(a, [](const Array&){return vector2ui(0, 1); });
+      ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(0, 1));
 
       bool done;
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 0));
@@ -110,7 +110,7 @@ struct TestArrayChunking
       Array a(2, 3);
       a = { 1, 2, 3, 4, 5, 6 };
 
-      ArrayChunking_contiguous_base<Array> chunking(a, [](const Array&){return vector2ui(1, 0); });
+      ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(1, 0));
 
       bool done;
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 0));
