@@ -3,9 +3,20 @@
 DECLARE_NAMESPACE_NLL
 
 template <class Array>
+class ConstMemoryProcessor_contiguous_byMemoryLocality;
+template <class Memory>
+class ConstArrayProcessor_contiguous_byMemoryLocality;
+
+template <class Array>
 class ArrayChunking_contiguous_base
 {
    static_assert(std::is_base_of<memory_layout_linear, typename Array::Memory>::value, "must be a linear index mapper!");
+
+   template <class Array2>
+   friend class ConstMemoryProcessor_contiguous_byMemoryLocality;
+
+   template <class Memory2>
+   friend class ConstArrayProcessor_contiguous_byMemoryLocality;
 
 public:
    using index_type = typename Array::index_type;
@@ -24,7 +35,7 @@ public:
 
    // <nbElements> minimum = 1
    //              maximum = max number of elements contiguous in the fastest varying dimension
-   bool accessElements(ui32 nbElements)
+   bool _accessElements(ui32 nbElements)
    {
       NLL_FAST_ASSERT(nbElements == 1 || nbElements == _maxAccessElements, "TODO handle different nbElements!");
       const bool hasMoreElements = Increment<0, false>::run(_iterator_index, _sizeOrder, _pointer_invalid, nbElements);
