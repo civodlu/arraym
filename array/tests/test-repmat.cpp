@@ -116,7 +116,7 @@ struct TestArrayRepmat
       using array_type = Array<int, 1>;
       array_type vec(array_type::Memory(vector1ui(3), values, vector1ui(2)));
       TESTER_ASSERT(vec(0) == 1);
-      TESTER_ASSERT(vec(1) == 2);
+      TESTER_ASSERT( vec( 1 ) == 2 );
       TESTER_ASSERT(vec(2) == 3);
 
       auto vec32 = repmat(vec, vector2ui(1, 2));

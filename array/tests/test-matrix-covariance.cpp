@@ -147,6 +147,29 @@ struct TestMatrixCov
       TESTER_ASSERT(&m(0, 0) == &vec(0)); // must share the same pointer
    }
 
+   void test_vector_asArrayColumnMajor_stride()
+   {
+      int values[] =
+      {
+         1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0
+      };
+
+      using vector_type = Vector<int>;
+      vector_type vec( vector_type::Memory( vector1ui( 6 ), values, vector1ui( 2 ) ) );
+
+      auto m = as_array_column_major( vec, vector2ui( 3, 2 ) );
+
+      std::cout << m << std::endl;
+      TESTER_ASSERT( m.shape() == vector2ui( 3, 2 ) );
+      TESTER_ASSERT( m( 0, 0 ) == 1 );
+      TESTER_ASSERT( m( 0, 1 ) == 2 );
+      TESTER_ASSERT( m( 1, 0 ) == 3 );
+      TESTER_ASSERT( m( 1, 1 ) == 4 );
+      TESTER_ASSERT( m( 2, 0 ) == 5 );
+      TESTER_ASSERT( m( 2, 1 ) == 6 );
+      TESTER_ASSERT( &m( 0, 0 ) == &vec( 0 ) ); // must share the same pointer
+   }
+
    void test_vector_asArray()
    {
       Array<int, 2> vec(3, 2);
@@ -212,6 +235,7 @@ TESTER_TEST(test_vector_asArrayColumnMajor);
 TESTER_TEST(test_vector_asArray);
 TESTER_TEST(test_vector_asMatrix_rowMajor_stride);
 TESTER_TEST(test_vector_asMatrix_colMajor_stride);
+TESTER_TEST( test_vector_asArrayColumnMajor_stride );
 //TESTER_TEST(test_random);
 //TESTER_TEST(test_known);
 TESTER_TEST_SUITE_END();
