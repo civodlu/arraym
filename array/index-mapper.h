@@ -228,18 +228,24 @@ public:
    index_type _physicalStrides;
 };
 
-//template <class Mapper>
-//using IndexMapper_contiguous_matrix = IndexMapper_contiguous<2, Mapper>;
-
 /**
  @brief Here we create a different mapper so that we can clearly identity if the type is a matrix, with the specific
         matrix semantic
  */
-template <class Mapper>
-struct IndexMapper_contiguous_matrix : public IndexMapper_contiguous<2, Mapper>
+template <size_t N, class Mapper>
+struct IndexMapper_contiguous_matrix : public IndexMapper_contiguous<N, Mapper>
 {
+   using index_type = StaticVector<ui32, N>;
+   using IndexMapper = IndexMapper_contiguous_matrix<N, Mapper>;
+   using mapper_type = Mapper;
 
-   IndexMapper_contiguous_matrix(const IndexMapper_contiguous<2, Mapper>& base)
+   template <size_t dim>
+   struct rebind
+   {
+      using other = IndexMapper_contiguous_matrix<dim, typename Mapper::template rebind<dim>::other>;
+   };
+
+   IndexMapper_contiguous_matrix(const IndexMapper_contiguous<N, Mapper>& base)
    {
       this->_origin          = base._origin;
       this->_physicalStrides = base._physicalStrides;
@@ -262,7 +268,7 @@ using IndexMapper_contiguous_column_major = IndexMapper_contiguous<N, details::M
 We have a special mapper for matrix and use this to differentiate between Matrix and
 array. Else an array <float, 2> will be considered a matrix
 */
-using IndexMapper_contiguous_matrix_row_major = IndexMapper_contiguous_matrix<details::Mapper_stride_column_major<2>>;
+using IndexMapper_contiguous_matrix_row_major = IndexMapper_contiguous_matrix<2, details::Mapper_stride_column_major<2>>;
 
 /**
 @brief index mapper for column major matrices
@@ -270,7 +276,7 @@ using IndexMapper_contiguous_matrix_row_major = IndexMapper_contiguous_matrix<de
 We have a special mapper for matrix and use this to differentiate between Matrix and
 array. Else an array <float, 2> will be considered a matrix
 */
-using IndexMapper_contiguous_matrix_column_major = IndexMapper_contiguous_matrix<details::Mapper_stride_row_major<2>>;
+using IndexMapper_contiguous_matrix_column_major = IndexMapper_contiguous_matrix<2, details::Mapper_stride_row_major<2>>;
 
 /**
 @brief index mapper for multislice z memory layout.

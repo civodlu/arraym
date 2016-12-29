@@ -47,8 +47,9 @@ struct TestMatrixCov
       // - TODO easily create a 1D matrix from a vector
       // - TODO repmat
 
+      using matrix_type = Matrix<double>;
       // http://www.itl.nist.gov/div898/handbook/pmc/section5/pmc541.htm
-      Matrix<double> points(5, 3);
+      matrix_type points(5, 3);
       points = 
       {
             4.0, 2.0, 0.6,
@@ -57,6 +58,13 @@ struct TestMatrixCov
             4.3, 2.1, 0.62,
             4.1, 2.2, 0.63
       };
+
+
+      using T = matrix_type::value_type;
+      const size_t N = 2;
+      using Config = matrix_type::Config;
+      
+      using T1 = Array<T, N, Config>::template rebind_dim<N - 1>::other;
 
       std::cout << "M=" << points << std::endl;
 
@@ -170,6 +178,29 @@ struct TestMatrixCov
       TESTER_ASSERT( &m( 0, 0 ) == &vec( 0 ) ); // must share the same pointer
    }
 
+   void test_vector_asArrayRowMajor_stride()
+   {
+      int values[] =
+      {
+         1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0
+      };
+
+      using vector_type = Vector<int>;
+      vector_type vec(vector_type::Memory(vector1ui(6), values, vector1ui(2)));
+
+      auto m = as_array_row_major(vec, vector2ui(3, 2));
+
+      std::cout << m << std::endl;
+      TESTER_ASSERT(m.shape() == vector2ui(3, 2));
+      TESTER_ASSERT(m(0, 0) == 1);
+      TESTER_ASSERT(m(1, 0) == 2);
+      TESTER_ASSERT(m(2, 0) == 3);
+      TESTER_ASSERT(m(0, 1) == 4);
+      TESTER_ASSERT(m(1, 1) == 5);
+      TESTER_ASSERT(m(2, 1) == 6);
+      TESTER_ASSERT(&m(0, 0) == &vec(0)); // must share the same pointer
+   }
+
    void test_vector_asArray()
    {
       Array<int, 2> vec(3, 2);
@@ -236,6 +267,7 @@ TESTER_TEST(test_vector_asArray);
 TESTER_TEST(test_vector_asMatrix_rowMajor_stride);
 TESTER_TEST(test_vector_asMatrix_colMajor_stride);
 TESTER_TEST( test_vector_asArrayColumnMajor_stride );
+TESTER_TEST(test_vector_asArrayRowMajor_stride);
 //TESTER_TEST(test_random);
-//TESTER_TEST(test_known);
+TESTER_TEST(test_known);
 TESTER_TEST_SUITE_END();

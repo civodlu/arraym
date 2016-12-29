@@ -105,6 +105,7 @@ DECLARE_NAMESPACE_NLL_END
 #include "matrix-op-impl-naive.h"
 #include "matrix-op-identity.h"
 #include "matrix-vector.h"
+#include "repmat.h"
 
 // BLAS based operations
 #include "matrix-op-impl-blas.h"

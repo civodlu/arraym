@@ -5,44 +5,64 @@
 
  Utility functions to convert array to vector and vice versa
 
- @TODO here we are losing constness. Can we avoid this using, e.g., array.asConst() without complexifying the API?
  */
 DECLARE_NAMESPACE_NLL
 
 /**
- @brief View the 1D vector as a matrix row major. The data is shared between the two
+ @brief Express a 1D array as a general N-D array
  */
-template <class T, class Allocator>
-Matrix_row_major<T, Allocator> as_matrix_row_major(const Vector<T, Allocator>& v, const typename Matrix_row_major<T, Allocator>::index_type& shape)
+template <class T, class Config, size_t N, class Config2>
+void as_array(const Array<T, 1, Config>& v, const StaticVector<ui32, N>& shape, Array<T, N, Config2>& output_empty)
 {
-   using matrix_type = Matrix_row_major<T, Allocator>;
+   using vector_type = Array<T, 1, Config>;
+   using matrix_type = Array<T, N, Config2>;
+   using index_mapper_type = typename matrix_type::Memory::index_mapper;
+   using mapper_type = typename index_mapper_type::mapper_type;
+   using index_type = typename matrix_type::index_type;
+   static_assert(IsArrayLayoutContiguous<vector_type>::value, "must be a linear array");
+   static_assert(std::is_same<typename Config::allocator_type, typename Config2::allocator_type>::value, "must have the same allocator!");
 
    // base the mapping on the vector's stride, then extend it to higher dimension
-   using mapper_type = typename matrix_type::Memory::index_mapper::mapper_type;
-   typename matrix_type::index_type physical_stride(v.getMemory().getIndexMapper()._getPhysicalStrides()[0], 0);
-   mapper_type().extend_stride(physical_stride, shape, 1, 0);
+   const index_type stride_scaling = index_type(v.getMemory().getIndexMapper()._getPhysicalStrides()[0]);
+   index_mapper_type mapper;
+   mapper.init(0, shape);
+   const auto physical_stride = mapper.submap(index_type(), index_type(), stride_scaling)._getPhysicalStrides();
 
-   matrix_type matrix(typename matrix_type::Memory(shape, const_cast<T*>(&v(0)), physical_stride, v.getMemory().getAllocator()));
-   ensure(matrix.size() == v.size(), "size must match!");
-   return matrix;
+   // For matrix only
+   // base the mapping on the vector's stride, then extend it to higher dimension
+   //index_type physical_stride(v.getMemory().getIndexMapper()._getPhysicalStrides()[0], 0);
+   //mapper_type().extend_stride(physical_stride, shape, 1, 0);
+
+   auto memory = typename matrix_type::Memory(shape, const_cast<T*>(&v(0)), physical_stride, v.getMemory().getAllocator());
+   output_empty = matrix_type(std::move(memory));
+}
+
+/**
+ @brief View the 1D vector as a matrix row major. The data is shared between the two
+ */
+template <class T, class Config>
+Matrix_row_major<T, typename Config::allocator_type> as_matrix_row_major(const Array<T, 1, Config>& v, const typename Matrix_row_major<T>::index_type& shape)
+{
+   using Allocator = typename Config::allocator_type;
+   using matrix_type = Matrix_row_major<T, Allocator>;
+
+   matrix_type result(v.getMemory().getAllocator());
+   as_array(v, shape, result);
+   return result;
 }
 
 /**
 @brief View the 1D vector as a matrix column major. The data is shared between the two
 */
-template <class T, class Allocator>
-Matrix_column_major<T, Allocator> as_matrix_column_major(const Vector<T, Allocator>& v, const typename Matrix_column_major<T, Allocator>::index_type& shape)
+template <class T, class Config>
+Matrix_column_major<T, typename Config::allocator_type> as_matrix_column_major(const Array<T, 1, Config>& v, const typename Matrix_column_major<T>::index_type& shape)
 {
+   using Allocator = typename Config::allocator_type;
    using matrix_type = Matrix_column_major<T, Allocator>;
 
-   // base the mapping on the vector's stride, then extend it to higher dimension
-   using mapper_type = typename matrix_type::Memory::index_mapper::mapper_type;
-   typename matrix_type::index_type physical_stride(v.getMemory().getIndexMapper()._getPhysicalStrides()[0], 0);
-   mapper_type().extend_stride(physical_stride, shape, 1, 0);
-
-   matrix_type matrix(typename matrix_type::Memory(shape, const_cast<T*>(&v(0)), physical_stride, v.getMemory().getAllocator()));
-   ensure(matrix.size() == v.size(), "size must match!");
-   return matrix;
+   matrix_type result(v.getMemory().getAllocator());
+   as_array(v, shape, result);
+   return result;
 }
 
 /**
@@ -68,45 +88,34 @@ Vector<T, typename Config::allocator_type> as_vector(const Array<T, N, Config>& 
 /**
 @brief View the 1D vector as a N-array. The data is shared between the two
 */
-template <class T, size_t N, class Allocator>
-Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous_row_major<T, N, Allocator>>> as_array_row_major( const Vector<T, Allocator>& v, const StaticVector<ui32, N>& shape )
+template <class T, class Config, size_t N>
+Array<T, N, ArrayTraitsConfig<T, N, typename Config::allocator_type, Memory_contiguous_row_major<T, N, typename Config::allocator_type>>> as_array_row_major(const Array<T, 1, Config>& v, const StaticVector<ui32, N>& shape)
 {
+   using Allocator = typename Config::allocator_type;
    using array_type = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous_row_major<T, N, Allocator>>>;
-   ensure( is_array_fully_contiguous( v ), "can't fit a strided array into a single vector with different stride or gap between dimensions" );
-
-   // base the mapping on the vector's stride, then extend it to higher dimension
-   //using mapper_type = typename array_type::Memory::index_mapper::mapper_type;
-   //typename array_type::index_type physical_stride;
-   //physical_stride[ 0] = v.getMemory().getIndexMapper()._getPhysicalStrides()[ 0 ];
-   //mapper_type().extend_stride( physical_stride, shape, 1, 0 );
-   //array_type array( typename array_type::Memory( shape, const_cast<T*>( &v( 0 ) ), physical_stride, v.getMemory().getAllocator() ) );
-
-   array_type array( typename array_type::Memory( shape, const_cast<T*>( &v( 0 ) ), v.getMemory().getAllocator() ) );
-   ensure(array.size() == v.size(), "must have the same size!");
-   return array;
+   array_type result(v.getMemory().getAllocator());
+   as_array(v, shape, result);
+   return result;
 }
 
 /**
 @brief View the 1D vector as a N-array. The data is shared between the two
 */
-template <class T, size_t N, class Allocator>
-Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous_column_major<T, N, Allocator>>> as_array_column_major(const Vector<T, Allocator>& v, const StaticVector<ui32, N>& shape)
+template <class T, class Config, size_t N>
+Array<T, N, ArrayTraitsConfig<T, N, typename Config::allocator_type, Memory_contiguous_column_major<T, N, typename Config::allocator_type>>> as_array_column_major(const Array<T, 1, Config>& v, const StaticVector<ui32, N>& shape)
 {
+   using Allocator = typename Config::allocator_type;
    using array_type = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous_column_major<T, N, Allocator>>>;
-   ensure( is_array_fully_contiguous( v ), "can't fit a strided array into a single vector with different stride or gap between dimensions" );
-
-   // base the mapping on the vector's stride, then extend it to higher dimension
-   using mapper_type = typename array_type::Memory::index_mapper::mapper_type;
-   //typename array_type::index_type physical_stride;
-   //physical_stride[ 0 ] = v.getMemory().getIndexMapper()._getPhysicalStrides()[ 0 ];
-   //mapper_type().extend_stride( physical_stride, shape, 1, 0 );
-   //array_type array( typename array_type::Memory( shape, const_cast<T*>( &v( 0 ) ), physical_stride, v.getMemory().getAllocator() ) );
-   
-   array_type array( typename array_type::Memory( shape, const_cast<T*>( &v( 0 ) ), v.getMemory().getAllocator() ) );
-   ensure(array.size() == v.size(), "must have the same size!");
-   return array;
+   array_type result(v.getMemory().getAllocator());
+   as_array(v, shape, result);
+   return result;
 }
 
+/**
+ @brief View an array as a higher dimensional array.
+ 
+ shape[0..N] must be equal to v.shape() and remaining dimensions equal to 1
+ */
 template <class T, size_t N, class Config, size_t N2>
 Array<T, N2, typename Config::template rebind_dim<N2>::other> as_array(const Array<T, N, Config>& v, const StaticVector<ui32, N2>& shape)
 {

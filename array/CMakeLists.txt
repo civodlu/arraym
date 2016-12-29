@@ -23,6 +23,7 @@ set(Headers    array.h
 			   array-chunking.h
 			   matrix-op-identity.h
 			   matrix-vector.h
+			repmat.h
             op-naive.h
             forward.h
             index-mapper.h

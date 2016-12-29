@@ -42,10 +42,17 @@ pointsByRow is normalized to have zero mean. Compute X^tX using GEMM. Require a 
 template <class T, class Config>
 Matrix_BlasEnabled<T, 2, Config> cov(const Array<T, 2, Config>& pointsByRow)
 {
+   using index_type = typename Array<T, 2, Config>::index_type;
    const auto mean_row = mean(pointsByRow, 0);
-   std::cout << mean_row << std::endl;
-   return cov_zeroMean(pointsByRow);
-   //pointsByRow
+
+   // the mean has 1D shape [N], so we can't use repmat directly without transposing the matrix. Instead
+   // express the mean row as a 2D array
+   Array<T, 2, Config> mean_row_matrix;
+   as_array(mean_row, index_type(1, mean_row.size()), mean_row_matrix);  // we don't know the memory type so stay as generic as possible
+
+   const auto mean_mat = repmat(mean_row_matrix, index_type(pointsByRow.shape()[0], 1));
+   auto pointsByRow_zeroMean = pointsByRow - mean_mat;
+   return cov_zeroMean(pointsByRow_zeroMean);
 }
 
 DECLARE_NAMESPACE_NLL_END

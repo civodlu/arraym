@@ -521,11 +521,19 @@ template <class T, size_t stack_size>
 using MatrixSmall_row_major = Matrix_row_major<T, AllocatorSingleStaticMemory<T, stack_size>>;
 
 /**
+@brief Matrix row major with a default small stack based memory allocated
+
+The goal is to improve memory locality
+*/
+template <class T, size_t stack_size>
+using MatrixSmall_column_major = Matrix_column_major<T, AllocatorSingleStaticMemory<T, stack_size>>;
+
+/**
 @brief Vector with a default small stack based memory allocated
 
 The goal is to improve memory locality
 */
-template <class T, size_t stack_size, class Mapper = IndexMapper_contiguous_matrix_column_major>
+template <class T, size_t stack_size>
 using VectorSmall = Array_row_major<T, 1, AllocatorSingleStaticMemory<T, stack_size>>;
 
 /**

@@ -201,6 +201,15 @@ public:
       return true;
    }
 
+   FORCE_INLINE StaticVector<T, SIZE>& operator=(T value)
+   {
+      for (size_t n = 0; n < SIZE; ++n)
+      {
+         _buffer[n] = value;
+      }
+      return *this;
+   }
+
    FORCE_INLINE bool operator==(const StaticVector& r) const
    {
       return equal(r);

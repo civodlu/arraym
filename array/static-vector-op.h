@@ -183,4 +183,5 @@ inline StaticVector<T, N> operator*(const StaticVector<T, N>& lhs, const StaticV
    StaticVector<T, N> res(lhs);
    return res *= rhs;
 }
+
 DECLARE_NAMESPACE_NLL_END

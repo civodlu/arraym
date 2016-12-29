@@ -59,12 +59,12 @@ class is_matrix : public std::false_type
 };
 
 template <class T, class Allocator>
-class is_matrix<Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous<T, 2, IndexMapper_contiguous_matrix_column_major>>>> : public std::true_type
+class is_matrix<Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous<T, 2, IndexMapper_contiguous_matrix_column_major, Allocator>>>> : public std::true_type
 {
 };
 
 template <class T, class Allocator>
-class is_matrix<Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous<T, 2, IndexMapper_contiguous_matrix_row_major>>>> : public std::true_type
+class is_matrix<Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous<T, 2, IndexMapper_contiguous_matrix_row_major, Allocator>>>> : public std::true_type
 {
 };
 
