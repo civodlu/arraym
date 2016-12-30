@@ -111,7 +111,7 @@ template <class T, class Config, class Config2>
 Matrix_BlasEnabled<T, 2, Config> array_mul_array(const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& opb)
 {
    Array<T, 2, Config> opc(opa.rows(), opb.columns());
-   gemm(static_cast<T>(1), opa, opb, static_cast<T>(1), opc);
+   gemm(static_cast<T>(1), opa, opb, static_cast<T>(0), opc);
    return opc;
 }
 }

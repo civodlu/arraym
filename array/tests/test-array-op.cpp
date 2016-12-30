@@ -343,10 +343,10 @@ struct TestArrayOp
 
    void testArray_mul_array()
    {
+      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<float>>(); // BLAS, contiguous
       testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<int>>();      // naive, contiguous
       testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<int>>();   // naive, contiguous
       testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<float>>();    // BLAS, contiguous
-      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<float>>(); // BLAS, contiguous
       testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<double>>();    // BLAS, contiguous
       testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<double>>(); // BLAS, contiguous
    }
@@ -430,10 +430,11 @@ struct TestArrayOp
 
    void testMatrix_vector()
    {
+      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_column_major<float>>(); // BLAS, contiguous
       testMatrix_vector_impl<NAMESPACE_NLL::Matrix_row_major<int>>();      // naive, contiguous
       testMatrix_vector_impl<NAMESPACE_NLL::Matrix_column_major<int>>();   // naive, contiguous
       testMatrix_vector_impl<NAMESPACE_NLL::Matrix_row_major<float>>();    // BLAS, contiguous
-      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_column_major<float>>(); // BLAS, contiguous
+      
    }
 
    template <class Array>

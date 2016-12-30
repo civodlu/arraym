@@ -44,10 +44,14 @@ struct TestMatrixCov
 
    void test_known()
    {
-      // - TODO easily create a 1D matrix from a vector
-      // - TODO repmat
+      test_known_impl<Matrix_column_major<double>>();
+      test_known_impl<Matrix_column_major<float>>();
+      test_known_impl<Matrix_row_major<double>>();
+   }
 
-      using matrix_type = Matrix<double>;
+   template <class matrix_type>
+   void test_known_impl()
+   {
       // http://www.itl.nist.gov/div898/handbook/pmc/section5/pmc541.htm
       matrix_type points(5, 3);
       points = 

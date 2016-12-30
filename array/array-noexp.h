@@ -125,7 +125,7 @@ Array_NaiveOperatorEnabled<T, 2, Config1> operator*(const Array<T, 2, Config1>& 
    static_assert(IsArrayLayoutContiguous<vector_type>::value, "TODO handle rhs not a Memory_contiguous");
    
    typename matrix_type::Memory memory({ rhs.size(), 1 }, const_cast<T*>(&rhs(0)));
-   matrix_type rhs_2d(memory);
+   matrix_type rhs_2d(std::move(memory));
    return array_mul_array(lhs, rhs_2d);
 }
 

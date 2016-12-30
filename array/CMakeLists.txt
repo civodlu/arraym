@@ -46,6 +46,9 @@ set(BLAS       wrapper-cblas.cpp
                blas-wrapper.h
                blas-wrapper.cpp
 			   wrapper-cublas.h
+			   wrapper-cublas-xt.cpp
+			   wrapper-cublas-xt.h
+			   cublas-common.h
 			   wrapper-cublas.cpp
 			   blas-wrapper-default.cpp)
 

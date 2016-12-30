@@ -21,6 +21,9 @@ Matrix_BlasEnabled<T, 2, Config> cov_zeroMean(const Array<T, 2, Config>& pointsB
    const auto ldb = leading_dimension<T, Config>(pointsByRow);
    const auto ldc = leading_dimension<T, Config>(c);
 
+   //
+   // TODO BUF HERE WITH TRANSPOSED!
+   //
    core::blas::gemm<T>(matrixOrder, blas::CBLAS_TRANSPOSE::CblasTrans, blas::CBLAS_TRANSPOSE::CblasNoTrans,
       columns, columns, rows,
       (T)(1.0 / (rows - 1)),
@@ -52,6 +55,9 @@ Matrix_BlasEnabled<T, 2, Config> cov(const Array<T, 2, Config>& pointsByRow)
 
    const auto mean_mat = repmat(mean_row_matrix, index_type(pointsByRow.shape()[0], 1));
    auto pointsByRow_zeroMean = pointsByRow - mean_mat;
+
+   std::cout << mean_mat << std::endl;
+   std::cout << pointsByRow_zeroMean << std::endl;
    return cov_zeroMean(pointsByRow_zeroMean);
 }
 
