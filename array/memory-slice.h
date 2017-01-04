@@ -404,6 +404,7 @@ private:
       const auto size_per_slice_bytes = sizeof(T) * this_inSliceSize;
       _allocateSlices(T(), this_inSliceSize);
       if (this_inSliceSize == other_inSliceSize &&
+          same_data_ordering_memory( other, *this ) &&
           details::IsMemoryFullyContiguous<Memory>::value(
               other, std::integral_constant<bool, true>())) // we want fully contiguous slice! Else if the stride is not (1, ..., 1) the memcpy would be invalid
       {

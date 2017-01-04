@@ -474,7 +474,7 @@ private:
       using unconst_type = typename std::remove_const<T>::type;
 
       _allocateSlices(T(), this_linearSize);
-      if (this_linearSize == other_linearSize && is_memory_fully_contiguous(other)) // if we have a non stride (1,...,1) stride, use iterator
+      if ( this_linearSize == other_linearSize && is_memory_fully_contiguous( other ) && same_data_ordering_memory( other, *this ) ) // if we have a non stride (1,...,1) stride, use iterator
       {
          // this means the deep copy is the FULL buffer
          const auto size_bytes = sizeof(T) * this_linearSize;

@@ -123,21 +123,60 @@ This only make sense for contiguous memory array. This specifies the offset of t
 on the memory order)
 */
 template <class T, class Config>
-blas::BlasInt leading_dimension(const Matrix_Enabled<T, 2, Config>& a)
+blas::BlasInt leading_dimension(const Matrix_Enabled<T, 2, Config>& a, bool a_transposed = false)
 {
    blas::BlasInt lda = 0;
    const auto memory_order_a = getMatrixMemoryOrder(a);
    const auto& stride_a = a.getMemory().getIndexMapper()._getPhysicalStrides();
    if (memory_order_a == CBLAS_ORDER::CblasColMajor)
    {
-      lda = stride_a[1];
-      ensure(stride_a[0] == 1, "can't have stride != 1  for BLAS");
+      if (!a_transposed)
+      {
+         lda = stride_a[1];
+         ensure(stride_a[0] == 1, "can't have stride != 1  for BLAS");
+      } else {
+         lda = a.columns();
+         //lda = stride_a[ 0 ];
+         //ensure( stride_a[ 1 ] == 1, "can't have stride != 1  for BLAS" );
+      }
    }
    else {
-      lda = stride_a[0];
-      ensure(stride_a[1] == 1, "can't have stride != 1  for BLAS ");
+      if ( !a_transposed )
+      {
+         lda = stride_a[ 0 ];
+         ensure( stride_a[ 1 ] == 1, "can't have stride != 1  for BLAS " );
+      } else
+      {
+         lda = a.rows();
+         //lda = stride_a[ 1 ];
+         //ensure( stride_a[ 0 ] == 1, "can't have stride != 1  for BLAS " );
+      }
    }
    return lda;
+}
+
+template <class T, class Config>
+blas::BlasInt rows( const Array<T, 2, Config>& a, bool a_transposed = false )
+{
+   if ( !a_transposed )
+   {
+      return static_cast<blas::BlasInt>(a.rows());
+   } else
+   {
+      return static_cast<blas::BlasInt>( a.columns() );
+   }
+}
+
+template <class T, class Config>
+blas::BlasInt columns( const Array<T, 2, Config>& a, bool a_transposed = false )
+{
+   if ( !a_transposed )
+   {
+      return static_cast<blas::BlasInt>( a.columns() );
+   } else
+   {
+      return static_cast<blas::BlasInt>( a.rows() );
+   }
 }
 
 DECLARE_NAMESPACE_NLL_END

@@ -63,6 +63,7 @@ namespace detail
    template <class T>
    void free_gpu(T* gpu_ptr)
    {
+      //std::cout << "free=" << gpu_ptr << std::endl;
       if (gpu_ptr != nullptr)
       {
          CHECK_CUDA(cudaFree(gpu_ptr));
@@ -77,6 +78,9 @@ namespace detail
    {
       T* gpu_ptr = nullptr;
       CHECK_CUDA(cudaMalloc(&gpu_ptr, nb_elements * sizeof(T)));
+
+      // TODO REMOVE
+      //cudaMemset( gpu_ptr, 0, nb_elements * sizeof( T ) );
       return gpu_ptr_type<T>(gpu_ptr, &free_gpu<T>);
    }
 
@@ -133,6 +137,7 @@ namespace detail
 
       // get the data back on CPU
       matrix_gpu_to_cpu(M, N, gpu_ptr_c.get(), ld_gpu, C, ldc);
+
       return 0;
    }
 
