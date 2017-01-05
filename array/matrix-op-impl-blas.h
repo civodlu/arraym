@@ -135,7 +135,7 @@ blas::BlasInt leading_dimension(const Matrix_Enabled<T, 2, Config>& a, bool a_tr
          lda = stride_a[1];
          ensure(stride_a[0] == 1, "can't have stride != 1  for BLAS");
       } else {
-         lda = a.columns();
+         lda = static_cast<blas::BlasInt>(a.columns());   // TODO not good for submatrices!
          //lda = stride_a[ 0 ];
          //ensure( stride_a[ 1 ] == 1, "can't have stride != 1  for BLAS" );
       }
@@ -147,7 +147,7 @@ blas::BlasInt leading_dimension(const Matrix_Enabled<T, 2, Config>& a, bool a_tr
          ensure( stride_a[ 1 ] == 1, "can't have stride != 1  for BLAS " );
       } else
       {
-         lda = a.rows();
+         lda = static_cast<blas::BlasInt>(a.rows());    // TODO not good for submatrices!
          //lda = stride_a[ 1 ];
          //ensure( stride_a[ 0 ] == 1, "can't have stride != 1  for BLAS " );
       }

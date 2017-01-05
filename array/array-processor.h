@@ -416,6 +416,72 @@ void fill(Array<T, N, Config>& array, Functor functor)
    }
 }
 
+namespace impl
+{
+   template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
+   void _iterate_memory_constmemory_same_ordering(Memory1& a1, const Memory2& a2, const Op& op)
+   {
+      using T = typename Memory1::value_type;
+      using T2 = typename Memory2::value_type;
+      static const size_t N = Memory1::RANK;
+
+      static_assert(is_callable_with<Op, T*, ui32, const T2*, ui32, ui32>::value, "Op is not callable!");
+      ensure(Memory1::RANK == Memory2::RANK, "must have the same rank!");
+      ensure(a1.shape() == a2.shape(), "must have the same shape!");
+      ensure(same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
+
+      // we MUST use processors: data may not be contiguous or with stride...
+      ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2);
+      MemoryProcessor_contiguous_byMemoryLocality<Memory1> processor_a1(a1);
+
+      bool hasMoreElements = true;
+      while (hasMoreElements)
+      {
+         T* ptr_a1 = nullptr;
+         T2 const* ptr_a2 = nullptr;
+         hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
+         hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
+         NLL_FAST_ASSERT(processor_a1.getMaxAccessElements() == processor_a2.getMaxAccessElements(), "memory line must have the same size");
+
+         op(ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getMaxAccessElements());
+      }
+   }
+
+   template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
+   void _iterate_memory_constmemory_different_ordering(Memory1& a1, const Memory2& a2, const Op& op)
+   {
+      
+      using T = typename Memory1::value_type;
+      using T2 = typename Memory2::value_type;
+      static const size_t N = Memory1::RANK;
+
+      static_assert(is_callable_with<Op, T*, ui32, const T2*, ui32, ui32>::value, "Op is not callable!");
+      ensure(Memory1::RANK == Memory2::RANK, "must have the same rank!");
+      ensure(a1.shape() == a2.shape(), "must have the same shape!");
+      ensure(!same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
+
+      // we MUST use processors: data may not be contiguous or with stride...
+      // additionally the order of dimensions are different, so map the a2 order
+      ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2);
+      auto functor_order = [&](const Memory1&)
+      {
+         return processor_a2.getVaryingIndexOrder();
+      };
+      
+      details::ArrayProcessor_contiguous_base<Memory1> processor_a1(a1, functor_order);
+      
+      bool hasMoreElements = true;
+      while (hasMoreElements)
+      {
+         T* ptr_a1 = nullptr;
+         T2 const* ptr_a2 = nullptr;
+         hasMoreElements = processor_a1.accessSingleElement(ptr_a1);
+         hasMoreElements = processor_a2.accessSingleElement(ptr_a2);
+         op(ptr_a1, 1, ptr_a2, 1, 1); // only single element, so actual stride value is not important, it just can't be 0
+      }
+   }
+}
+
 /**
 @brief iterate array & const array jointly
 @tparam must be callable using (T* a1_pointer, a1_stride, const T* a2_pointer, a2_stride, nb_elements)
@@ -424,29 +490,12 @@ void fill(Array<T, N, Config>& array, Functor functor)
 template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
 void iterate_memory_constmemory(Memory1& a1, const Memory2& a2, const Op& op)
 {
-   using T               = typename Memory1::value_type;
-   using T2              = typename Memory2::value_type;
-   static const size_t N = Memory1::RANK;
-
-   static_assert(is_callable_with<Op, T*, ui32, const T2*, ui32, ui32>::value, "Op is not callable!");
-   ensure(Memory1::RANK == Memory2::RANK, "must have the same rank!");
-   ensure(a1.shape() == a2.shape(), "must have the same shape!");
-   ensure(same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
-
-   // we MUST use processors: data may not be contiguous or with stride...
-   ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2);
-   MemoryProcessor_contiguous_byMemoryLocality<Memory1> processor_a1(a1);
-
-   bool hasMoreElements = true;
-   while (hasMoreElements)
+   if (same_data_ordering_memory(a1, a2))
    {
-      T* ptr_a1       = nullptr;
-      T2 const* ptr_a2 = nullptr;
-      hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
-      hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
-      NLL_FAST_ASSERT(processor_a1.getMaxAccessElements() == processor_a2.getMaxAccessElements(), "memory line must have the same size");
-
-      op(ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getMaxAccessElements());
+      impl::_iterate_memory_constmemory_same_ordering(a1, a2, op);
+   }
+   else {
+      impl::_iterate_memory_constmemory_different_ordering(a1, a2, op);
    }
 }
 
