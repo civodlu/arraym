@@ -68,43 +68,31 @@ namespace details
 Only call this methods for BLAS supported types (float/double) with Matrix based arrays
 */
 template <class T, class Config, class Config2, class Config3>
-void gemm(T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& opb, T beta, Array<T, 2, Config3>& opc)
+void gemm(bool trans_a, bool trans_b, T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& opb, T beta, Array<T, 2, Config3>& opc)
 {
    ensure(opc.rows() == opa.rows(), "must be a opa.rows() * opb.columns()");
 
    const auto memory_order_a = getMatrixMemoryOrder(opa);
    const auto memory_order_b = getMatrixMemoryOrder(opb);
    const auto memory_order_c = getMatrixMemoryOrder(opc);
+
    ensure(memory_order_a == memory_order_b, "matrix must have the same memory order");
    ensure(memory_order_a == memory_order_c, "matrix must have the same memory order");
    ensure(memory_order_a != CBLAS_ORDER::UnkwownMajor, "unkown memory order!");
    const auto order = memory_order_a == CBLAS_ORDER::CblasRowMajor ? CBLAS_ORDER::CblasRowMajor : CBLAS_ORDER::CblasColMajor;
-
-   blas::BlasInt lda = 0;
-   blas::BlasInt ldb = 0;
-   blas::BlasInt ldc = 0;
-
-   const auto& stride_a = opa.getMemory().getIndexMapper()._getPhysicalStrides();
-   const auto& stride_b = opb.getMemory().getIndexMapper()._getPhysicalStrides();
-   if (memory_order_a == CBLAS_ORDER::CblasColMajor)
-   {
-      ensure(stride_a[0] == 1, "stride in x dim must be 1 to use BLAS");
-      ensure(stride_b[0] == 1, "stride in x dim must be 1 to use BLAS");
-      lda = stride_a[1];
-      ldb = stride_b[1];
-      ldc = static_cast<blas::BlasInt>(opa.rows());
-   }
-   else
-   {
-      ensure(stride_a[1] == 1, "stride in x dim must be 1 to use BLAS");
-      ensure(stride_b[1] == 1, "stride in x dim must be 1 to use BLAS");
-      lda = stride_a[0];
-      ldb = stride_b[0];
-      ldc = static_cast<blas::BlasInt>(opb.columns());
-   }
+   
+   const blas::BlasInt lda = leading_dimension<T, Config>( opa );
+   const blas::BlasInt ldb = leading_dimension<T, Config2>( opb );
+   const blas::BlasInt ldc = leading_dimension<T, Config3>( opc );
 
    core::blas::gemm<T>(order, blas::CblasNoTrans, blas::CblasNoTrans, (blas::BlasInt)opa.rows(), (blas::BlasInt)opb.columns(), (blas::BlasInt)opa.columns(),
                        alpha, &opa(0, 0), lda, &opb(0, 0), ldb, beta, &opc(0, 0), ldc);
+}
+
+template <class T, class Config, class Config2, class Config3>
+void gemm( T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& opb, T beta, Array<T, 2, Config3>& opc )
+{
+   gemm( false, false, alpha, opa, opb, beta, opc );
 }
 
 template <class T, class Config, class Config2>

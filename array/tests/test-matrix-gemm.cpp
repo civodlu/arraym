@@ -196,13 +196,47 @@ struct TestMatrixGemm
    template <class Matrix>
    void test_gemm_invImpl()
    {
+      using value_type = typename Matrix::value_type;
+      using memory_type = typename Matrix::Memory;
+      using matrix_type = Matrix;
+
+      value_type A_values[] =
+      {
+         1, 2, 1, 999,
+         -3, 4, -1, 999
+      };
+
+      matrix_type A( memory_type( vector2ui( 3, 2 ), A_values, vector2ui( 1, 4 ) ) );
+      std::cout << A << std::endl;
+
+      value_type B_values[] =
+      {
+         1, 2, 1,
+         -3, 4, -1
+      };
+
+      matrix_type B( memory_type( vector2ui( 3, 2 ), B_values, vector2ui( 1, 3 ) ) );
+      std::cout << B << std::endl;
+
+
+      value_type C_values[] =
+      {
+         0.5, 0.5, 0.5, 999, 999,
+         0.5, 0.5, 0.5, 999, 999,
+         0.5, 0.5, 0.5, 999, 999,
+      };
+
+      matrix_type C( memory_type( vector2ui( 3, 3 ), C_values, vector2ui( 1, 5 ) ) );
+      std::cout << C << std::endl;
+
+      NAMESPACE_NLL::details::gemm<value_type>( 1, A, B, 2, C );
 
    }
 };
 
 TESTER_TEST_SUITE( TestMatrixGemm );
 TESTER_TEST( test_gemm_inv );
-TESTER_TEST( test_gemm_columnMajor );
-TESTER_TEST(test_processor_different_ordering_dataRowMajor);
-TESTER_TEST(test_processor_different_ordering_dataColumnMajor);
+//TESTER_TEST( test_gemm_columnMajor );
+//TESTER_TEST(test_processor_different_ordering_dataRowMajor);
+//TESTER_TEST(test_processor_different_ordering_dataColumnMajor);
 TESTER_TEST_SUITE_END();
