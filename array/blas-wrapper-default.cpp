@@ -10,11 +10,9 @@ namespace blas
 #ifdef WITH_CUDA
    const size_t cuda_01 = BlasDispatcher::instance().registerFunction<details::BlasFunction::saxpy>(detail::saxpy_cublas, "saxpy_cublas");
    const size_t cuda_02 = BlasDispatcher::instance().registerFunction<details::BlasFunction::daxpy>(detail::daxpy_cublas, "daxpy_cublas");
-
    
    const size_t cuda_03 = BlasDispatcher::instance().registerFunction<details::BlasFunction::sgemm>(detail::sgemm_cublas, "sgemm_cublas");
-   //const size_t cuda_04 = BlasDispatcher::instance().registerFunction<details::BlasFunction::dgemm>(detail::dgemm_cublas, "dgemm_cublas");
-
+   const size_t cuda_04 = BlasDispatcher::instance().registerFunction<details::BlasFunction::dgemm>(detail::dgemm_cublas, "dgemm_cublas");
 
    const size_t cudaxt_01 = BlasDispatcher::instance().registerFunction<details::BlasFunction::sgemm>(detail::sgemm_cublasxt, "sgemm_cublasxt");
    const size_t cudaxt_02 = BlasDispatcher::instance().registerFunction<details::BlasFunction::dgemm>(detail::dgemm_cublasxt, "dgemm_cublasxt");

@@ -44,9 +44,9 @@ struct TestMatrixCov
 
    void test_known()
    {
-      //test_known_impl<Matrix_column_major<double>>();
+      test_known_impl<Matrix_column_major<double>>();
       test_known_impl<Matrix_column_major<float>>();
-      //test_known_impl<Matrix_row_major<double>>();
+      test_known_impl<Matrix_row_major<double>>();
    }
 
    template <class matrix_type>

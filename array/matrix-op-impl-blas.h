@@ -85,7 +85,15 @@ void gemm(bool trans_a, bool trans_b, T alpha, const Array<T, 2, Config>& opa, c
    const blas::BlasInt ldb = leading_dimension<T, Config2>( opb );
    const blas::BlasInt ldc = leading_dimension<T, Config3>( opc );
 
-   core::blas::gemm<T>(order, blas::CblasNoTrans, blas::CblasNoTrans, (blas::BlasInt)opa.rows(), (blas::BlasInt)opb.columns(), (blas::BlasInt)opa.columns(),
+   const auto trans_a_blas = trans_a ? blas::CblasTrans : blas::CblasNoTrans;
+   const auto trans_b_blas = trans_b ? blas::CblasTrans : blas::CblasNoTrans;
+
+   const auto m = rows(opa, trans_a);
+   const auto n = columns(opb, trans_b);
+   const auto k = columns(opa, trans_a);
+
+   core::blas::gemm<T>(order, trans_a_blas, trans_b_blas,
+                       m, n, k,
                        alpha, &opa(0, 0), lda, &opb(0, 0), ldb, beta, &opc(0, 0), ldc);
 }
 
@@ -111,34 +119,19 @@ This only make sense for contiguous memory array. This specifies the offset of t
 on the memory order)
 */
 template <class T, class Config>
-blas::BlasInt leading_dimension(const Matrix_Enabled<T, 2, Config>& a, bool a_transposed = false)
+blas::BlasInt leading_dimension(const Matrix_Enabled<T, 2, Config>& a)
 {
    blas::BlasInt lda = 0;
    const auto memory_order_a = getMatrixMemoryOrder(a);
    const auto& stride_a = a.getMemory().getIndexMapper()._getPhysicalStrides();
    if (memory_order_a == CBLAS_ORDER::CblasColMajor)
    {
-      if (!a_transposed)
-      {
-         lda = stride_a[1];
-         ensure(stride_a[0] == 1, "can't have stride != 1  for BLAS");
-      } else {
-         lda = static_cast<blas::BlasInt>(a.columns());   // TODO not good for submatrices!
-         //lda = stride_a[ 0 ];
-         //ensure( stride_a[ 1 ] == 1, "can't have stride != 1  for BLAS" );
-      }
+      lda = stride_a[ 1 ];
+      ensure( stride_a[ 0 ] == 1, "can't have stride != 1  for BLAS" );
    }
    else {
-      if ( !a_transposed )
-      {
-         lda = stride_a[ 0 ];
-         ensure( stride_a[ 1 ] == 1, "can't have stride != 1  for BLAS " );
-      } else
-      {
-         lda = static_cast<blas::BlasInt>(a.rows());    // TODO not good for submatrices!
-         //lda = stride_a[ 1 ];
-         //ensure( stride_a[ 0 ] == 1, "can't have stride != 1  for BLAS " );
-      }
+      lda = stride_a[ 0 ];
+      ensure( stride_a[ 1 ] == 1, "can't have stride != 1  for BLAS " );
    }
    return lda;
 }

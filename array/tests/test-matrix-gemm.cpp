@@ -229,14 +229,29 @@ struct TestMatrixGemm
       matrix_type C( memory_type( vector2ui( 3, 3 ), C_values, vector2ui( 1, 5 ) ) );
       std::cout << C << std::endl;
 
-      NAMESPACE_NLL::details::gemm<value_type>( 1, A, B, 2, C );
+      // see example 2, http://www.ibm.com/support/knowledgecenter/SSFHY8_5.5.0/com.ibm.cluster.essl.v5r5.essl100.doc/am5gr_hsgemm.htm
+      NAMESPACE_NLL::details::gemm<value_type>( false, true, 1, A, B, 2, C );
 
+      std::cout << C << std::endl;
+
+      TESTER_ASSERT(C(0, 0) == 11);
+      TESTER_ASSERT(C(1, 0) == -9);
+      TESTER_ASSERT(C(2, 0) == 5);
+
+      TESTER_ASSERT(C(0, 1) == -9);
+      TESTER_ASSERT(C(1, 1) == 21);
+      TESTER_ASSERT(C(2, 1) == -1);
+
+      TESTER_ASSERT(C(0, 2) == 5);
+      TESTER_ASSERT(C(1, 2) == -1);
+      TESTER_ASSERT(C(2, 2) == 3);
+      std::cout << C << std::endl;
    }
 };
 
 TESTER_TEST_SUITE( TestMatrixGemm );
 TESTER_TEST( test_gemm_inv );
-//TESTER_TEST( test_gemm_columnMajor );
-//TESTER_TEST(test_processor_different_ordering_dataRowMajor);
-//TESTER_TEST(test_processor_different_ordering_dataColumnMajor);
+TESTER_TEST( test_gemm_columnMajor );
+TESTER_TEST(test_processor_different_ordering_dataRowMajor);
+TESTER_TEST(test_processor_different_ordering_dataColumnMajor);
 TESTER_TEST_SUITE_END();

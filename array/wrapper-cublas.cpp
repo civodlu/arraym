@@ -10,6 +10,8 @@
 
 #include "cublas-common.h"
 
+//#include "forward.h"
+
 DECLARE_NAMESPACE_NLL
 
 namespace blas
@@ -78,9 +80,6 @@ namespace detail
    {
       T* gpu_ptr = nullptr;
       CHECK_CUDA(cudaMalloc(&gpu_ptr, nb_elements * sizeof(T)));
-
-      // TODO REMOVE
-      //cudaMemset( gpu_ptr, 0, nb_elements * sizeof( T ) );
       return gpu_ptr_type<T>(gpu_ptr, &free_gpu<T>);
    }
 
@@ -116,6 +115,8 @@ namespace detail
       const BlasInt K, const BlasReal alpha, const BlasReal* A, const BlasInt lda, const BlasReal* B, const BlasInt ldb,
       const BlasReal beta, BlasReal* C, const BlasInt ldc)
    {
+      using value_type = BlasReal;
+
       if (matrixOrder == CBLAS_ORDER::CblasRowMajor)
       {
          // TODO should be handle different memory orders? For now, no
@@ -123,9 +124,12 @@ namespace detail
       }
 
       // copy the CPU based matrices to GPU
-      auto gpu_ptr_a = matrix_cpu_to_gpu(M, K, A, lda);
-      auto gpu_ptr_b = matrix_cpu_to_gpu(K, N, B, ldb);
-      auto gpu_ptr_c = allocate_gpu<float>(M*N);
+      gpu_ptr_type<value_type> gpu_ptr_a = ( TransA == CBLAS_TRANSPOSE::CblasNoTrans ) ? matrix_cpu_to_gpu( M, K, A, lda ) : matrix_cpu_to_gpu( K, M, A, lda );
+      gpu_ptr_type<value_type> gpu_ptr_b = ( TransB == CBLAS_TRANSPOSE::CblasNoTrans ) ? matrix_cpu_to_gpu( K, N, B, ldb ) : matrix_cpu_to_gpu( N, K, B, ldb );
+      auto gpu_ptr_c = matrix_cpu_to_gpu<value_type>( M, N, C, ldc );
+
+      const auto gpu_stride_a = ( TransA == CBLAS_TRANSPOSE::CblasNoTrans ) ? M : K;
+      const auto gpu_stride_b = ( TransB == CBLAS_TRANSPOSE::CblasNoTrans ) ? K : N;
 
       // run calculation on the GPU
       auto transa = is_transposed(matrixOrder, TransA);
@@ -133,11 +137,10 @@ namespace detail
 
       const int ld_gpu = M;
 
-      INIT_AND_CHECK_CUDA(cublasSgemm(config.handle(), transa, transb, M, N, K, &alpha, gpu_ptr_a.get(), lda, gpu_ptr_b.get(), ldb, &beta, gpu_ptr_c.get(), ld_gpu));
+      INIT_AND_CHECK_CUDA( cublasSgemm( config.handle(), transa, transb, M, N, K, &alpha, gpu_ptr_a.get(), gpu_stride_a, gpu_ptr_b.get(), gpu_stride_b, &beta, gpu_ptr_c.get(), ld_gpu ) );
 
       // get the data back on CPU
       matrix_gpu_to_cpu(M, N, gpu_ptr_c.get(), ld_gpu, C, ldc);
-
       return 0;
    }
 
@@ -145,6 +148,8 @@ namespace detail
       const BlasInt K, const BlasDoubleReal alpha, const BlasDoubleReal* A, const BlasInt lda, const BlasDoubleReal* B, const BlasInt ldb,
       const BlasDoubleReal beta, BlasDoubleReal* C, const BlasInt ldc)
    {
+      using value_type = BlasDoubleReal;
+
       if ( matrixOrder == CBLAS_ORDER::CblasRowMajor )
       {
          // TODO should be handle different memory orders? For now, no
@@ -152,9 +157,12 @@ namespace detail
       }
 
       // copy the CPU based matrices to GPU
-      auto gpu_ptr_a = matrix_cpu_to_gpu( M, K, A, lda );
-      auto gpu_ptr_b = matrix_cpu_to_gpu( K, N, B, ldb );
-      auto gpu_ptr_c = allocate_gpu<double>( M*N );
+      gpu_ptr_type<value_type> gpu_ptr_a = ( TransA == CBLAS_TRANSPOSE::CblasNoTrans ) ? matrix_cpu_to_gpu( M, K, A, lda ) : matrix_cpu_to_gpu( K, M, A, lda );
+      gpu_ptr_type<value_type> gpu_ptr_b = ( TransB == CBLAS_TRANSPOSE::CblasNoTrans ) ? matrix_cpu_to_gpu( K, N, B, ldb ) : matrix_cpu_to_gpu( N, K, B, ldb );
+      auto gpu_ptr_c = matrix_cpu_to_gpu<value_type>( M, N, C, ldc );
+
+      const auto gpu_stride_a = ( TransA == CBLAS_TRANSPOSE::CblasNoTrans ) ? M : K;
+      const auto gpu_stride_b = ( TransB == CBLAS_TRANSPOSE::CblasNoTrans ) ? K : N;
 
       // run calculation on the GPU
       auto transa = is_transposed( matrixOrder, TransA );
@@ -162,7 +170,7 @@ namespace detail
 
       const int ld_gpu = M;
 
-      INIT_AND_CHECK_CUDA( cublasDgemm( config.handle(), transa, transb, M, N, K, &alpha, gpu_ptr_a.get(), lda, gpu_ptr_b.get(), ldb, &beta, gpu_ptr_c.get(), ld_gpu ) );
+      INIT_AND_CHECK_CUDA( cublasDgemm( config.handle(), transa, transb, M, N, K, &alpha, gpu_ptr_a.get(), gpu_stride_a, gpu_ptr_b.get(), gpu_stride_b, &beta, gpu_ptr_c.get(), ld_gpu ) );
 
       // get the data back on CPU
       matrix_gpu_to_cpu( M, N, gpu_ptr_c.get(), ld_gpu, C, ldc );
