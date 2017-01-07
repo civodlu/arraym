@@ -70,8 +70,6 @@ Only call this methods for BLAS supported types (float/double) with Matrix based
 template <class T, class Config, class Config2, class Config3>
 void gemm(bool trans_a, bool trans_b, T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& opb, T beta, Array<T, 2, Config3>& opc)
 {
-   ensure(opc.rows() == opa.rows(), "must be a opa.rows() * opb.columns()");
-
    const auto memory_order_a = getMatrixMemoryOrder(opa);
    const auto memory_order_b = getMatrixMemoryOrder(opb);
    const auto memory_order_c = getMatrixMemoryOrder(opc);
@@ -91,6 +89,8 @@ void gemm(bool trans_a, bool trans_b, T alpha, const Array<T, 2, Config>& opa, c
    const auto m = rows(opa, trans_a);
    const auto n = columns(opb, trans_b);
    const auto k = columns(opa, trans_a);
+
+   ensure(opc.rows() == m, "must be a opa.rows() * opb.columns()");
 
    core::blas::gemm<T>(order, trans_a_blas, trans_b_blas,
                        m, n, k,
