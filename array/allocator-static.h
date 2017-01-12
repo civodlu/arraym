@@ -75,19 +75,4 @@ private:
    T* _allocated = nullptr;
 };
 
-/*
-// return that all specializations of this allocator are interchangeable
-template <class T, class U, size_t StaticNumberOfT, class FallbackAllocator>
-bool operator==( const AllocatorSingleStaticMemory<T, StaticNumberOfT, FallbackAllocator>&, const AllocatorSingleStaticMemory<U, StaticNumberOfT, FallbackAllocator>& )
-{
-   return true;
-}
-
-template <class T, class U, size_t StaticNumberOfT, class FallbackAllocator>
-bool operator!=( const AllocatorSingleStaticMemory<T>&, const AllocatorSingleStaticMemory<U>& )
-{
-   return false;
-}
-*/
-
 DECLARE_NAMESPACE_NLL_END

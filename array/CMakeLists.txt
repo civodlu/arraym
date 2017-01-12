@@ -3,66 +3,74 @@ cmake_minimum_required(VERSION 2.8)
 set(LIBNAME    "array")
 string(TOUPPER ${LIBNAME} LIBNAME_CAP)
 set(ApiFile    "${CMAKE_BINARY_DIR}/${LIBNAME}/${LIBNAME}-api.h")
-set(Headers    array.h 
-               ${ApiFile}
-               array.h
-			   range.h
-			   allocator-static.h
+set(Headers array.h 
+            ${ApiFile}
+            array.h
+            range.h
+            allocator-static.h
+			allocator-cuda.h
             array-processor.h
             array-traits.h
             array-exp.h
-			   array-noexp.h
+            array-noexp.h
             array-op-impl-naive.h
-			   array-op-impl-blas.h
-			   array-op.h
-			   matrix-op-impl-blas.h
-			   matrix-op-blas-inv.h
-			   matrix-op-blas-least-square.h
-			   matrix-op-blas-svd.h
-			   matrix-op-impl-naive.h
-			   array-chunking.h
-			   matrix-op-identity.h
-			   matrix-vector.h
-			repmat.h
+            array-op-impl-blas.h
+            array-op.h
+            matrix-op-impl-blas.h
+            matrix-op-blas-inv.h
+            matrix-op-blas-least-square.h
+            matrix-op-blas-svd.h
+            matrix-op-impl-naive.h
+            array-chunking.h
+            matrix-op-identity.h
+            matrix-vector.h
+            repmat.h
             op-naive.h
             forward.h
             index-mapper.h
             memory-contiguous.h
-			   array-op-axis.h
-			   matrix-op-blas-lu.h
-			   matrix-op-blas-cov.h
+			memory-gpu-cuda.h
+            array-op-axis.h
+            matrix-op-blas-lu.h
+            matrix-op-blas-cov.h
             memory-slice.h
             static-vector.h
             static-vector-math.h
             static-vector-op.h
             traits.h   
-               )
+)
                
-set(BLAS       wrapper-cblas.cpp
-               wrapper-cblas.h
-               wrapper-common.h
-               blas-dispatcher.h
-               blas-dispatcher.cpp
-               blas-wrapper.h
-               blas-wrapper.cpp
-			   wrapper-cublas.h
-			   wrapper-cublas-xt.cpp
-			   wrapper-cublas-xt.h
-			   cublas-common.h
-			   wrapper-cublas.cpp
-			   blas-wrapper-default.cpp)
+set(BLAS    wrapper-cblas.cpp
+            wrapper-cblas.h
+            wrapper-common.h
+            blas-dispatcher.h
+            blas-dispatcher.cpp
+            blas-wrapper.h
+            blas-wrapper.cpp
+            wrapper-cublas.h
+            wrapper-cublas-xt.cpp
+            wrapper-cublas-xt.h
+            cublas-common.h
+            wrapper-cublas.cpp
+            blas-wrapper-default.cpp)
+
+set (CudaKernel memory-gpu-cuda.cu
+                memory-gpu-cuda.cuh
+				cuda-utils.h
+				cuda-utils.cpp)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_BINARY_DIR}/${LIBNAME}/config.h)
 source_group(Sources FILES ${Sources} ${Headers})
 source_group(BLAS FILES ${BLAS})
+source_group(CudaKernel FILES ${CudaKernel})
 
 MESSAGE("OpenBLAS=" ${OpenBLAS_LIB})
 
 if(${CUDA_FOUND})
     # CUDA NVBLAS must be before any other BLAS implementation
-	cuda_add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers})
+   cuda_add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers} ${CudaKernel})
 else()
-	add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers})
+   add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers})
 endif()
 
 target_link_libraries(${LIBNAME} ${NLL_EXTERNAL_LIB} ${CUDA_cublas_LIBRARY} ${CUDA_cudart_static_LIBRARY} ${OpenBLAS_LIB})
@@ -71,10 +79,10 @@ target_link_libraries(${LIBNAME} ${NLL_EXTERNAL_LIB} ${CUDA_cublas_LIBRARY} ${CU
 
 include (GenerateExportHeader)
 generate_export_header( ${LIBNAME}
-	BASE_NAME ${LIBNAME_CAP}
-	EXPORT_MACRO_NAME ${LIBNAME_CAP}_API
-	EXPORT_FILE_NAME "${CMAKE_BINARY_DIR}/${LIBNAME}/${LIBNAME}-api.h"
-	STATIC_DEFINE ${LIBNAME_CAP}_BUILT_AS_STATIC
+   BASE_NAME ${LIBNAME_CAP}
+   EXPORT_MACRO_NAME ${LIBNAME_CAP}_API
+   EXPORT_FILE_NAME "${CMAKE_BINARY_DIR}/${LIBNAME}/${LIBNAME}-api.h"
+   STATIC_DEFINE ${LIBNAME_CAP}_BUILT_AS_STATIC
 )
 
 add_subdirectory (tests)
