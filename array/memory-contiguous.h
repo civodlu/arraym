@@ -144,6 +144,33 @@ bool is_memory_fully_contiguous(const memory_type& a1)
 }
 
 /**
+ @brief Extend the allocator to support GPU
+ */
+template <class Allocator>
+struct allocator_traits_extended : public std::allocator_traits<Allocator>
+{
+public:
+   using value_type = typename Allocator::value_type;
+
+   static void construct_n(size_t linear_size, allocator_type alloc, value_type* p, value_type default_value)
+   {
+      // default to std::allocator_traits
+      for (size_t nn = 0; nn < linear_size; ++nn)
+      {
+         std::allocator_traits<Allocator>::construct(alloc, p + nn, default_value);
+      }
+   }
+
+   static void destroy_n(size_t linear_size, allocator_type alloc, value_type* p)
+   {
+      for (size_t nn = 0; nn < linear_size; ++nn)
+      {
+         std::allocator_traits<Allocator>::destroy(alloc, p + nn);
+      }
+   }
+};
+
+/**
 @brief Memory composed of a single memory block
 
 Value based semantics, except when using sub-memory blocks which keeps a reference of the memory.
@@ -159,7 +186,7 @@ class Memory_contiguous : public memory_layout_contiguous
 public:
    using index_type      = StaticVector<ui32, N>;
    using allocator_type  = Allocator;
-   using allocator_trait = std::allocator_traits<allocator_type>;
+   using allocator_traits= allocator_traits_extended<allocator_type>;
    using index_mapper    = IndexMapper;
    using pointer_type    = T*;
    using value_type      = T;
@@ -415,11 +442,8 @@ private:
 
    void _allocateSlices(T default_value, ui32 linear_size)
    {
-      auto p = allocator_trait::allocate(_allocator, linear_size);
-      for (size_t nn = 0; nn < linear_size; ++nn)
-      {
-         allocator_trait::construct(_allocator, p + nn, default_value);
-      }
+      auto p = allocator_traits::allocate(_allocator, linear_size);
+      allocator_traits::construct_n(linear_size, _allocator, p, default_value);
       _data = p;
    }
 
@@ -428,13 +452,11 @@ private:
       if (_dataAllocated)
       {
          const auto linear_size = _linearSize();
-         for (size_t nn = 0; nn < linear_size; ++nn)
-         {
-            allocator_trait::destroy(_allocator, _data + nn);
-         }
+
          // handle the const T* case for const arrays
          using unconst_value = typename std::remove_cv<T>::type;
-         allocator_trait::deallocate(_allocator, const_cast<unconst_value*>(_data), linear_size);
+         allocator_traits::destroy_n(linear_size, _allocator, const_cast<unconst_value*>(_data));
+         allocator_traits::deallocate(_allocator, const_cast<unconst_value*>(_data), linear_size);
       }
 
       _data       = nullptr;

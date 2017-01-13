@@ -142,6 +142,11 @@ public:
    @param slices pre-existing slices. if @p slicesAllocated, allocator will be used to deallocate the memory. Else the user is responsible
    for deallocation
    @param slicesAllocated if true, @p allocator will be used to deallocate the memory. Else the user is responsible for the slice's memory
+   
+   TODO
+   - take advantage of the streams, don't use default that will sync with the others
+   - memory allocation is slow, use custom allocator
+   
    */
    Memory_gpu_cuda(const index_type& shape, T* data, const allocator_type& allocator = allocator_type(), bool dataAllocated = false)
       : _shape(shape), _allocator(allocator)
@@ -278,7 +283,7 @@ private:
    {
       // TODO handle array of vectors
       _data = allocator_trait::allocate(_allocator, linear_size);
-      cuda::init_kernel(_data, default_value, linear_size);
+      cuda::kernel_init(_data, default_value, linear_size);
    }
 
    void _deallocateSlices()

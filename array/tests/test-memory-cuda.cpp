@@ -13,40 +13,30 @@ using vector3ui = StaticVector<ui32, 3>;
 
 struct TestMemoryCuda
 {
-   void testInit()
+   void testInit_cte()
    {
-      float* ptr;
-      const size_t size = 2000;
-      
-      CHECK_CUDA(cudaMalloc<float>(&ptr, size * sizeof(float)));
-      //::cuda::init_kernel2<float>(ptr, -4.0f, 2000);
-      NAMESPACE_NLL::cuda::init_kernel(ptr, -4.0f, size);
-      NAMESPACE_NLL::cuda::cudaCheck();
-      
-      std::vector<float> cpu(size*2);
-      /*
-      for (auto& v : cpu)
+      using memory_type = Memory_gpu_cuda<float, 1>;
+      using memory_type_cpu = Memory_contiguous_row_major<float, 1>;
+      using value_type = memory_type::value_type;
+
+      for (size_t n = 0; n < 2000; ++n)
       {
-         v = -4.0f;
-      }*/
+         srand(n);
+         const auto size = generateUniformDistribution(10, 10000000);
+         const auto init_value = generateUniformDistribution<value_type>(std::numeric_limits<value_type>::lowest(), std::numeric_limits<value_type>::max());
+   
+         memory_type memory({ size }, init_value);
+         memory_type_cpu cpu({ size }, init_value);
+         cudaMemcpy(cpu.at(0), memory.at(0), size * sizeof(value_type), cudaMemcpyKind::cudaMemcpyDeviceToHost);
 
-      cudaMemcpy(&cpu[0], ptr, size * sizeof(float), cudaMemcpyKind::cudaMemcpyDeviceToHost);
-
-      std::cout << cpu[1999] << std::endl;
-
-      //NAMESPACE_NLL::cuda::init_kernel2(ptr, -4.0f, 2000);
-
-      //::cuda::init_kernel(ptr, -4.0f, 2000);
-      //Memory_gpu_cuda<float, 1> memory({ 1024 }, -42.0f);
-   }
-
-   void testInit2()
-   {
-      testInit();
+         for (size_t i = 0; i < size; ++i)
+         {
+            TESTER_ASSERT(*cpu.at(i) == init_value);
+         }
+      }
    }
 };
 
 TESTER_TEST_SUITE(TestMemoryCuda);
-TESTER_TEST(testInit); 
-TESTER_TEST(testInit2);
+TESTER_TEST(testInit_cte);
 TESTER_TEST_SUITE_END();

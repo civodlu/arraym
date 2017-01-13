@@ -12,7 +12,7 @@ namespace cuda
    {
       if (cudaError_t(code) != cudaError::cudaSuccess)
       {
-         std::cerr << "GPUassert:" << cudaGetErrorString(cudaError_t(code)) << file << line << std::endl;
+         std::cerr << "GPUassert:" << cudaGetErrorString(cudaError_t(code)) << " file=" << file << " line=" << line << std::endl;
          exit(code);
       }
    }
