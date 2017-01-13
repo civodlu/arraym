@@ -5,7 +5,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include "memory-gpu-cuda.cuh"
+#include "cuda-kernel.cuh"
 #include <thrust/device_vector.h>
 #include <thrust/fill.h>
 

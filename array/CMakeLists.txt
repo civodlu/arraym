@@ -29,7 +29,7 @@ set(Headers array.h
             forward.h
             index-mapper.h
             memory-contiguous.h
-			memory-gpu-cuda.h
+            cuda-kernel.h
             array-op-axis.h
             matrix-op-blas-lu.h
             matrix-op-blas-cov.h
@@ -54,8 +54,8 @@ set(BLAS    wrapper-cblas.cpp
             wrapper-cublas.cpp
             blas-wrapper-default.cpp)
 
-set (CudaKernel memory-gpu-cuda.cu
-                memory-gpu-cuda.cuh
+set (CudaKernel cuda-kernel.cu
+                cuda-kernel.cuh
 				cuda-utils.h
 				cuda-utils.cpp)
 
@@ -67,8 +67,8 @@ source_group(CudaKernel FILES ${CudaKernel})
 MESSAGE("OpenBLAS=" ${OpenBLAS_LIB})
 
 if(${CUDA_FOUND})
-    # CUDA NVBLAS must be before any other BLAS implementation
-    set(CUDA_PROPAGATE_HOST_FLAGS ON)
+   # CUDA NVBLAS must be before any other BLAS implementation
+   set(CUDA_PROPAGATE_HOST_FLAGS ON)
    cuda_add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers} ${CudaKernel})
 else()
    add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers})
