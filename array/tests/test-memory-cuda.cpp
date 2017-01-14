@@ -59,7 +59,7 @@ struct TestMemoryCuda
    
    void testDeepCopy()
    {
-      
+      /*
       using memory_type = Memory_cuda_contiguous_column_major<float, 1>;
       using memory_type_cpu = Memory_contiguous_row_major<float, 1>;
       using value_type = memory_type::value_type;
@@ -71,7 +71,7 @@ struct TestMemoryCuda
       memory_type memory2 = memory;
       memory_type_cpu cpu(memory.shape());
       cudaMemcpy(cpu.at(0), memory.at(0), memory.shape()[0] * sizeof(value_type), cudaMemcpyKind::cudaMemcpyDeviceToHost);
-      
+      */
    }
 
    void testCallable()

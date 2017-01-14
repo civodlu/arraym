@@ -101,9 +101,9 @@ public:
    {
    }
 
-   bool accessSingleElement(value_type const*& ptrToValue)
+   bool accessSingleElement( const_pointer_type& ptrToValue )
    {
-      return _processor.accessSingleElement(const_cast<pointer_type&>(ptrToValue));
+      return _processor.accessSingleElement( (pointer_type&)( ptrToValue ) );
    }
 
    // this is the specific view index reordered by <functor>
@@ -465,12 +465,13 @@ namespace impl
    template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
    void _iterate_memory_constmemory_different_ordering(Memory1& a1, const Memory2& a2, const Op& op)
    {
-      
-      using T = typename Memory1::value_type;
-      using T2 = typename Memory2::value_type;
+      using pointer_T = typename Memory1::pointer_type;
+      using pointer_T2 = typename Memory2::pointer_type;
+      using pointer_const_T2 = typename array_add_const<pointer_T2>::type;
       static const size_t N = Memory1::RANK;
 
-      static_assert(is_callable_with<Op, T*, ui32, const T2*, ui32, ui32>::value, "Op is not callable!");
+      static_assert( is_callable_with<Op, pointer_T, ui32, pointer_const_T2, ui32, ui32>::value, "Op is not callable!" );
+
       ensure(Memory1::RANK == Memory2::RANK, "must have the same rank!");
       ensure(a1.shape() == a2.shape(), "must have the same shape!");
       ensure(!same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
@@ -488,9 +489,9 @@ namespace impl
       bool hasMoreElements = true;
       while (hasMoreElements)
       {
-         T* ptr_a1 = nullptr;
-         T2 const* ptr_a2 = nullptr;
-         hasMoreElements = processor_a1.accessSingleElement(ptr_a1);
+         pointer_T ptr_a1 = pointer_T( nullptr );
+         pointer_const_T2 ptr_a2 = pointer_const_T2( nullptr );
+         hasMoreElements = processor_a1.accessSingleElement( ptr_a1 );
          hasMoreElements = processor_a2.accessSingleElement(ptr_a2);
          op(ptr_a1, 1, ptr_a2, 1, 1); // only single element, so actual stride value is not important, it just can't be 0
       }
