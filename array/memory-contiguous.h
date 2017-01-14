@@ -2,7 +2,7 @@
 
 DECLARE_NAMESPACE_NLL
 
-template <class T, size_t N, class IndexMapper, class Allocator>
+template <class T, size_t N, class IndexMapper, class Allocator, class PointerType>
 class Memory_contiguous;
 
 namespace details
@@ -27,11 +27,11 @@ public:
    }
 };
 
-template <class T, size_t N, class IndexMapper, class Allocator>
-class MemoryMoveable<Memory_contiguous<T, N, IndexMapper, Allocator>>
+template <class T, size_t N, class IndexMapper, class Allocator, class PointerType>
+class MemoryMoveable<Memory_contiguous<T, N, IndexMapper, Allocator, PointerType>>
 {
 public:
-   using Memory = Memory_contiguous<T, N, IndexMapper, Allocator>;
+   using Memory = Memory_contiguous<T, N, IndexMapper, Allocator, PointerType>;
 
    // Memory_contiguous is known for "stack based memory", so check the allocator
    static bool _can_move(std::true_type UNUSED(base_not_moveable), typename Memory::value_type* ptr, size_t size) 
@@ -147,26 +147,50 @@ bool is_memory_fully_contiguous(const memory_type& a1)
  @brief Extend the allocator to support GPU
  */
 template <class Allocator>
-struct allocator_traits_extended : public std::allocator_traits<Allocator>
+struct allocator_traits_gpu_extended : public std::allocator_traits<Allocator>
 {
 public:
    using value_type = typename Allocator::value_type;
 
    static void construct_n(size_t linear_size, allocator_type alloc, value_type* p, value_type default_value)
    {
-      // default to std::allocator_traits
+      _construct_n(linear_size, alloc, p, default_value, is_allocator_gpu<Allocator>());
+   }
+
+   static void destroy_n(size_t linear_size, allocator_type alloc, value_type* p)
+   {
+      _destroy_n(linear_size, alloc, p, is_allocator_gpu<Allocator>());
+   }
+
+private:
+   static void _construct_n(size_t linear_size, allocator_type alloc, value_type* p, value_type default_value, std::false_type)
+   {
+      // default to std::allocator_traits called for each value
       for (size_t nn = 0; nn < linear_size; ++nn)
       {
          std::allocator_traits<Allocator>::construct(alloc, p + nn, default_value);
       }
    }
 
-   static void destroy_n(size_t linear_size, allocator_type alloc, value_type* p)
+   static void _construct_n(size_t linear_size, allocator_type alloc, value_type* p, value_type default_value, std::true_type)
    {
+      // if batch available, call it
+      alloc.construct_n(linear_size, p, default_value);
+   }
+
+   static void _destroy_n(size_t linear_size, allocator_type alloc, value_type* p, std::false_type)
+   {
+      // default to std::allocator_traits called for each value
       for (size_t nn = 0; nn < linear_size; ++nn)
       {
          std::allocator_traits<Allocator>::destroy(alloc, p + nn);
       }
+   }
+
+   static void _destroy_n(size_t linear_size, allocator_type alloc, value_type* p, std::true_type)
+   {
+      // if batch available, call it
+      alloc.destroy_n(p, linear_size);
    }
 };
 
@@ -177,20 +201,21 @@ Value based semantics, except when using sub-memory blocks which keeps a referen
 
 A sub-block must NOT be accessed when the original memory has been destroyed: dangling pointer!
 */
-template <class T, size_t N, class IndexMapper = IndexMapper_contiguous<N>, class Allocator = std::allocator<T>>
+template <class T, size_t N, class IndexMapper = IndexMapper_contiguous<N>, class Allocator = std::allocator<T>, class PointerType = T*>
 class Memory_contiguous : public memory_layout_contiguous
 {
-   template <class T2, size_t N2, class IndexMapper2, class Allocator2>
+   template <class T2, size_t N2, class IndexMapper2, class Allocator2, class PointerType2>
    friend class Memory_contiguous;
 
 public:
    using index_type      = StaticVector<ui32, N>;
    using allocator_type  = Allocator;
-   using allocator_traits= allocator_traits_extended<allocator_type>;
+   using allocator_traits= allocator_traits_gpu_extended<allocator_type>;
    using index_mapper    = IndexMapper;
-   using pointer_type    = T*;
+   using pointer_type    = PointerType;
+   using const_pointer_type = typename array_add_const<T*>::type;
    using value_type      = T;
-   using Memory          = Memory_contiguous<T, N, IndexMapper, Allocator>;
+   using Memory          = Memory_contiguous<T, N, IndexMapper, Allocator, PointerType>;
 
    static const size_t RANK = N;
 
@@ -203,6 +228,7 @@ public:
    {
       using unconst_type = typename std::remove_const<T2>::type;
 
+      // TODO rebind pointer type!
       // do NOT use the const in the allocator: this is underfined and won't compile for GCC/Clang
       using other = Memory_contiguous<T2, N2, typename IndexMapper::template rebind<N2>::other, typename Allocator::template rebind<unconst_type>::other>;
    };
@@ -298,7 +324,7 @@ public:
    }
 
    /// New memory block
-   Memory_contiguous(const index_type& shape, T default_value = T(), const allocator_type& allocator = allocator_type()) : _shape(shape), _allocator(allocator)
+   Memory_contiguous(const index_type& shape, value_type default_value = value_type(), const allocator_type& allocator = allocator_type()) : _shape(shape), _allocator(allocator)
    {
       _indexMapper.init(0, shape);
       _allocateSlices(default_value, _linearSize());
@@ -309,7 +335,7 @@ public:
    for deallocation
    @param slicesAllocated if true, @p allocator will be used to deallocate the memory. Else the user is responsible for the slice's memory
    */
-   Memory_contiguous(const index_type& shape, T* data, const allocator_type& allocator = allocator_type(), bool dataAllocated = false)
+   Memory_contiguous(const index_type& shape, pointer_type data, const allocator_type& allocator = allocator_type(), bool dataAllocated = false)
        : _shape(shape), _allocator(allocator)
    {
       _indexMapper.init(0, shape);
@@ -322,7 +348,7 @@ public:
    for deallocation
    @param dataAllocated if true, @p allocator will be used to deallocate the memory. Else the user is responsible for the slice's memory
    */
-   Memory_contiguous(const index_type& shape, T* data, const index_type& physicalStrides, const allocator_type& allocator = allocator_type(),
+   Memory_contiguous(const index_type& shape, pointer_type data, const index_type& physicalStrides, const allocator_type& allocator = allocator_type(),
                      bool dataAllocated = false)
        : _shape(shape), _allocator(allocator)
    {
@@ -349,12 +375,12 @@ public:
       // we start at the beginning of the slice
       index_type index_slice;
       index_slice[dimension] = index[dimension];
-      T* ptr                 = const_cast<T*>(this->at(index_slice));
+      pointer_type ptr = const_cast<pointer_type>(this->at(index_slice));
 
       using Other = typename slice_type<dimension>::type;
       Other memory;
       memory._indexMapper   = _indexMapper.slice<dimension>(index_slice);
-      memory._data          = const_cast<T*>(ptr);
+      memory._data          = const_cast<pointer_type>(ptr);
       memory._dataAllocated = false; // this is a "reference"
       memory._allocator     = getAllocator();
 
@@ -440,11 +466,11 @@ private:
       return size;
    }
 
-   void _allocateSlices(T default_value, ui32 linear_size)
+   void _allocateSlices(value_type default_value, ui32 linear_size)
    {
       auto p = allocator_traits::allocate(_allocator, linear_size);
       allocator_traits::construct_n(linear_size, _allocator, p, default_value);
-      _data = p;
+      _data = pointer_type(p);
    }
 
    void _deallocateSlices()
@@ -453,13 +479,13 @@ private:
       {
          const auto linear_size = _linearSize();
 
-         // handle the const T* case for const arrays
+         // handle the const pointer_type case for const arrays
          using unconst_value = typename std::remove_cv<T>::type;
-         allocator_traits::destroy_n(linear_size, _allocator, const_cast<unconst_value*>(_data));
-         allocator_traits::deallocate(_allocator, const_cast<unconst_value*>(_data), linear_size);
+         allocator_traits::destroy_n(linear_size, _allocator, (unconst_value*)(_data));
+         allocator_traits::deallocate(_allocator, (unconst_value*)(_data), linear_size);
       }
 
-      _data       = nullptr;
+      _data       = pointer_type(nullptr);
       _sharedView = nullptr;
    }
 
@@ -481,6 +507,13 @@ private:
       }
    }
 
+   /*
+   template <class T>
+   struct array_add_const
+   {
+      using type = const T*;
+   };*/
+
    void _deepCopy(const Memory_contiguous& other)
    {
       _deallocateSlices(); // if any memory is allocated or referenced, they are not needed anymore
@@ -493,26 +526,30 @@ private:
       // now deep copy...
       const ui32 this_linearSize  = _linearSize();
       const ui32 other_linearSize = other._sharedView ? other._sharedView->_linearSize() : other._linearSize();
-      using unconst_type = typename std::remove_const<T>::type;
 
-      _allocateSlices(T(), this_linearSize);
+      using unconst_pointer = typename array_remove_const<pointer_type>::type;
+
+      _allocateSlices(value_type(), this_linearSize);
       if ( this_linearSize == other_linearSize && is_memory_fully_contiguous( other ) && same_data_ordering_memory( other, *this ) ) // if we have a non stride (1,...,1) stride, use iterator
       {
          // this means the deep copy is the FULL buffer
-         const auto size_bytes = sizeof(T) * this_linearSize;
-         static_assert(std::is_standard_layout<T>::value, "must have standard layout!");
+         const auto size_bytes = sizeof(value_type) * this_linearSize;
+         static_assert(std::is_standard_layout<value_type>::value, "must have standard layout!");
          const auto src = other._data;
          const auto dst = _data;
-         NLL_FAST_ASSERT(!std::is_const<T>::value, "type is CONST!");  // _deepCopy can be compiled with a const array, but it should actually never run it...
-         memcpy( const_cast<unconst_type*>( dst ), src, size_bytes );
+         NLL_FAST_ASSERT(!std::is_const<value_type>::value, "type is CONST!");  // _deepCopy can be compiled with a const array, but it should actually never run it...
+         memcpy(unconst_pointer(dst), src, size_bytes);
       }
       else
       {
          // we have a subarray, potentially with stride so we need to use a processor
-         auto op_cpy = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements) {
+         using const_pointer_type = typename array_add_const<pointer_type>::type; // const T*;
+         //using const_pointer_type = typename array_add_const<pointer_type>::type;
+         auto op_cpy = [&](pointer_type y_pointer, ui32 y_stride, const_pointer_type x_pointer, ui32 x_stride, ui32 nb_elements)
+         {
             // @TODO add the BLAS copy
-            NLL_FAST_ASSERT( !std::is_const<T>::value, "type is CONST!" );
-            details::copy_naive( const_cast<unconst_type*>( y_pointer ), y_stride, x_pointer, x_stride, nb_elements );
+            NLL_FAST_ASSERT(!std::is_const<value_type>::value, "type is CONST!");
+            details::copy_naive(unconst_pointer(y_pointer), y_stride, x_pointer, x_stride, nb_elements);
          };
          iterate_memory_constmemory(*this, other, op_cpy);
       }
@@ -560,13 +597,13 @@ public:
       _deallocateSlices();
    }
 
-   const T* at(const index_type& index) const
+   const pointer_type at(const index_type& index) const
    {
       const auto offset = _indexMapper.offset(index);
       return _data + offset;
    }
 
-   T* at(const index_type& index)
+   pointer_type at(const index_type& index)
    {
       const auto offset = _indexMapper.offset(index);
       return _data + offset;
@@ -589,12 +626,12 @@ public:
 
 private:
    // arrange py decreasing size order to help with the structure packing
-   IndexMapper _indexMapper;
-   T* _data = nullptr;
+   IndexMapper        _indexMapper;
+   pointer_type       _data = nullptr;
    Memory_contiguous* _sharedView = nullptr; /// the original array
-   index_type _shape;
-   allocator_type _allocator;
-   bool _dataAllocated = true;
+   index_type         _shape;
+   allocator_type     _allocator;
+   bool               _dataAllocated = true;
 };
 
 template <class T, size_t N, class Allocator = std::allocator<T>>
@@ -602,5 +639,9 @@ using Memory_contiguous_row_major = Memory_contiguous<T, N, IndexMapper_contiguo
 
 template <class T, size_t N, class Allocator = std::allocator<T>>
 using Memory_contiguous_column_major = Memory_contiguous<T, N, IndexMapper_contiguous_column_major<N>, Allocator>;
+
+//template <class T, size_t N, class Allocator = AllocatorCuda<T>>
+//using Memory_cuda_contiguous_column_major = Memory_contiguous<cuda_ptr<T>, N, IndexMapper_contiguous_column_major<N>, Allocator>;
+
 
 DECLARE_NAMESPACE_NLL_END

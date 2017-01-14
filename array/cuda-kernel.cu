@@ -14,7 +14,7 @@ DECLARE_NAMESPACE_NLL
 namespace cuda
 {
    template<typename T>
-   __global__ void _kernel_init(T* ptr, const T val, const size_t nb_elements)
+   __global__ void _kernel_init(T* ptr, const size_t nb_elements, const T val)
    {
       int tidx = threadIdx.x + blockDim.x * blockIdx.x;
       const int stride = blockDim.x * gridDim.x;
@@ -45,22 +45,22 @@ namespace cuda
    }*/
 
    template<typename T>
-   void kernel_init(T* ptr, const T val, const size_t nb_elements)
+   void kernel_init(T* ptr, const size_t nb_elements, const T val)
    {
       thrust::device_ptr<T> dev_ptr(ptr);
       thrust::fill(dev_ptr, dev_ptr + nb_elements, val);
    }
 
    template<typename T>
-   void kernel_copy(const T* input, T* output, const size_t nb_elements)
+   void kernel_copy(const T* input, const size_t nb_elements, T* output)
    {
       thrust::device_ptr<T> dev_ptr_in(const_cast<T*>(input));
       thrust::device_ptr<T> dev_ptr_out(output);
       thrust::copy(dev_ptr_in, dev_ptr_in + nb_elements, dev_ptr_out);
    }
 
-   template ARRAY_API void kernel_init(float* ptr, const float val, const size_t nb_elements);
-   template ARRAY_API void kernel_copy(const float* input, float* output, const size_t nb_elements);
+   template ARRAY_API void kernel_init(float* ptr, const size_t nb_elements, const float val);
+   template ARRAY_API void kernel_copy(const float* input, const size_t nb_elements, float* output);
 
 }
 

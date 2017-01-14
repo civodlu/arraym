@@ -75,10 +75,10 @@ public:
    using array_type_ref       = ArrayRef<T, N, Config>;
    using const_array_type_ref = typename ConstArray::array_type_ref;
    using traits_type          = ArrayTraits<Array<T, N, ConfigT>, ConfigT>;
-   using pointer_type         = T*;
+   using pointer_type         = typename Memory::pointer_type;
+   using const_pointer_type   = typename Memory::const_pointer_type;
    using reference_type       = T&;
    using const_reference_type = const T&;
-   using const_pointer_type   = const T*;
    using index_type           = StaticVector<ui32, N>;
    using diterator            = typename Memory::diterator;
    using const_diterator      = typename Memory::const_diterator;

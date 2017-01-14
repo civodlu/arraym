@@ -67,6 +67,10 @@
 
 // see ref http://stackoverflow.com/questions/7090998/portable-unused-parameter-macro-used-on-function-signature-for-c-and-c
 
+DECLARE_NAMESPACE_NLL
+using ui32 = uint32_t;
+DECLARE_NAMESPACE_NLL_END
+
 /**
 @brief Specify an unused parameter and remove the compiler warning
 */

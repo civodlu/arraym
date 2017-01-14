@@ -93,6 +93,7 @@ class ConstArrayProcessor_contiguous_base
 public:
    using index_type   = typename Array::index_type;
    using pointer_type = typename Array::pointer_type;
+   using const_pointer_type = typename Array::const_pointer_type;
    using value_type   = typename Array::value_type;
 
    template <class FunctorGetDimensionOrder>
@@ -127,7 +128,7 @@ public:
    }
 
 protected:
-   bool _accessElements(value_type const*& ptrToValue, ui32 nbElements)
+   bool _accessElements(const_pointer_type& ptrToValue, ui32 nbElements)
    {
       return _processor._accessElements(const_cast<pointer_type&>(ptrToValue), nbElements);
    }
@@ -267,8 +268,9 @@ class ConstMemoryProcessor_contiguous_byMemoryLocality : public details::ConstAr
 public:
    using base         = details::ConstArrayProcessor_contiguous_base<Memory>;
    using pointer_type = typename Memory::pointer_type;
+   using const_pointer_type = typename Memory::const_pointer_type;
    using value_type   = typename Memory::value_type;
-
+   
    ConstMemoryProcessor_contiguous_byMemoryLocality(const Memory& array) : base(array, &details::getFastestVaryingIndexesMemory<Memory>)
    {
    }
@@ -290,7 +292,7 @@ public:
 
    IMPORTANT, @p ptrToValue if accessed in a contiguous fashion must account for the stride in the direction of access using stride()
    */
-   bool accessMaxElements(value_type const*& ptrToValue)
+   bool accessMaxElements(const_pointer_type& ptrToValue)
    {
       return this->_accessElements(ptrToValue, getMaxAccessElements());
    }
@@ -307,6 +309,7 @@ class ConstArrayProcessor_contiguous_byMemoryLocality : public details::ConstArr
 public:
    using base         = details::ConstArrayProcessor_contiguous_base<Array>;
    using pointer_type = typename Array::pointer_type;
+   using const_pointer_type = typename Array::const_pointer_type;
    using value_type   = typename Array::value_type;
 
    ConstArrayProcessor_contiguous_byMemoryLocality(const Array& array)
@@ -331,7 +334,7 @@ public:
 
    IMPORTANT, @p ptrToValue if accessed in a contiguous fashion must account for the stride in the direction of access using stride()
    */
-   bool accessMaxElements(value_type const*& ptrToValue)
+   bool accessMaxElements(const_pointer_type& ptrToValue)
    {
       return this->_accessElements(ptrToValue, getMaxAccessElements());
    }
@@ -416,16 +419,22 @@ void fill(Array<T, N, Config>& array, Functor functor)
    }
 }
 
+template <class T>
+struct CompileError
+{
+   static_assert(std::is_same<T, char>::value, "Compile error purpose for T!");
+};
 namespace impl
 {
    template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
    void _iterate_memory_constmemory_same_ordering(Memory1& a1, const Memory2& a2, const Op& op)
    {
-      using T = typename Memory1::value_type;
-      using T2 = typename Memory2::value_type;
+      using pointer_T = typename Memory1::pointer_type;
+      using pointer_T2 = typename Memory2::pointer_type;
+      using pointer_const_T2 = typename array_add_const<pointer_T2>::type;
       static const size_t N = Memory1::RANK;
 
-      static_assert(is_callable_with<Op, T*, ui32, const T2*, ui32, ui32>::value, "Op is not callable!");
+      static_assert(is_callable_with<Op, pointer_T, ui32, pointer_const_T2, ui32, ui32>::value, "Op is not callable!");
       ensure(Memory1::RANK == Memory2::RANK, "must have the same rank!");
       ensure(a1.shape() == a2.shape(), "must have the same shape!");
       ensure(same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
@@ -437,13 +446,19 @@ namespace impl
       bool hasMoreElements = true;
       while (hasMoreElements)
       {
-         T* ptr_a1 = nullptr;
-         T2 const* ptr_a2 = nullptr;
+         pointer_T ptr_a1 = pointer_T(nullptr);
+         pointer_const_T2 ptr_a2 = pointer_const_T2(nullptr);
+         static_assert(std::is_same<pointer_const_T2, typename ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2>::const_pointer_type>::value, "must be the same!");
+
+         //std::cout << "TYPE=" << typeid(pointer_const_T2).name() << std::endl;
+         
+         //T2 const* ptr_a2 = nullptr;
          hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
          hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
          NLL_FAST_ASSERT(processor_a1.getMaxAccessElements() == processor_a2.getMaxAccessElements(), "memory line must have the same size");
 
          op(ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getMaxAccessElements());
+         
       }
    }
 

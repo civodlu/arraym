@@ -2,10 +2,6 @@
 
 #include <array/config.h>
 
-DECLARE_NAMESPACE_NLL
-using ui32 = uint32_t;
-DECLARE_NAMESPACE_NLL_END
-
 /**
  @mainpage Arraym
 
@@ -83,15 +79,15 @@ DECLARE_NAMESPACE_NLL_END
 #include "static-vector.h"
 #include "static-vector-math.h"
 #include "static-vector-op.h"
+#include "cuda-kernel.cuh"
+#include "allocator-cuda.h"
 #include "traits.h"
 #include "index-mapper.h"
 #include "allocator-static.h"
+#include "cuda-utils.h"
+#include "cuda-kernel.h"
 #include "memory-contiguous.h"
 #include "memory-slice.h"
-#include "allocator-cuda.h"
-#include "cuda-utils.h"
-#include "cuda-kernel.cuh"
-#include "cuda-kernel.h"
 #include "range.h"
 #include "array-traits.h"
 #include "array.h"

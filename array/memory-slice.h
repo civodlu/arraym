@@ -20,6 +20,7 @@ public:
    using allocator_trait = std::allocator_traits<allocator_type>;
    using index_mapper    = IndexMapper;
    using pointer_type    = T*;
+   using const_pointer_type = const T*;
    using value_type      = T;
    using Memory          = Memory_multislice<T, N, IndexMapper, Allocator>;
 
@@ -287,7 +288,7 @@ private:
    struct SliceImpl_z
    {
       using index_mapper = IndexMapper_contiguous<N - 1, details::Mapper_stride_row_major<N - 1>>;
-      using other        = Memory_contiguous<T, N - 1, index_mapper, allocator_type>;
+      using other        = Memory_contiguous<T, N - 1, index_mapper, allocator_type>;  // no need for pointer type, only support GPU to contiguous data!
 
       template <size_t slice_dim>
       static other slice(const Memory_multislice& array, const index_type& index)

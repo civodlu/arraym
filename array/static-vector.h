@@ -38,7 +38,7 @@ public:
    */
    StaticVector(const StaticVector& cpy)
    {
-      memcpy(begin(), cpy.begin(), SIZE * sizeof(T));
+      std::memcpy(begin(), cpy.begin(), SIZE * sizeof(T));
    }
 
    /**
