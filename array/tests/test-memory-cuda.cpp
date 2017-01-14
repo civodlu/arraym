@@ -59,19 +59,19 @@ struct TestMemoryCuda
    
    void testDeepCopy()
    {
-     /* 
+      
       using memory_type = Memory_cuda_contiguous_column_major<float, 1>;
       using memory_type_cpu = Memory_contiguous_row_major<float, 1>;
       using value_type = memory_type::value_type;
 
-      static_assert(std::is_same<memory_type::const_pointer_type, const float*>::value, "must be a pointer to const float!");
+      static_assert(std::is_same<memory_type::const_pointer_type, const cuda_ptr<float>>::value, "must be a pointer to const float!");
 
       memory_type memory({ 5 }, -1.0f);
 
       memory_type memory2 = memory;
       memory_type_cpu cpu(memory.shape());
       cudaMemcpy(cpu.at(0), memory.at(0), memory.shape()[0] * sizeof(value_type), cudaMemcpyKind::cudaMemcpyDeviceToHost);
-      */
+      
    }
 
    void testCallable()
@@ -110,6 +110,17 @@ struct TestMemoryCuda
       static_assert(std::is_same<float*, array_remove_const<float*>::type>::value, "must be the same");
       static_assert(std::is_same<cuda_ptr<float>, array_remove_const<cuda_ptr<float>>::type>::value, "must be the same");
       static_assert(std::is_same<cuda_ptr<float>, array_remove_const<const cuda_ptr<float>>::type>::value, "must be the same");
+
+      using Memory = const Memory_cuda_contiguous_column_major<float, 1>;
+      using pointer_T = Memory::pointer_type;
+      using pointer_const_T = array_add_const<pointer_T>::type;
+      using processor_T = ConstMemoryProcessor_contiguous_byMemoryLocality<Memory>;
+
+      std::cout << typeid( pointer_const_T ).name() << std::endl;
+      std::cout << typeid( processor_T::const_pointer_type ).name() << std::endl;
+      std::cout << typeid( Memory::const_pointer_type ).name() << std::endl;
+      
+      //static_assert( std::is_same<pointer_const_T, processor_T::const_pointer_type>::value, "must be the same!" );
    }
 };
 
@@ -118,5 +129,5 @@ TESTER_TEST_SUITE(TestMemoryCuda);
 //TESTER_TEST(testInit_cte);
 //TESTER_TEST(test_Conversion);
 TESTER_TEST(testDeepCopy);
-//TESTER_TEST(testConstArrayCasts);
+TESTER_TEST(testConstArrayCasts);
 TESTER_TEST_SUITE_END();

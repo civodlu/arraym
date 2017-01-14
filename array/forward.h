@@ -85,7 +85,6 @@
 #include "index-mapper.h"
 #include "allocator-static.h"
 #include "cuda-utils.h"
-#include "cuda-kernel.h"
 #include "memory-contiguous.h"
 #include "memory-slice.h"
 #include "range.h"

@@ -29,7 +29,6 @@ set(Headers array.h
             forward.h
             index-mapper.h
             memory-contiguous.h
-            cuda-kernel.h
             array-op-axis.h
             matrix-op-blas-lu.h
             matrix-op-blas-cov.h

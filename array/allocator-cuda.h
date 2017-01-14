@@ -120,6 +120,12 @@ struct array_add_const<cuda_ptr<T>>
    using type = const cuda_ptr<T>;
 };
 
+template <class T>
+struct array_add_const<const cuda_ptr<T>>
+{
+   using type = const cuda_ptr<T>;
+};
+
 DECLARE_NAMESPACE_NLL_END
 
 #endif

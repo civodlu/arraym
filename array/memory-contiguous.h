@@ -213,7 +213,7 @@ public:
    using allocator_traits= allocator_traits_gpu_extended<allocator_type>;
    using index_mapper    = IndexMapper;
    using pointer_type    = PointerType;
-   using const_pointer_type = typename array_add_const<T*>::type;
+   using const_pointer_type = typename array_add_const<pointer_type>::type;
    using value_type      = T;
    using Memory          = Memory_contiguous<T, N, IndexMapper, Allocator, PointerType>;
 
