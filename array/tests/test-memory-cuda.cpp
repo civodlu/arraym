@@ -53,13 +53,10 @@ struct TestMemoryCuda
    {
       static_assert(!is_allocator_gpu<std::allocator<float>>::value, "CPU allocator!");
       static_assert(is_allocator_gpu<AllocatorCuda<float>>::value, "CPU allocator!");
-
-      //Memory_cuda_contiguous_column_major
    }
    
    void testDeepCopy()
    {
-      /*
       using memory_type = Memory_cuda_contiguous_column_major<float, 1>;
       using memory_type_cpu = Memory_contiguous_row_major<float, 1>;
       using value_type = memory_type::value_type;
@@ -70,8 +67,12 @@ struct TestMemoryCuda
 
       memory_type memory2 = memory;
       memory_type_cpu cpu(memory.shape());
-      cudaMemcpy(cpu.at(0), memory.at(0), memory.shape()[0] * sizeof(value_type), cudaMemcpyKind::cudaMemcpyDeviceToHost);
-      */
+      cudaMemcpy(cpu.at(0), memory2.at(0), memory2.shape()[0] * sizeof(value_type), cudaMemcpyKind::cudaMemcpyDeviceToHost);
+      TESTER_ASSERT(*cpu.at(0) == -1.0f);
+      TESTER_ASSERT(*cpu.at(1) == -1.0f);
+      TESTER_ASSERT(*cpu.at(2) == -1.0f);
+      TESTER_ASSERT(*cpu.at(3) == -1.0f);
+      TESTER_ASSERT(*cpu.at(4) == -1.0f);
    }
 
    void testCallable()
@@ -120,14 +121,14 @@ struct TestMemoryCuda
       std::cout << typeid( processor_T::const_pointer_type ).name() << std::endl;
       std::cout << typeid( Memory::const_pointer_type ).name() << std::endl;
       
-      //static_assert( std::is_same<pointer_const_T, processor_T::const_pointer_type>::value, "must be the same!" );
+      static_assert( std::is_same<pointer_const_T, processor_T::const_pointer_type>::value, "must be the same!" );
    }
 };
 
 TESTER_TEST_SUITE(TestMemoryCuda);
-//TESTER_TEST(testAllocator);
-//TESTER_TEST(testInit_cte);
-//TESTER_TEST(test_Conversion);
+TESTER_TEST(testAllocator);
+TESTER_TEST(testInit_cte);
+TESTER_TEST(test_Conversion);
 TESTER_TEST(testDeepCopy);
 TESTER_TEST(testConstArrayCasts);
 TESTER_TEST_SUITE_END();

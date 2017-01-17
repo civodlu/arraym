@@ -151,19 +151,20 @@ struct allocator_traits_gpu_extended : public std::allocator_traits<Allocator>
 {
 public:
    using value_type = typename Allocator::value_type;
+   using pointer_type = typename Allocator::pointer;
 
-   static void construct_n(size_t linear_size, allocator_type alloc, value_type* p, value_type default_value)
+   static void construct_n(size_t linear_size, allocator_type alloc, pointer_type p, value_type default_value)
    {
       _construct_n(linear_size, alloc, p, default_value, is_allocator_gpu<Allocator>());
    }
 
-   static void destroy_n(size_t linear_size, allocator_type alloc, value_type* p)
+   static void destroy_n(size_t linear_size, allocator_type alloc, pointer_type p)
    {
       _destroy_n(linear_size, alloc, p, is_allocator_gpu<Allocator>());
    }
 
 private:
-   static void _construct_n(size_t linear_size, allocator_type alloc, value_type* p, value_type default_value, std::false_type)
+   static void _construct_n(size_t linear_size, allocator_type alloc, pointer_type p, value_type default_value, std::false_type)
    {
       // default to std::allocator_traits called for each value
       for (size_t nn = 0; nn < linear_size; ++nn)
@@ -172,13 +173,13 @@ private:
       }
    }
 
-   static void _construct_n(size_t linear_size, allocator_type alloc, value_type* p, value_type default_value, std::true_type)
+   static void _construct_n(size_t linear_size, allocator_type alloc, pointer_type p, value_type default_value, std::true_type)
    {
       // if batch available, call it
       alloc.construct_n(linear_size, p, default_value);
    }
 
-   static void _destroy_n(size_t linear_size, allocator_type alloc, value_type* p, std::false_type)
+   static void _destroy_n(size_t linear_size, allocator_type alloc, pointer_type p, std::false_type)
    {
       // default to std::allocator_traits called for each value
       for (size_t nn = 0; nn < linear_size; ++nn)
@@ -187,7 +188,7 @@ private:
       }
    }
 
-   static void _destroy_n(size_t linear_size, allocator_type alloc, value_type* p, std::true_type)
+   static void _destroy_n(size_t linear_size, allocator_type alloc, pointer_type p, std::true_type)
    {
       // if batch available, call it
       alloc.destroy_n(p, linear_size);
@@ -309,6 +310,11 @@ public:
       reference operator*()
       {
          return *_p;
+      }
+
+      pointer current_pointer() const
+      {
+         return _p;
       }
 
    private:
@@ -481,8 +487,10 @@ private:
 
          // handle the const pointer_type case for const arrays
          using unconst_value = typename std::remove_cv<T>::type;
-         allocator_traits::destroy_n(linear_size, _allocator, (unconst_value*)(_data));
-         allocator_traits::deallocate(_allocator, (unconst_value*)(_data), linear_size);
+         
+         auto ptr = typename allocator_type::pointer(_data);
+         allocator_traits::destroy_n(linear_size, _allocator, ptr);
+         allocator_traits::deallocate(_allocator, ptr, linear_size);
       }
 
       _data       = pointer_type(nullptr);

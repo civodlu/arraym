@@ -67,7 +67,7 @@ public:
       {
          _iterator.add(nbElements);
       }
-      ptrToValue = &(*_iterator);
+      ptrToValue = pointer_type(_iterator.current_pointer());
       return this->Base::_accessElements( nbElements );
    }
 

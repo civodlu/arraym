@@ -31,10 +31,18 @@ struct cuda_ptr
 namespace cuda
 {
    template<typename T>
-   void kernel_init(T* ptr, const size_t nb_elements, const T val);
+   void kernel_init(cuda_ptr<T> ptr, const size_t nb_elements, const T val);
 
    template<typename T>
-   void kernel_copy(const T* input, const size_t nb_elements, T* output);
+   void kernel_copy(const cuda_ptr<T> input, const size_t nb_elements, cuda_ptr<T> output);
+
+   //
+   // TODO: hemi 2 https://github.com/harrism/hemi
+   // https://devblogs.nvidia.com/parallelforall/simple-portable-parallel-c-hemi-2/
+   // https://devblogs.nvidia.com/parallelforall/how-access-global-memory-efficiently-cuda-c-kernels/
+   // https://devblogs.nvidia.com/parallelforall/how-optimize-data-transfers-cuda-cc/
+   // https://devblogs.nvidia.com/parallelforall/how-overlap-data-transfers-cuda-cc/
+   //
 }
 
 namespace details
@@ -44,7 +52,10 @@ namespace details
    {
       if (y_stride == 1 && x_stride == 1)
       {
-         cuda::kernel_copy(x_pointer.ptr, nb_elements, y_pointer.ptr);
+         cuda::kernel_copy(x_pointer, nb_elements, y_pointer);
+      }
+      else {
+         ensure(0, "TODO implement!");
       }
    }
 }
@@ -53,7 +64,7 @@ template <class T>
 void memcpy(cuda_ptr<T> destination, const cuda_ptr<T> source, size_t size_bytes)
 {
    NLL_FAST_ASSERT(size_bytes % sizeof(T) == 0, "error! Must be no rounding!");
-   cuda::kernel_copy(source.ptr, size_bytes / sizeof(T), destination.ptr);
+   cuda::kernel_copy(source, size_bytes / sizeof(T), destination);
 }
 
 inline void memcpy(void* destination, const void* source, size_t size_bytes)

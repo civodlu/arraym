@@ -132,6 +132,11 @@ public:
          return *_p;
       }
 
+      pointer current_pointer() const
+      {
+         return _p;
+      }
+
    private:
       ui32 _slice;
       ui32 _offset;

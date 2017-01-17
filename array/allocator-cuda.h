@@ -10,6 +10,7 @@ class AllocatorCuda
 {
 public:
    using value_type = T;
+   using pointer = cuda_ptr<T>;
    
    template <class U>
    struct rebind
@@ -28,17 +29,17 @@ public:
       // do not copy state
    }
 
-   T* allocate(std::size_t nb_elements)
+   pointer allocate(std::size_t nb_elements)
    {
       T* gpu_ptr = nullptr;
       if (nb_elements)
       {
          CHECK_CUDA(cudaMalloc(&gpu_ptr, nb_elements * sizeof(T)));
       }
-      return gpu_ptr;
+      return pointer(gpu_ptr);
    }
 
-   void deallocate(T* gpu_ptr, std::size_t n)
+   void deallocate(pointer gpu_ptr, std::size_t n)
    {
       if (n)
       {
@@ -47,13 +48,13 @@ public:
       }
    }
 
-   void construct_n(size_t nb_elements, T* gpu_ptr, T default_value)
+   void construct_n(size_t nb_elements, pointer gpu_ptr, T default_value)
    {
       // just initialize with default value
       cuda::kernel_init(gpu_ptr, nb_elements, default_value);
    }
 
-   void destroy_n(T* UNUSED(gpu_ptr), size_t UNUSED(nb_elements))
+   void destroy_n(pointer UNUSED(gpu_ptr), size_t UNUSED(nb_elements))
    {
       // do nothing: GPU won't store complex data...
    }

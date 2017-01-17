@@ -19,6 +19,7 @@ class AllocatorSingleStaticMemory : public memory_not_moveable
 {
 public:
    using value_type = T;
+   using pointer = T*;
    using fallback_allocator = FallbackAllocator;
 
    template <class U>
