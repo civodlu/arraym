@@ -36,7 +36,8 @@ set(Headers array.h
             static-vector.h
             static-vector-math.h
             static-vector-op.h
-            traits.h   
+            traits.h
+			${CMAKE_BINARY_DIR}/${LIBNAME}/config.h
 )
                
 set(BLAS    wrapper-cblas.cpp

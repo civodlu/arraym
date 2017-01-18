@@ -331,18 +331,18 @@ public:
    }
 
    /**
-    @brief If the argument is a list of @ref Range the value is true, false otherwise
+    @brief If the argument is a list of @ref RangeA the value is true, false otherwise
     */
    template <typename... Args>
    struct is_range_list
    {
-      static const bool value = is_same_nocvr<Range, Args...>::value && sizeof...(Args) == N;
+      static const bool value = is_same_nocvr<RangeA, Args...>::value && sizeof...(Args) == N;
    };
 
    template <typename... Args, typename = typename std::enable_if<is_range_list<Args...>::value>::type>
    array_type_ref operator()(Args&&...args)
    {
-      const Range ranges[N] = { args... };
+      const RangeA ranges[N] = { args... };
       index_type min_index_inclusive;
       index_type max_index_inclusive;
 

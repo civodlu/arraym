@@ -54,7 +54,7 @@
  Similarly a range can be used to access sub-array:
  @code
  Array<float, 2> array(10, 10);
- auto sub_array = array(Range(2, 3), Range(4, 5)); // select area for x = 2..3 and y = 4..5
+ auto sub_array = array(R(2, 3), R(4, 5)); // select area for x = 2..3 and y = 4..5
  sub_array = 42;  // the referenced array will be updated
  @endcode
 

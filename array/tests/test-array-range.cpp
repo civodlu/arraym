@@ -7,21 +7,21 @@ using vector3ui = StaticVector<ui32, 3>;
 using vector2ui = StaticVector<ui32, 2>;
 using vector1ui = StaticVector<ui32, 1>;
 
-struct TestArrayRange
+struct TestArrayRangeA
 {
    void test_range()
    {
-      static_assert(Array<float, 2>::is_range_list<Range, Range>::value, "<Range, Range>");
-      static_assert(Array<float, 2>::is_range_list<const Range, Range>::value, "<Range, Range>");
-      static_assert(Array<float, 2>::is_range_list<const Range, Range&>::value, "<Range, Range>");
+      static_assert(Array<float, 2>::is_range_list<RangeA, RangeA>::value, "<RangeA, RangeA>");
+      static_assert(Array<float, 2>::is_range_list<const RangeA, RangeA>::value, "<RangeA, RangeA>");
+      static_assert(Array<float, 2>::is_range_list<const RangeA, RangeA&>::value, "<RangeA, RangeA>");
 
       // not the good number of parameters
-      static_assert(!Array<float, 2>::is_range_list<const Range>::value, "<Range>");
-      static_assert(!Array<float, 2>::is_range_list<const Range, Range, Range>::value, "<Range, Range, Range>");
+      static_assert(!Array<float, 2>::is_range_list<const RangeA>::value, "<RangeA>");
+      static_assert(!Array<float, 2>::is_range_list<const RangeA, RangeA, RangeA>::value, "<RangeA, RangeA, RangeA>");
 
       // not the good type
-      static_assert(!Array<float, 2>::is_range_list<const Range, int>::value, "<Range, int>");
-      static_assert(!Array<float, 2>::is_range_list<int, const Range>::value, "<int, Range>");
+      static_assert(!Array<float, 2>::is_range_list<const RangeA, int>::value, "<RangeA, int>");
+      static_assert(!Array<float, 2>::is_range_list<int, const RangeA>::value, "<int, RangeA>");
    }
 
    void test_array_range()
@@ -129,36 +129,137 @@ struct TestArrayRange
    void test_range_op()
    {
       {
-         const auto r = Range(1, 3) & Range(2, 10);
-         TESTER_ASSERT(r.min == 2);
-         TESTER_ASSERT(r.max == 3);
+         const auto r = range(1, 3) & range(2, 10);
+         TESTER_ASSERT(r.begin() == 2);
+         TESTER_ASSERT(r.end() == 3);
       }
 
       {
-         const auto r = Range(1, 3) | Range(2, 10);
-         TESTER_ASSERT(r.min == 1);
-         TESTER_ASSERT(r.max == 10);
+         const auto r = range(1, 3) | range(2, 10);
+         TESTER_ASSERT(r.begin() == 1);
+         TESTER_ASSERT(r.end() == 10);
       }
 
       {
-         const auto r = Range(1, 3) + 2;
-         TESTER_ASSERT(r.min == 3);
-         TESTER_ASSERT(r.max == 5);
+         const auto r = range(1, 3) + 2;
+         TESTER_ASSERT(r.begin() == 3);
+         TESTER_ASSERT(r.end() == 5);
       }
 
       {
-         const auto r = Range(1, 3) - 2;
-         TESTER_ASSERT(r.min == -1);
-         TESTER_ASSERT(r.max == 1);
+         const auto r = range(1, 3) - 2;
+         TESTER_ASSERT(r.begin() == -1);
+         TESTER_ASSERT(r.end() == 1);
+      }
+   }
+
+   void test_rangefor()
+   {
+      auto r = range(1, 3);
+      TESTER_ASSERT(*r.begin() == 1);
+      TESTER_ASSERT(*r.end() == 3);
+
+      int expected_i = -2;
+      for (auto i : range(-2, 10))
+      {
+         TESTER_ASSERT(expected_i == i);
+         ++expected_i;
+      }
+   }
+
+   void test_rangefor_step()
+   {
+      int expected_i = -2;
+      for (auto i : range(-2, 10).step(2))
+      {
+         TESTER_ASSERT(expected_i == i);
+         expected_i += 2;
+      }
+   }
+
+   void test_rangefor_max()
+   {
+      int expected_i = 0;
+      for (auto i : range(10).step(2))
+      {
+         TESTER_ASSERT(expected_i == i);
+         expected_i += 2;
+      }
+   }
+
+   void test_rangefor_indices_vector()
+   {
+      std::vector<int> values = { 10, 11, 12, 13, 14, 15 };
+
+      int expected_i = 0;
+      for (auto i : indices(values).step(2))
+      {
+         TESTER_ASSERT(expected_i == i);
+         expected_i += 2;
+      }
+      TESTER_ASSERT(expected_i == 6);
+   }
+
+   void test_rangefor_indices_initializer()
+   {
+      int expected_i = 0;
+      for (auto i : indices({ 10, 11, 12, 13, 14, 15 }).step(2))
+      {
+         TESTER_ASSERT(expected_i == i);
+         expected_i += 2;
+      }
+      TESTER_ASSERT(expected_i == 6);
+   }
+
+   void test_rangefor_indices_staticarray()
+   {
+      static const int values[] = { 10, 11, 12, 13, 14, 15 };
+
+      int expected_i = 0;
+      for (auto i : indices(values).step(2))
+      {
+         TESTER_ASSERT(expected_i == i);
+         expected_i += 2;
+      }
+      TESTER_ASSERT(expected_i == 6);
+   }
+
+   void test_range_letters()
+   {
+      char expected_i = 'a';
+      for (auto i : range('a', 'd'))
+      {
+         TESTER_ASSERT(i == expected_i);
+         ++expected_i;
+      }
+   }
+
+   void test_range_dynamic()
+   {
+      auto r = range(0, 10);
+      std::cout << typeid(r).name() << std::endl;
+
+      for (auto i : r)
+      {
+         TESTER_ASSERT(r.begin() == 0);
+         TESTER_ASSERT(r.end() == 10);
       }
    }
 };
 
-TESTER_TEST_SUITE(TestArrayRange);
+TESTER_TEST_SUITE(TestArrayRangeA);
+TESTER_TEST(test_rangefor);
+TESTER_TEST(test_rangefor_step);
+TESTER_TEST(test_rangefor_max);
+TESTER_TEST(test_rangefor_indices_vector);
+TESTER_TEST(test_rangefor_indices_initializer);
+TESTER_TEST(test_rangefor_indices_staticarray);
 TESTER_TEST(test_range);
 TESTER_TEST(test_array_range);
 TESTER_TEST(test_array_range_negative);
 TESTER_TEST(test_array_range_all);
 TESTER_TEST(test_constarray_range);
 TESTER_TEST(test_range_op);
+TESTER_TEST(test_range_letters);
+TESTER_TEST(test_range_dynamic);
 TESTER_TEST_SUITE_END();

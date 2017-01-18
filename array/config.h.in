@@ -44,6 +44,14 @@
             throw std::runtime_error( ss_impl.str() ); } 0    // 0 to force the ";"
 #endif
 
+#ifdef WITH_CUDA
+/// annotate a function that can be called from CUDA device & host
+#include <cuda_runtime.h>
+# define DEVICE_CALLABLE __host__ __device__
+#else
+# define DEVICE_CALLABLE
+#endif
+
 #ifdef NDEBUG
 # define NLL_FAST_ASSERT(xxx, msg) (void*)0
 #else
