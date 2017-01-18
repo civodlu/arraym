@@ -11,17 +11,22 @@ struct TestArrayRangeA
 {
    void test_range()
    {
-      static_assert(Array<float, 2>::is_range_list<RangeA, RangeA>::value, "<RangeA, RangeA>");
-      static_assert(Array<float, 2>::is_range_list<const RangeA, RangeA>::value, "<RangeA, RangeA>");
-      static_assert(Array<float, 2>::is_range_list<const RangeA, RangeA&>::value, "<RangeA, RangeA>");
+      static_assert( is_range<range_proxy<float>>::value, "RangeA" );
+      static_assert( !is_range<int>::value, "RangeA" );
+
+      static_assert( Array<float, 2>::is_range_list<range_proxy<int>, range_proxy<int>>::value, "<RangeA, RangeA>" );
+      static_assert( Array<float, 2>::is_range_list<const range_proxy<int>, range_proxy<int>>::value, "<RangeA, RangeA>" );
+      static_assert( Array<float, 2>::is_range_list<const range_proxy<int>, range_proxy<int>&>::value, "<RangeA, RangeA>" );
 
       // not the good number of parameters
-      static_assert(!Array<float, 2>::is_range_list<const RangeA>::value, "<RangeA>");
-      static_assert(!Array<float, 2>::is_range_list<const RangeA, RangeA, RangeA>::value, "<RangeA, RangeA, RangeA>");
+      static_assert( !Array<float, 2>::is_range_list<const range_proxy<int>>::value, "<RangeA>" );
+      static_assert( !Array<float, 2>::is_range_list<const range_proxy<int>, range_proxy<int>, range_proxy<int>>::value, "<RangeA, RangeA, RangeA>" );
 
       // not the good type
-      static_assert(!Array<float, 2>::is_range_list<const RangeA, int>::value, "<RangeA, int>");
-      static_assert(!Array<float, 2>::is_range_list<int, const RangeA>::value, "<int, RangeA>");
+      static_assert( !Array<float, 2>::is_range_list<const range_proxy<int>, int>::value, "<RangeA, int>" );
+      static_assert( !Array<float, 2>::is_range_list<int, const range_proxy<int>>::value, "<int, RangeA>" );
+
+      TESTER_ASSERT(rangeAll == rangeAll);
    }
 
    void test_array_range()
@@ -31,13 +36,13 @@ struct TestArrayRangeA
       Array a1(2, 3);
       a1 = { 1, 2, 3, 4, 5, 6 };
 
-      auto a2 = a1(R(0, 1), R(0, 0));
+      auto a2 = a1(R(0, 2), R(0, 1));
       TESTER_ASSERT(a2.shape() == vector2ui(2, 1));
       TESTER_ASSERT(a2(0, 0) == a1(0, 0));
       TESTER_ASSERT(a2(1, 0) == a1(1, 0));
       std::cout << "a2=" << a2 << std::endl;
 
-      auto a3 = a1(R(1, 1), R(0, 1));
+      auto a3 = a1(R(1, 2), R(0, 2));
       TESTER_ASSERT(a3.shape() == vector2ui(1, 2));
       TESTER_ASSERT(a3(0, 0) == a1(1, 0));
       TESTER_ASSERT(a3(0, 1) == a1(1, 1));
@@ -53,14 +58,14 @@ struct TestArrayRangeA
              5, 6 };
 
       {
-         auto a2 = a1(R(-2, -1), R(0, 0));
+         auto a2 = a1(R(-2, -1), R(0, 1));
          TESTER_ASSERT(a2.shape() == vector2ui(2, 1));
          TESTER_ASSERT(a2(0, 0) == a1(0, 0));
          TESTER_ASSERT(a2(1, 0) == a1(1, 0));
       }
 
       {
-         auto a2 = a1(R(1, 1), R(-2, -1));
+         auto a2 = a1(R(1, 2), R(-2, -1));
          TESTER_ASSERT(a2.shape() == vector2ui(1, 2));
          TESTER_ASSERT(a2(0, 0) == a1(1, 1));
          TESTER_ASSERT(a2(0, 1) == a1(1, 2));
@@ -77,14 +82,14 @@ struct TestArrayRangeA
          5, 6 };
 
       {
-         auto a2 = a1(rangeAll, R(0, 0));
+         auto a2 = a1(rangeAll, R(0, 1));
          TESTER_ASSERT(a2.shape() == vector2ui(2, 1));
          TESTER_ASSERT(a2(0, 0) == a1(0, 0));
          TESTER_ASSERT(a2(1, 0) == a1(1, 0));
       }
 
       {
-         auto a2 = a1(R(1, 1), rangeAll);
+         auto a2 = a1(R(1, 2), rangeAll);
          TESTER_ASSERT(a2.shape() == vector2ui(1, 3));
          TESTER_ASSERT(a2(0, 0) == a1(1, 0));
          TESTER_ASSERT(a2(0, 1) == a1(1, 1));
@@ -100,13 +105,13 @@ struct TestArrayRangeA
       ax = { 1, 2, 3, 4, 5, 6 };
       const Array& a1 = ax;
 
-      auto a2 = a1(R(0, 1), R(0, 0));
+      auto a2 = a1(R(0, 2), R(0, 1));
       TESTER_ASSERT(a2.shape() == vector2ui(2, 1));
       TESTER_ASSERT(a2(0, 0) == a1(0, 0));
       TESTER_ASSERT(a2(1, 0) == a1(1, 0));
       std::cout << "a2=" << a2 << std::endl;
       
-      auto a3 = a1(R(1, 1), R(0, 1));
+      auto a3 = a1(R(1, 2), R(0, 2));
       TESTER_ASSERT(a3.shape() == vector2ui(1, 2));
       TESTER_ASSERT(a3(0, 0) == a1(1, 0));
       TESTER_ASSERT(a3(0, 1) == a1(1, 1));

@@ -2,59 +2,6 @@
 
 DECLARE_NAMESPACE_NLL
 
-struct ARRAY_API RangeA
-{
-public:
-   RangeA(int minInclusive, int maxInclusive) : min(minInclusive), max(maxInclusive)
-   {}
-
-   RangeA() : min(0), max(0)
-   {}
-
-   bool operator==(const RangeA& other) const
-   {
-      return other.min == min && other.max == max;
-   }
-
-   bool operator!=(const RangeA& other) const
-   {
-      return !operator==(other);
-   }
-
-   int min;
-   int max;
-};
-
-inline RangeA operator+(const RangeA& range, int value)
-{
-   NLL_FAST_ASSERT(range.max >= 0 && range.min >= 0, "operate on positive ranges only!");
-   return RangeA(range.min + value, range.max + value);
-}
-
-inline RangeA operator-(const RangeA& range, int value)
-{
-   NLL_FAST_ASSERT(range.max >= 0 && range.min >= 0, "operate on positive ranges only!");
-   return RangeA(range.min - value, range.max - value);
-}
-
-inline RangeA operator&(const RangeA& range1, const RangeA& range2)
-{
-   NLL_FAST_ASSERT(range1.max >= 0 && range1.min >= 0, "operate on positive ranges only!");
-   NLL_FAST_ASSERT(range2.max >= 0 && range2.min >= 0, "operate on positive ranges only!");
-   return RangeA(std::max(range1.min, range2.min), std::min(range1.max, range2.max));
-}
-
-inline RangeA operator|(const RangeA& range1, const RangeA& range2)
-{
-   NLL_FAST_ASSERT(range1.max >= 0 && range1.min >= 0, "operate on positive ranges only!");
-   NLL_FAST_ASSERT(range2.max >= 0 && range2.min >= 0, "operate on positive ranges only!");
-   return RangeA(std::min(range1.min, range2.min), std::max(range1.max, range2.max));
-}
-
-static const RangeA rangeAll = RangeA(std::numeric_limits<int>::lowest(), std::numeric_limits<int>::max());
-
-using R = RangeA; /// short name for range
-
 /**
 Copyright 2012–2016 Konrad Rudolph
 
@@ -169,7 +116,6 @@ struct range_proxy
             return !(*this == other);
          }
 
-      private:
          T step;
       };
 
@@ -201,6 +147,16 @@ struct range_proxy
 
    DEVICE_CALLABLE
       iter end() const { return end_; }
+
+   bool operator==( range_proxy other ) const
+   {
+      return begin_ == other.begin_ && end_ == other.end_;
+   }
+
+   bool operator!=( range_proxy other ) const
+   {
+      return !operator==(other);
+   }
 
 private:
    iter begin_;
@@ -285,5 +241,31 @@ DEVICE_CALLABLE
 range(std::initializer_list<T>&& cont) {
    return{ 0, cont.size() };
 }
+
+template <class T>
+struct is_range : public std::false_type
+{};
+
+template <class T>
+struct is_range<range_proxy<T>> : public std::true_type
+{};
+
+template <typename ...Args>
+struct is_range_n;
+
+template <>
+struct is_range_n<> : public std::true_type
+{
+};
+
+template <class Arg, typename ...Args>
+struct is_range_n<Arg, Args...>
+{
+   static const bool value = is_range<typename remove_cvr<Arg>::type>::value && is_range_n<Args...>::value;
+};
+
+static const range_proxy<int> rangeAll = range_proxy<int>( std::numeric_limits<int>::lowest(), std::numeric_limits<int>::max() );
+using R = range_proxy<int>; /// short name for range
+
 
 DECLARE_NAMESPACE_NLL_END

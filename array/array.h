@@ -336,20 +336,25 @@ public:
    template <typename... Args>
    struct is_range_list
    {
-      static const bool value = is_same_nocvr<RangeA, Args...>::value && sizeof...(Args) == N;
+      static const bool value = is_same_nocvr<R, Args...>::value && sizeof...(Args) == N;
    };
 
+   /**
+    @tparam Args a list of range[N](min_inclusive, max_exclusive), one for each dimension of the array
+    */
    template <typename... Args, typename = typename std::enable_if<is_range_list<Args...>::value>::type>
    array_type_ref operator()(Args&&...args)
    {
-      const RangeA ranges[N] = { args... };
+      using range_type = typename std::remove_reference<typename first<Args...>::type>::type;
+      const range_type ranges[ N ] = { args... };
       index_type min_index_inclusive;
       index_type max_index_inclusive;
 
       for (size_t n = 0; n < N; ++n)
       {
-         auto min_value = ranges[n].min;
-         auto max_value = ranges[n].max;
+         auto min_value = *ranges[n].begin();
+         auto max_value = *ranges[n].end();
+         NLL_FAST_ASSERT( ranges[ n ].begin().step == 1, "TODO handle steps [array with strides=steps" );
          if (ranges[n] != rangeAll)
          {
             if (min_value < 0)
@@ -358,18 +363,19 @@ public:
             }
             if (max_value < 0)
             {
-               max_value = shape()[n] + max_value;
+               max_value = shape()[n] + max_value + 1;
             }
          }
          else
          {
             min_value = 0;
-            max_value = shape()[n] - 1;
+            max_value = shape()[n];
          }
          NLL_FAST_ASSERT(min_value <= max_value, "min > max");
          min_index_inclusive[n] = min_value;
-         max_index_inclusive[n] = max_value;
+         max_index_inclusive[n] = max_value - 1;
       }
+
       return subarray(min_index_inclusive, max_index_inclusive);
    }
 
