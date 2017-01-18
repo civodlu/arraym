@@ -192,7 +192,7 @@ struct TestArrayRangeA
       std::vector<int> values = { 10, 11, 12, 13, 14, 15 };
 
       int expected_i = 0;
-      for (auto i : indices(values).step(2))
+      for (auto i : range(values).step(2))
       {
          TESTER_ASSERT(expected_i == i);
          expected_i += 2;
@@ -203,7 +203,7 @@ struct TestArrayRangeA
    void test_rangefor_indices_initializer()
    {
       int expected_i = 0;
-      for (auto i : indices({ 10, 11, 12, 13, 14, 15 }).step(2))
+      for (auto i : range({ 10, 11, 12, 13, 14, 15 }).step(2))
       {
          TESTER_ASSERT(expected_i == i);
          expected_i += 2;
@@ -216,7 +216,7 @@ struct TestArrayRangeA
       static const int values[] = { 10, 11, 12, 13, 14, 15 };
 
       int expected_i = 0;
-      for (auto i : indices(values).step(2))
+      for (auto i : range(values).step(2))
       {
          TESTER_ASSERT(expected_i == i);
          expected_i += 2;

@@ -74,8 +74,10 @@ limitations under the License.
 /**
 This version was modified from https://github.com/klmr/cpp11-range
 
-In particular, infinite ranges were removed to be more similar to python ranges
-where range(10) = range(0, 10)
+In particular:
+- infinite ranges were removed to be more similar to python ranges
+  where range(10) = range(0, 10)
+- no 'indices' instead just function range over collections, initializer list, arrays
 
 Additional operators were also added for ease of use.
 */
@@ -205,13 +207,31 @@ private:
    iter end_;
 };
 
+namespace traits
+{
+   template <typename C>
+   struct has_size
+   {
+      template <typename T>
+      static auto check( T* ) ->
+         typename std::is_integral<
+         decltype( std::declval<T const>().size() )>::type;
+
+      template <typename>
+      static auto check( ... )->std::false_type;
+
+      using type = decltype( check<C>( 0 ) );
+      static const bool value = type::value;
+   };
+}
+
 template <typename T>
 DEVICE_CALLABLE
 range_proxy<T> range(T begin, T end) {
    return{ begin, end };
 }
 
-template <typename T>
+template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
 DEVICE_CALLABLE
 range_proxy<T> range(T end) {
    return{ 0, end };
@@ -247,40 +267,22 @@ inline range_proxy<T> operator|(const range_proxy<T>& range1, const range_proxy<
    return range_proxy<T>(std::min(*range1.begin(), *range2.begin()), std::max(*range1.end(), *range2.end()));
 }
 
-namespace traits
-{
-   template <typename C>
-   struct has_size
-   {
-      template <typename T>
-      static auto check(T*) ->
-         typename std::is_integral<
-         decltype(std::declval<T const>().size())>::type;
-
-      template <typename>
-      static auto check(...)->std::false_type;
-
-      using type = decltype(check<C>(0));
-      static const bool value = type::value;
-   };
-}
-
-template <typename C, typename = typename std::enable_if<traits::has_size<C>::value>>
+template <typename C, typename = typename std::enable_if<traits::has_size<C>::value>::type>
 DEVICE_CALLABLE
-auto indices(C const& cont) -> range_proxy<decltype(cont.size())> {
+auto range(C const& cont) -> range_proxy<decltype(cont.size())> {
    return{ 0, cont.size() };
 }
 
 template <typename T, std::size_t N>
 DEVICE_CALLABLE
-range_proxy<std::size_t> indices(T(&)[N]) {
+range_proxy<std::size_t> range(T(&)[N]) {
    return{ 0, N };
 }
 
 template <typename T>
 range_proxy<typename std::initializer_list<T>::size_type>
 DEVICE_CALLABLE
-indices(std::initializer_list<T>&& cont) {
+range(std::initializer_list<T>&& cont) {
    return{ 0, cont.size() };
 }
 
