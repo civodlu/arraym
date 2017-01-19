@@ -64,11 +64,11 @@ struct TestMatrixCov
       };
 
 
-      using T = matrix_type::value_type;
+      using T = typename matrix_type::value_type;
       const size_t N = 2;
-      using Config = matrix_type::Config;
+      using Config = typename matrix_type::Config;
       
-      using T1 = Array<T, N, Config>::template rebind_dim<N - 1>::other;
+      using T1 = typename  Array<T, N, Config>::template rebind_dim<N - 1>::other;
 
       std::cout << "M=" << points << std::endl;
 

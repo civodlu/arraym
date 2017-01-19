@@ -3,7 +3,11 @@
 #define CHECK_CUDA(expr) \
    ensure((expr) == cudaError_t::cudaSuccess, "CUBLAS failed!");
 
+#endif
+
 DECLARE_NAMESPACE_NLL
+
+#ifdef WITH_CUDA
 
 template <class T>
 class AllocatorCuda
@@ -63,14 +67,17 @@ private:
    // stateless
 };
 
+#endif
+
 template <class Allocator>
 struct is_allocator_gpu : public std::false_type
 {};
 
+#ifdef WITH_CUDA
 template <class T>
 struct is_allocator_gpu<AllocatorCuda<T>> : public std::true_type
 {};
-
+#endif
 
 template <class array_type>
 struct array_remove_const
@@ -84,6 +91,7 @@ struct array_remove_const<const T*>
    using type = T*;
 };
 
+#ifdef WITH_CUDA
 template <class T>
 struct array_remove_const<cuda_ptr<T>>
 {
@@ -95,6 +103,7 @@ struct array_remove_const<const cuda_ptr<T>>
 {
    using type = cuda_ptr<T>;
 };
+#endif
 
 template <class T>
 struct value_type_inf
@@ -115,6 +124,7 @@ struct array_add_const
    using type = const value_type*;
 };
 
+#ifdef WITH_CUDA
 template <class T>
 struct array_add_const<cuda_ptr<T>>
 {
@@ -126,7 +136,6 @@ struct array_add_const<const cuda_ptr<T>>
 {
    using type = const cuda_ptr<T>;
 };
+#endif
 
 DECLARE_NAMESPACE_NLL_END
-
-#endif

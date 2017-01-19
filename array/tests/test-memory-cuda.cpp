@@ -2,6 +2,8 @@
 #include <tester/register.h>
 #include "test-utils.h"
 
+#ifdef WITH_CUDA
+
 using namespace NAMESPACE_NLL;
 
 using vector1ui = StaticVector<ui32, 1>;
@@ -132,3 +134,5 @@ TESTER_TEST(test_Conversion);
 TESTER_TEST(testDeepCopy);
 TESTER_TEST(testConstArrayCasts);
 TESTER_TEST_SUITE_END();
+
+#endif

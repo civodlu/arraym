@@ -145,9 +145,31 @@ struct TestArrayPerformance
 
       std::cout << "Dummy=" << timer.getElapsedTime() - constructionTime << std::endl;
    }
+
+   void test_range_dummy()
+   {
+      size_t f = 0;
+      for ( size_t n = 0; n < 1e8; ++n )
+      {
+         f += n;
+      }
+      std::cout << f << std::endl;
+   }
+
+   void test_range()
+   {
+      size_t f = 0;
+      for (auto n : range(1e8))
+      {
+         f += n;
+      }
+      std::cout << f << std::endl;
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayPerformance);
+TESTER_TEST( test_range_dummy );
+TESTER_TEST( test_range );
 TESTER_TEST(test_iterator_single);
 TESTER_TEST(test_iterator_max);
 TESTER_TEST(test_iterator_dummy);

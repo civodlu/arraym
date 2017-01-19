@@ -152,6 +152,7 @@ struct allocator_traits_gpu_extended : public std::allocator_traits<Allocator>
 public:
    using value_type = typename Allocator::value_type;
    using pointer_type = typename Allocator::pointer;
+   using allocator_type = Allocator;
 
    static void construct_n(size_t linear_size, allocator_type alloc, pointer_type p, value_type default_value)
    {

@@ -60,6 +60,30 @@ CBLAS_ORDER getMatrixMemoryOrder(const Array& array)
    return details::MatrixMemoryOrder_<Array>::compute(array);
 }
 
+/**
+@brief Extract the leading dimension of a matrix
+
+This only make sense for contiguous memory array. This specifies the offset of the next row or column (depending
+on the memory order)
+*/
+template <class T, class Config>
+blas::BlasInt leading_dimension( const Matrix_Enabled<T, 2, Config>& a )
+{
+   blas::BlasInt lda = 0;
+   const auto memory_order_a = getMatrixMemoryOrder( a );
+   const auto& stride_a = a.getMemory().getIndexMapper()._getPhysicalStrides();
+   if ( memory_order_a == CBLAS_ORDER::CblasColMajor )
+   {
+      lda = stride_a[ 1 ];
+      ensure( stride_a[ 0 ] == 1, "can't have stride != 1  for BLAS" );
+   } else
+   {
+      lda = stride_a[ 0 ];
+      ensure( stride_a[ 1 ] == 1, "can't have stride != 1  for BLAS " );
+   }
+   return lda;
+}
+
 namespace details
 {
 /**
@@ -110,30 +134,6 @@ Matrix_BlasEnabled<T, 2, Config> array_mul_array(const Array<T, 2, Config>& opa,
    gemm(static_cast<T>(1), opa, opb, static_cast<T>(0), opc);
    return opc;
 }
-}
-
-/**
-@brief Extract the leading dimension of a matrix
-
-This only make sense for contiguous memory array. This specifies the offset of the next row or column (depending
-on the memory order)
-*/
-template <class T, class Config>
-blas::BlasInt leading_dimension(const Matrix_Enabled<T, 2, Config>& a)
-{
-   blas::BlasInt lda = 0;
-   const auto memory_order_a = getMatrixMemoryOrder(a);
-   const auto& stride_a = a.getMemory().getIndexMapper()._getPhysicalStrides();
-   if (memory_order_a == CBLAS_ORDER::CblasColMajor)
-   {
-      lda = stride_a[ 1 ];
-      ensure( stride_a[ 0 ] == 1, "can't have stride != 1  for BLAS" );
-   }
-   else {
-      lda = stride_a[ 0 ];
-      ensure( stride_a[ 1 ] == 1, "can't have stride != 1  for BLAS " );
-   }
-   return lda;
 }
 
 template <class T, class Config>
