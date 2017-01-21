@@ -13,9 +13,9 @@ using vector3ui = StaticVector<ui32, 3>;
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-template <class T, size_t N, class Allocator = AllocatorCuda<T>>
-using Memory_cuda_contiguous_column_major = Memory_contiguous<T, N, IndexMapper_contiguous_column_major<N>, Allocator, cuda_ptr<T>>;
-
+//
+// Specific tests for CUDA as the CPU based tests are using deferencement
+//
 
 struct TestMemoryCuda
 {
@@ -81,7 +81,7 @@ struct TestMemoryCuda
    {
       struct Op
       {
-         float operator()(cuda_ptr<float> p) const
+         float operator()(cuda_ptr<float>) const
          {
             return 0.0f;
          }
@@ -91,7 +91,7 @@ struct TestMemoryCuda
 
       struct ConstOp
       {
-         float operator()(const cuda_ptr<float> p) const
+         float operator()(const cuda_ptr<float>) const
          {
             return 0.0f;
          }
@@ -125,6 +125,78 @@ struct TestMemoryCuda
       
       static_assert( std::is_same<pointer_const_T, processor_T::const_pointer_type>::value, "must be the same!" );
    }
+
+   void testCpuGpuTransfers_operatorequal()
+   {
+      using MemoryCpu = Memory_contiguous_column_major<float, 2>;
+      using MemoryGpu = Memory_cuda_contiguous_column_major<float, 2>;
+
+      float values[] = { 1, 2, 3, 4, 5, 6 };
+      MemoryCpu mem_cpu1({ 2, 3 }, values);
+      MemoryGpu mem_gpu;
+      mem_gpu = mem_cpu1;
+
+      MemoryCpu mem_cpu2;
+      mem_cpu2 = mem_gpu;
+      
+      TESTER_ASSERT(*mem_cpu1.at({ 0, 0 }) == *mem_cpu2.at({ 0, 0 }));
+      TESTER_ASSERT(*mem_cpu1.at({ 0, 1 }) == *mem_cpu2.at({ 0, 1 }));
+      TESTER_ASSERT(*mem_cpu1.at({ 0, 2 }) == *mem_cpu2.at({ 0, 2 }));
+
+      TESTER_ASSERT(*mem_cpu1.at({ 1, 0 }) == *mem_cpu2.at({ 1, 0 }));
+      TESTER_ASSERT(*mem_cpu1.at({ 1, 1 }) == *mem_cpu2.at({ 1, 1 }));
+      TESTER_ASSERT(*mem_cpu1.at({ 1, 2 }) == *mem_cpu2.at({ 1, 2 }));
+   }
+
+   void testCpuGpuTransfers_copyconstructor()
+   {
+      using MemoryCpu = Memory_contiguous_column_major<float, 2>;
+      using MemoryGpu = Memory_cuda_contiguous_column_major<float, 2>;
+
+      float values[] = { 1, 2, 3, 4, 5, 6 };
+      MemoryCpu mem_cpu1({ 2, 3 }, values);
+      MemoryGpu mem_gpu = mem_cpu1;
+
+      MemoryCpu mem_cpu2 = mem_gpu;
+
+      TESTER_ASSERT(*mem_cpu1.at({ 0, 0 }) == *mem_cpu2.at({ 0, 0 }));
+      TESTER_ASSERT(*mem_cpu1.at({ 0, 1 }) == *mem_cpu2.at({ 0, 1 }));
+      TESTER_ASSERT(*mem_cpu1.at({ 0, 2 }) == *mem_cpu2.at({ 0, 2 }));
+
+      TESTER_ASSERT(*mem_cpu1.at({ 1, 0 }) == *mem_cpu2.at({ 1, 0 }));
+      TESTER_ASSERT(*mem_cpu1.at({ 1, 1 }) == *mem_cpu2.at({ 1, 1 }));
+      TESTER_ASSERT(*mem_cpu1.at({ 1, 2 }) == *mem_cpu2.at({ 1, 2 }));
+   }
+
+   void testSlicing()
+   {
+      using MemoryCpu = Memory_contiguous_column_major<float, 2>;
+      using MemoryGpu = Memory_cuda_contiguous_column_major<float, 2>;
+
+      float values[] = { 1, 2, 3, 4, 5, 6 };
+      MemoryCpu mem_cpu1({ 2, 3 }, values);
+      MemoryGpu mem_gpu;
+      mem_gpu = mem_cpu1;
+
+      {
+         auto mem_gpu2 = mem_gpu.slice<0>({ 1, 0 });
+         Memory_contiguous_column_major<float, 1> mem_cpu2;
+         mem_cpu2 = mem_gpu2;
+         TESTER_ASSERT(mem_cpu2.shape() == vector1ui{ 3 });
+         TESTER_ASSERT(*mem_cpu2.at({ 0 }) == 4);
+         TESTER_ASSERT(*mem_cpu2.at({ 1 }) == 5);
+         TESTER_ASSERT(*mem_cpu2.at({ 2 }) == 6);
+      }
+
+      {
+         auto mem_gpu2 = mem_gpu.slice<1>({ 1, 0 });
+         Memory_contiguous_column_major<float, 1> mem_cpu2;
+         mem_cpu2 = mem_gpu2;
+         TESTER_ASSERT(mem_cpu2.shape() == vector1ui{ 2 });
+         TESTER_ASSERT(*mem_cpu2.at({ 0 }) == 2);
+         TESTER_ASSERT(*mem_cpu2.at({ 1 }) == 5);
+      }
+   }
 };
 
 TESTER_TEST_SUITE(TestMemoryCuda);
@@ -133,6 +205,9 @@ TESTER_TEST(testInit_cte);
 TESTER_TEST(test_Conversion);
 TESTER_TEST(testDeepCopy);
 TESTER_TEST(testConstArrayCasts);
+TESTER_TEST(testCpuGpuTransfers_operatorequal);
+TESTER_TEST(testCpuGpuTransfers_copyconstructor);
+TESTER_TEST(testSlicing);
 TESTER_TEST_SUITE_END();
 
 #endif

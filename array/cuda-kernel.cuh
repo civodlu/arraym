@@ -20,6 +20,11 @@ struct cuda_ptr
       return ptr;
    }
 
+   T& operator*()
+   {
+      ensure(0, "no possible dereferencement! This memory is on the GPU!");
+   }
+
    cuda_ptr operator + ( size_t offset ) const
    {
       return cuda_ptr( ptr + offset );
@@ -36,6 +41,20 @@ namespace cuda
    template<typename T>
    void kernel_copy(const cuda_ptr<T> input, const size_t nb_elements, cuda_ptr<T> output);
 
+   template<typename T>
+   void kernel_copy(const T* input, const size_t nb_elements, cuda_ptr<T> output);
+
+   template<typename T>
+   void kernel_copy(const cuda_ptr<T> input, const size_t nb_elements, T* output);
+
+   template<typename T>
+   void kernel_copy(const cuda_ptr<T> input, const size_t input_stride, cuda_ptr<T> output, const size_t output_stride, const size_t nb_elements);
+
+   template<typename T>
+   void kernel_copy(const T* input, const size_t input_stride, cuda_ptr<T> output, const size_t output_stride, const size_t nb_elements);
+   
+   template<typename T>
+   void kernel_copy(const cuda_ptr<T> input, const size_t input_stride, T* output, const size_t output_stride, const size_t nb_elements);
    //
    // TODO for CUDA support
    //
@@ -69,21 +88,35 @@ namespace details
          cuda::kernel_copy(x_pointer, nb_elements, y_pointer);
       }
       else {
-         ensure(0, "TODO implement!");
+         cuda::kernel_copy(x_pointer, x_stride, y_pointer, x_stride, nb_elements);
       }
    }
-}
 
-template <class T>
-void memcpy(cuda_ptr<T> destination, const cuda_ptr<T> source, size_t size_bytes)
-{
-   NLL_FAST_ASSERT(size_bytes % sizeof(T) == 0, "error! Must be no rounding!");
-   cuda::kernel_copy(source, size_bytes / sizeof(T), destination);
-}
+   template <class T>
+   void copy_naive(T* y_pointer, ui32 y_stride, const cuda_ptr<T> x_pointer, ui32 x_stride, ui32 nb_elements)
+   {
+      if (y_stride == 1 && x_stride == 1)
+      {
+         cuda::kernel_copy(x_pointer, nb_elements, y_pointer);
+      }
+      else
+      {
+         cuda::kernel_copy(x_pointer, x_stride, y_pointer, x_stride, nb_elements);
+      }
+   }
 
-inline void memcpy(void* destination, const void* source, size_t size_bytes)
-{
-   std::memcpy(destination, source, size_bytes);
+   template <class T>
+   void copy_naive(cuda_ptr<T> y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements)
+   {
+      if (y_stride == 1 && x_stride == 1)
+      {
+         cuda::kernel_copy(x_pointer, nb_elements, y_pointer);
+      }
+      else
+      {
+         cuda::kernel_copy(x_pointer, x_stride, y_pointer, x_stride, nb_elements);
+      }
+   }
 }
 
 DECLARE_NAMESPACE_NLL_END

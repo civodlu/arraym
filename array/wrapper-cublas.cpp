@@ -16,46 +16,35 @@ namespace blas
 {
 namespace detail
 {
-   /**
-   @brief Takes care of the initialization.
-
-   @Note that the first call to init() is slow (about 0.5sec) and could bias benchmarks!
-   */
-   class CublasConfig
+   CublasConfig::CublasConfig()
    {
-   public:
-      CublasConfig()
-      {
-      }
+   }
 
-      void init()
+   void CublasConfig::init()
+   {
+      if (_handle != nullptr)
       {
-         if (_handle != nullptr)
-         {
-         } else 
-         {
-            auto r = cublasCreate(&_handle);
-            ensure(r == CUBLAS_STATUS_SUCCESS, "CUBLAS init failed!");
-         }
-      }
-
-      ~CublasConfig()
+      } else 
       {
-         if (_handle != nullptr)
-         {
-            auto r = cublasDestroy(_handle);
-            ensure((r == CUBLAS_STATUS_SUCCESS), "cublas shut down failed!");
-         }
+         auto r = cublasCreate(&_handle);
+         ensure(r == CUBLAS_STATUS_SUCCESS, "CUBLAS init failed!");
       }
+   }
 
-      cublasHandle_t handle() const
+   CublasConfig::~CublasConfig()
+   {
+      if (_handle != nullptr)
       {
-         return _handle;
+         auto r = cublasDestroy(_handle);
+         ensure((r == CUBLAS_STATUS_SUCCESS), "cublas shut down failed!");
       }
+   }
 
-   private:
-      cublasHandle_t _handle = nullptr;
-   };
+   cublasHandle_t CublasConfig::handle() const
+   {
+      return _handle;
+   }
+
 
    CublasConfig config;
 

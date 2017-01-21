@@ -6,6 +6,8 @@
 
 #ifdef WITH_CUDA
 
+#include <cublas_v2.h>
+
 /**
 @brief this file defines a wrapper for cublas/cublas-XT
 */
@@ -16,6 +18,25 @@ namespace blas
 {
 namespace detail
 {
+   /**
+   @brief Takes care of the initialization.
+
+   @Note that the first call to init() is slow (about 0.5sec) and could bias benchmarks!
+   */
+   class CublasConfig
+   {
+   public:
+      CublasConfig();
+      void init();
+      ~CublasConfig();
+      cublasHandle_t handle() const;
+
+   private:
+      cublasHandle_t _handle = nullptr;
+   };
+
+   extern CublasConfig config;
+
    ARRAY_API BlasInt saxpy_cublas(BlasInt N, BlasReal alpha, const BlasReal* x, BlasInt incx, BlasReal* y, BlasInt incy);
    ARRAY_API BlasInt daxpy_cublas(BlasInt N, BlasDoubleReal alpha, const BlasDoubleReal* x, BlasInt incx, BlasDoubleReal* y, BlasInt incy);
 

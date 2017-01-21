@@ -232,7 +232,13 @@ public:
 
       // TODO rebind pointer type!
       // do NOT use the const in the allocator: this is underfined and won't compile for GCC/Clang
-      using other = Memory_contiguous<T2, N2, typename IndexMapper::template rebind<N2>::other, typename Allocator::template rebind<unconst_type>::other>;
+      using other = Memory_contiguous<
+         T2,
+         N2,
+         typename IndexMapper::template rebind<N2>::other,
+         typename Allocator::template rebind<unconst_type>::other,
+         PointerType
+      >;
    };
 
    /**
@@ -382,12 +388,12 @@ public:
       // we start at the beginning of the slice
       index_type index_slice;
       index_slice[dimension] = index[dimension];
-      pointer_type ptr = const_cast<pointer_type>(this->at(index_slice));
+      pointer_type ptr = pointer_type(this->at(index_slice));
 
       using Other = typename slice_type<dimension>::type;
       Other memory;
       memory._indexMapper   = _indexMapper.slice<dimension>(index_slice);
-      memory._data          = const_cast<pointer_type>(ptr);
+      memory._data          = pointer_type(ptr);
       memory._dataAllocated = false; // this is a "reference"
       memory._allocator     = getAllocator();
 
@@ -510,50 +516,41 @@ private:
          other._dataAllocated = false;
 
          _data       = other._data;
-         other._data = nullptr;
+         other._data = pointer_type(nullptr);
 
          _sharedView = other._sharedView;
       }
    }
 
-   /*
-   template <class T>
-   struct array_add_const
-   {
-      using type = const T*;
-   };*/
-
-   void _deepCopy(const Memory_contiguous& other)
+   template <class Allocator2, class PointerType2>
+   void _deepCopy_notallocator(const Memory_contiguous<value_type, N, index_mapper, Allocator2, PointerType2>& other)
    {
       _deallocateSlices(); // if any memory is allocated or referenced, they are not needed anymore
 
       _shape = other._shape;
       _indexMapper.init(0, _shape);
-      _allocator     = other._allocator;
       _dataAllocated = true;
 
       // now deep copy...
-      const ui32 this_linearSize  = _linearSize();
+      const ui32 this_linearSize = _linearSize();
       const ui32 other_linearSize = other._sharedView ? other._sharedView->_linearSize() : other._linearSize();
 
       using unconst_pointer = typename array_remove_const<pointer_type>::type;
 
       _allocateSlices(value_type(), this_linearSize);
-      if ( this_linearSize == other_linearSize && is_memory_fully_contiguous( other ) && same_data_ordering_memory( other, *this ) ) // if we have a non stride (1,...,1) stride, use iterator
+      if (this_linearSize == other_linearSize && is_memory_fully_contiguous(other) && same_data_ordering_memory(other, *this)) // if we have a non stride (1,...,1) stride, use iterator
       {
          // this means the deep copy is the FULL buffer
-         const auto size_bytes = sizeof(value_type) * this_linearSize;
          static_assert(std::is_standard_layout<value_type>::value, "must have standard layout!");
          const auto src = other._data;
          const auto dst = _data;
          NLL_FAST_ASSERT(!std::is_const<value_type>::value, "type is CONST!");  // _deepCopy can be compiled with a const array, but it should actually never run it...
-         memcpy(unconst_pointer(dst), src, size_bytes);
+         details::copy_naive(unconst_pointer(dst), 1, src, 1, this_linearSize);
       }
       else
       {
          // we have a subarray, potentially with stride so we need to use a processor
-         using const_pointer_type = typename array_add_const<pointer_type>::type; // const T*;
-         //using const_pointer_type = typename array_add_const<pointer_type>::type;
+         using const_pointer_type = typename array_add_const<PointerType2>::type;
          auto op_cpy = [&](pointer_type y_pointer, ui32 y_stride, const_pointer_type x_pointer, ui32 x_stride, ui32 nb_elements)
          {
             // @TODO add the BLAS copy
@@ -564,15 +561,49 @@ private:
       }
    }
 
+
+   template <class PointerType2>
+   void _deepCopy(const Memory_contiguous<value_type, N, index_mapper, allocator_type, PointerType2>& other)
+   {
+      _deepCopy_notallocator(other);
+      _allocator     = other._allocator;
+   }
+
 public:
    Memory_contiguous(const Memory_contiguous& other)
    {
       _deepCopy(other);
    }
 
+   template <class PointerType2>
+   Memory_contiguous(const Memory_contiguous<value_type, N, index_mapper, allocator_type, PointerType2>& other)
+   {
+      _deepCopy(other);
+   }
+
+   template <class Allocator2, class PointerType2>
+   Memory_contiguous(const Memory_contiguous<value_type, N, index_mapper, Allocator2, PointerType2>& other)
+   {
+      _deepCopy_notallocator(other);
+   }
+
    Memory_contiguous& operator=(const Memory_contiguous& other)
    {
       _deepCopy(other);
+      return *this;
+   }
+
+   template <class PointerType2>
+   Memory_contiguous& operator=(const Memory_contiguous<value_type, N, index_mapper, allocator_type, PointerType2>& other)
+   {
+      _deepCopy(other);
+      return *this;
+   }
+
+   template <class Allocator2, class PointerType2>
+   Memory_contiguous& operator=(const Memory_contiguous<value_type, N, index_mapper, Allocator2, PointerType2>& other)
+   {
+      _deepCopy_notallocator(other);
       return *this;
    }
 
@@ -649,8 +680,9 @@ using Memory_contiguous_row_major = Memory_contiguous<T, N, IndexMapper_contiguo
 template <class T, size_t N, class Allocator = std::allocator<T>>
 using Memory_contiguous_column_major = Memory_contiguous<T, N, IndexMapper_contiguous_column_major<N>, Allocator>;
 
-//template <class T, size_t N, class Allocator = AllocatorCuda<T>>
-//using Memory_cuda_contiguous_column_major = Memory_contiguous<cuda_ptr<T>, N, IndexMapper_contiguous_column_major<N>, Allocator>;
-
+#ifdef WITH_CUDA
+template <class T, size_t N, class Allocator = AllocatorCuda<T>>
+using Memory_cuda_contiguous_column_major = Memory_contiguous<T, N, IndexMapper_contiguous_column_major<N>, Allocator, cuda_ptr<T>>;
+#endif
 
 DECLARE_NAMESPACE_NLL_END

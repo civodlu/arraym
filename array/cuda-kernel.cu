@@ -8,9 +8,13 @@
 #include "cuda-kernel.cuh"
 #include <thrust/device_vector.h>
 #include <thrust/fill.h>
+#include "wrapper-cublas.h"
 
 DECLARE_NAMESPACE_NLL
 
+//
+// TODO optimize all these kernels. For now they are just very simple implementations
+//
 namespace cuda
 {
    template<typename T>
@@ -22,11 +26,15 @@ namespace cuda
       {
          ptr[tidx] = val;
       }
+   }
 
-      //
-      // cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize,
-      // &_kernel_init<T>, 0, 0);
-      //
+   template<typename T>
+   __global__ void _kernel_copy_dummy(const T* input, const size_t input_stride, T* output, const size_t output_stride, const size_t nb_elements)
+   {
+      const size_t tidx = (threadIdx.x + blockDim.x * blockIdx.x);
+      const size_t tidx_input = tidx * input_stride;
+      const size_t tidx_output = tidx * output_stride;
+      output[tidx_output] = input[tidx_input];
    }
 
    
@@ -39,8 +47,6 @@ namespace cuda
       _kernel_init_dummy<T> << <(nb_elements + block_size - 1) / block_size, block_size >> >(ptr, val, nb_elements);
       cudaDeviceSynchronize();
       cudaCheck();
-      //thrust::device_ptr<T> dev_ptr(ptr);
-      //thrust::fill(dev_ptr, dev_ptr + nb_elements, val);
    }
 
    template<typename T>
@@ -51,19 +57,55 @@ namespace cuda
    }
 
    template<typename T>
+   void kernel_copy(const cuda_ptr<T> input, const size_t input_stride, cuda_ptr<T> output, const size_t output_stride, const size_t nb_elements)
+   {
+      ensure(0, "TODO, implement!");
+   }
+
+   template<typename T>
+   void kernel_copy(const T* input, const size_t input_stride, cuda_ptr<T> output, const size_t output_stride, const size_t nb_elements)
+   {
+      ensure(0, "TODO, implement!");
+   }
+
+   template<typename T>
+   void kernel_copy(const cuda_ptr<T> input, const size_t input_stride, T* output, const size_t output_stride, const size_t nb_elements)
+   {
+      ensure(0, "TODO, implement!");
+   }
+
+   template<typename T>
    void kernel_copy(const cuda_ptr<T> input, const size_t nb_elements, cuda_ptr<T> output)
    {
-
-      
       thrust::device_ptr<T> dev_ptr_in((T*)(input));
       thrust::device_ptr<T> dev_ptr_out((T*)output);
-      thrust::copy(dev_ptr_in, dev_ptr_in + nb_elements, dev_ptr_out);
-      
+      thrust::copy(dev_ptr_in, dev_ptr_in + nb_elements, dev_ptr_out); 
+   }
+
+   template<typename T>
+   void kernel_copy(const T* input, const size_t nb_elements, cuda_ptr<T> output)
+   {
+      thrust::device_ptr<T> dev_ptr_out((T*)output);
+      thrust::copy(input, input + nb_elements, dev_ptr_out);
+   }
+
+   template<typename T>
+   void kernel_copy(const cuda_ptr<T> input, const size_t nb_elements, T* output)
+   {
+      thrust::device_ptr<T> dev_ptr_in((T*)(input));
+      thrust::copy(dev_ptr_in, dev_ptr_in + nb_elements, output);
    }
 
    template ARRAY_API void kernel_init(cuda_ptr<float> ptr, const size_t nb_elements, const float val);
+   
    template ARRAY_API void kernel_copy(const cuda_ptr<float> input, const size_t nb_elements, cuda_ptr<float> output);
-
+   template ARRAY_API void kernel_copy(const cuda_ptr<float> input, const size_t nb_elements, float* output);
+   template ARRAY_API void kernel_copy(const float* input, const size_t nb_elements, cuda_ptr<float> output);
+   
+   
+   template ARRAY_API void kernel_copy(const cuda_ptr<float> input, const size_t input_stride, cuda_ptr<float> output, const size_t output_stride, const size_t nb_elements);
+   template ARRAY_API void kernel_copy(const float* input, const size_t input_stride, cuda_ptr<float> output, const size_t output_stride, const size_t nb_elements);
+   template ARRAY_API void kernel_copy(const cuda_ptr<float> input, const size_t input_stride, float* output, const size_t output_stride, const size_t nb_elements);
 }
 
 DECLARE_NAMESPACE_NLL_END

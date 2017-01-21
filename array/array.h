@@ -354,7 +354,6 @@ public:
       {
          auto min_value = *ranges[n].begin();
          auto max_value = *ranges[n].end();
-         NLL_FAST_ASSERT( ranges[ n ].begin().step == 1, "TODO handle steps [array with strides=steps" );
          if (ranges[n] != rangeAll)
          {
             if (min_value < 0)

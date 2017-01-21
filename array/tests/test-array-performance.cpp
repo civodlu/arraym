@@ -149,7 +149,7 @@ struct TestArrayPerformance
    void test_range_dummy()
    {
       size_t f = 0;
-      for ( size_t n = 0; n < 1e8; ++n )
+      for ( size_t n = 0; n < 100000000; ++n )
       {
          f += n;
       }
@@ -159,7 +159,7 @@ struct TestArrayPerformance
    void test_range()
    {
       size_t f = 0;
-      for (auto n : range(1e8))
+      for (auto n : range((size_t)100000000))
       {
          f += n;
       }
@@ -170,7 +170,7 @@ struct TestArrayPerformance
 TESTER_TEST_SUITE(TestArrayPerformance);
 TESTER_TEST( test_range_dummy );
 TESTER_TEST( test_range );
-TESTER_TEST(test_iterator_single);
-TESTER_TEST(test_iterator_max);
-TESTER_TEST(test_iterator_dummy);
+//TESTER_TEST(test_iterator_single);
+//TESTER_TEST(test_iterator_max);
+//TESTER_TEST(test_iterator_dummy);
 TESTER_TEST_SUITE_END();
