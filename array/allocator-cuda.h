@@ -1,9 +1,4 @@
-#ifdef WITH_CUDA
-
-#define CHECK_CUDA(expr) \
-   ensure((expr) == cudaError_t::cudaSuccess, "CUBLAS failed!");
-
-#endif
+#pragma once
 
 DECLARE_NAMESPACE_NLL
 
@@ -38,7 +33,7 @@ public:
       T* gpu_ptr = nullptr;
       if (nb_elements)
       {
-         CHECK_CUDA(cudaMalloc(&gpu_ptr, nb_elements * sizeof(T)));
+         cudaAssert(cudaMalloc(&gpu_ptr, nb_elements * sizeof(T)));
       }
       return pointer(gpu_ptr);
    }
@@ -48,7 +43,7 @@ public:
       if (n)
       {
          // first GPU memory block can be 0
-         CHECK_CUDA(cudaFree(gpu_ptr));
+         cudaAssert(cudaFree(gpu_ptr));
       }
    }
 

@@ -246,6 +246,7 @@ struct TestArrayRangeA
 
       for (auto i : r)
       {
+         i;
          TESTER_ASSERT(r.begin() == 0);
          TESTER_ASSERT(r.end() == 10);
       }

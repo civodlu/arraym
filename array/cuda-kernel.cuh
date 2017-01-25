@@ -1,8 +1,8 @@
 #pragma once
 
-#ifdef WITH_CUDA
-
 DECLARE_NAMESPACE_NLL
+
+#ifdef WITH_CUDA
 
 /**
 @brief Simple wrapper on CUDA memory to differentiate CPU vs GPU memory
@@ -101,7 +101,7 @@ namespace details
       }
       else
       {
-         cuda::kernel_copy(x_pointer, x_stride, y_pointer, x_stride, nb_elements);
+         cuda::kernel_copy(x_pointer, x_stride, y_pointer, y_stride, nb_elements);
       }
    }
 
@@ -114,11 +114,28 @@ namespace details
       }
       else
       {
-         cuda::kernel_copy(x_pointer, x_stride, y_pointer, x_stride, nb_elements);
+         cuda::kernel_copy(x_pointer, x_stride, y_pointer, y_stride, nb_elements);
       }
    }
 }
 
-DECLARE_NAMESPACE_NLL_END
+#endif // WITH_CUDA
 
+template <class T, class NewType>
+struct RebindPointer;
+
+template <class T, class NewType>
+struct RebindPointer<T*, NewType>
+{
+   using type = NewType*;
+};
+
+#ifdef WITH_CUDA
+template <class T, class NewType>
+struct RebindPointer<cuda_ptr<T>, NewType>
+{
+   using type = cuda_ptr<NewType>;
+};
 #endif
+
+DECLARE_NAMESPACE_NLL_END

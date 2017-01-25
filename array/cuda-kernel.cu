@@ -6,6 +6,7 @@
 #include <cuda_runtime.h>
 
 #include "cuda-kernel.cuh"
+#include "cuda-utils.h"
 #include <thrust/device_vector.h>
 #include <thrust/fill.h>
 #include "wrapper-cublas.h"
@@ -15,6 +16,8 @@ DECLARE_NAMESPACE_NLL
 //
 // TODO optimize all these kernels. For now they are just very simple implementations
 //
+// TODO see https://devblogs.nvidia.com/parallelforall/cuda-pro-tip-occupancy-api-simplifies-launch-configuration/
+// cudaOccupancyMaxPotentialBlockSize
 namespace cuda
 {
    template<typename T>
@@ -41,8 +44,6 @@ namespace cuda
    template<typename T>
    void kernel_init_dummy(T* ptr, const T val, const size_t nb_elements)
    {      
-      // TODO see https://devblogs.nvidia.com/parallelforall/cuda-pro-tip-occupancy-api-simplifies-launch-configuration/
-      // cudaOccupancyMaxPotentialBlockSize
       const size_t block_size = 256;
       _kernel_init_dummy<T> << <(nb_elements + block_size - 1) / block_size, block_size >> >(ptr, val, nb_elements);
       cudaDeviceSynchronize();
@@ -59,19 +60,40 @@ namespace cuda
    template<typename T>
    void kernel_copy(const cuda_ptr<T> input, const size_t input_stride, cuda_ptr<T> output, const size_t output_stride, const size_t nb_elements)
    {
-      ensure(0, "TODO, implement!");
+      cudaAssert(cudaMemcpy2D(
+         output,
+         sizeof(T) * output_stride,
+         input,
+         sizeof(T) * input_stride,
+         sizeof(T),
+         nb_elements,
+         cudaMemcpyKind::cudaMemcpyDeviceToDevice));
    }
 
    template<typename T>
    void kernel_copy(const T* input, const size_t input_stride, cuda_ptr<T> output, const size_t output_stride, const size_t nb_elements)
    {
-      ensure(0, "TODO, implement!");
+      cudaAssert(cudaMemcpy2D(
+         output,
+         sizeof(T) * output_stride,
+         input,
+         sizeof(T) * input_stride,
+         sizeof(T),
+         nb_elements,
+         cudaMemcpyKind::cudaMemcpyHostToDevice));
    }
 
    template<typename T>
    void kernel_copy(const cuda_ptr<T> input, const size_t input_stride, T* output, const size_t output_stride, const size_t nb_elements)
    {
-      ensure(0, "TODO, implement!");
+      cudaAssert(cudaMemcpy2D(
+         output,
+         sizeof(T) * output_stride,
+         input,
+         sizeof(T) * input_stride,
+         sizeof(T),
+         nb_elements,
+         cudaMemcpyKind::cudaMemcpyDeviceToHost));
    }
 
    template<typename T>

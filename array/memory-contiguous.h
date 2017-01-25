@@ -230,14 +230,13 @@ public:
    {
       using unconst_type = typename std::remove_const<T2>::type;
 
-      // TODO rebind pointer type!
       // do NOT use the const in the allocator: this is underfined and won't compile for GCC/Clang
       using other = Memory_contiguous<
          T2,
          N2,
          typename IndexMapper::template rebind<N2>::other,
          typename Allocator::template rebind<unconst_type>::other,
-         PointerType
+         typename RebindPointer<PointerType, T2>::type
       >;
    };
 
@@ -538,6 +537,8 @@ private:
       using unconst_pointer = typename array_remove_const<pointer_type>::type;
 
       _allocateSlices(value_type(), this_linearSize);
+      // TODO need to improve the detection mechanism! This is currently too restrictive.W e want to allow multidimentional
+      // array with same stride (i.e., no gap between dimensions)
       if (this_linearSize == other_linearSize && is_memory_fully_contiguous(other) && same_data_ordering_memory(other, *this)) // if we have a non stride (1,...,1) stride, use iterator
       {
          // this means the deep copy is the FULL buffer

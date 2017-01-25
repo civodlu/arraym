@@ -163,6 +163,12 @@ public:
       _copy(other);
    }
 
+   template <class Config2>
+   Array(const Array<value_type, N, Config2>& other)
+   {
+      _memory = Memory(other._memory);
+   }
+
    Array& operator=(Array&& other)
    {
       _move(std::forward<Array>(other));
@@ -489,7 +495,9 @@ private:
       _memory                          = src._memory;
    }
 
-protected:
+public:
+   // TODO friend template class
+//protected:
    Memory _memory;
 };
 
@@ -513,6 +521,11 @@ using Array_row_major_multislice = Array<T, N, ArrayTraitsConfig<T, N, Allocator
 
 template <class T, size_t N, class Allocator = std::allocator<T>>
 using Array_column_major = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, IndexMapper_contiguous_column_major<N>, Allocator>>>;
+
+#ifdef WITH_CUDA
+template <class T, size_t N, class Allocator = AllocatorCuda<T>>
+using Array_cuda_column_major = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_cuda_contiguous_column_major<T, N, Allocator>>>;
+#endif
 
 template <class T, class Allocator = std::allocator<T>>
 using Vector = Array_row_major<T, 1, Allocator>;

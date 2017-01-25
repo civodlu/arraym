@@ -28,7 +28,6 @@ struct TestMemoryCuda
 
    void testInit_cte()
    {
-      
       using memory_type = Memory_cuda_contiguous_column_major<float, 1>;
       using memory_type_cpu = Memory_contiguous_row_major<float, 1>;
       using value_type = memory_type::value_type;
@@ -189,13 +188,66 @@ struct TestMemoryCuda
       }
 
       {
-         auto mem_gpu2 = mem_gpu.slice<1>({ 1, 0 });
+         auto mem_gpu2 = mem_gpu.slice<1>({ 0, 1 });
          Memory_contiguous_column_major<float, 1> mem_cpu2;
          mem_cpu2 = mem_gpu2;
          TESTER_ASSERT(mem_cpu2.shape() == vector1ui{ 2 });
          TESTER_ASSERT(*mem_cpu2.at({ 0 }) == 2);
          TESTER_ASSERT(*mem_cpu2.at({ 1 }) == 5);
       }
+   }
+
+   void testStrides()
+   {
+      using MemoryCpu = Memory_contiguous_column_major<float, 2>;
+      using MemoryGpu = Memory_cuda_contiguous_column_major<float, 2>;
+
+      float values[] = { 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0};
+      MemoryCpu mem_cpu1({ 2, 3 }, values, vector2ui(2, 6));
+      TESTER_ASSERT(*mem_cpu1.at({ 0, 0 }) == 1);
+      TESTER_ASSERT(*mem_cpu1.at({ 1, 0 }) == 2);
+      TESTER_ASSERT(*mem_cpu1.at({ 0, 1 }) == 4);
+      TESTER_ASSERT(*mem_cpu1.at({ 1, 1 }) == 5);
+
+      MemoryGpu mem_gpu;
+      mem_gpu = mem_cpu1;
+
+      MemoryCpu mem_cpu2 = mem_gpu;
+      TESTER_ASSERT(*mem_cpu2.at({ 0, 0 }) == 1);
+      TESTER_ASSERT(*mem_cpu2.at({ 1, 0 }) == 2);
+      TESTER_ASSERT(*mem_cpu2.at({ 0, 1 }) == 4);
+      TESTER_ASSERT(*mem_cpu2.at({ 1, 1 }) == 5);
+   }
+
+   void testStridedCopy()
+   {
+      float cpu_1[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+      auto gpu_1 = cuda::allocate_gpu<float>(10);
+      auto gpu_2 = cuda::allocate_gpu<float>(10);
+      cuda::kernel_copy(cpu_1, 2, cuda_ptr<float>(gpu_1.get()), 1, 5);
+
+      float cpu_2[10];
+      cuda::kernel_copy(cuda_ptr<float>(gpu_1.get()), 1, cpu_2, 1, 5);
+      TESTER_ASSERT(cpu_2[0] == 1);
+      TESTER_ASSERT(cpu_2[1] == 3);
+      TESTER_ASSERT(cpu_2[2] == 5);
+      TESTER_ASSERT(cpu_2[3] == 7);
+      TESTER_ASSERT(cpu_2[4] == 9);
+
+      float cpu_3[10];
+      cuda::kernel_copy(cuda_ptr<float>(gpu_1.get()), 1, cpu_3, 2, 5);
+      TESTER_ASSERT(cpu_3[0] == 1);
+      TESTER_ASSERT(cpu_3[2] == 3);
+      TESTER_ASSERT(cpu_3[4] == 5);
+      TESTER_ASSERT(cpu_3[6] == 7);
+      TESTER_ASSERT(cpu_3[8] == 9);
+
+      // device to device
+      float cpu_4[10];
+      cuda::kernel_copy(cuda_ptr<float>(gpu_1.get()), 2, cuda_ptr<float>(gpu_2.get()), 1, 2);
+      cuda::kernel_copy(cuda_ptr<float>(gpu_2.get()), 1, cpu_4, 1, 2);
+      TESTER_ASSERT(cpu_4[0] == 1);
+      TESTER_ASSERT(cpu_4[1] == 5);
    }
 };
 
@@ -208,6 +260,8 @@ TESTER_TEST(testConstArrayCasts);
 TESTER_TEST(testCpuGpuTransfers_operatorequal);
 TESTER_TEST(testCpuGpuTransfers_copyconstructor);
 TESTER_TEST(testSlicing);
+TESTER_TEST(testStrides);
+TESTER_TEST(testStridedCopy);
 TESTER_TEST_SUITE_END();
 
 #endif
