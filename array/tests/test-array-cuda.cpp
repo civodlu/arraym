@@ -34,6 +34,16 @@ struct TestArrayCuda
       TESTER_ASSERT(norm2(cpu_1 - cpu_2) == 0);
    }
 
+   void test_memoryBase()
+   {
+      using cpu_array_type = Array_column_major<float, 2>;
+
+      cpu_array_type cpu_1 = cpu_array_type({ 2, 3 });
+      
+      const auto ptr = array_base_memory(cpu_1);
+      TESTER_ASSERT(ptr == &cpu_1({ 0, 0 }));
+   }
+
    void test_op_add()
    {
       using gpu_array_type = Array_cuda_column_major<float, 2>;
@@ -47,15 +57,19 @@ struct TestArrayCuda
 
       gpu_array_type gpu_1 = cpu_1;
       gpu_array_type gpu_2 = cpu_2;
+
+      
       auto result_gpu = gpu_1 + gpu_2;
       cpu_array_type result_cpu = result_gpu;
 
       std::cout << result_cpu << std::endl;
+      
    }
 };
 
 TESTER_TEST_SUITE(TestArrayCuda);
 TESTER_TEST(test_basic_array);
+TESTER_TEST(test_memoryBase);
 TESTER_TEST(test_op_add);
 TESTER_TEST_SUITE_END();
 

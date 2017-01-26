@@ -57,7 +57,9 @@ set(BLAS    wrapper-cblas.cpp
 set (CudaKernel cuda-kernel.cu
                 cuda-kernel.cuh
 				cuda-utils.h
-				cuda-utils.cpp)
+				cuda-utils.cpp
+				cuda-blas-wrapper.h
+				cuda-blas-wrapper.cpp)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_BINARY_DIR}/${LIBNAME}/config.h)
 source_group(Sources FILES ${Sources} ${Headers})

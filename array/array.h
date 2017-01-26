@@ -715,4 +715,46 @@ bool is_array_fully_contiguous(const Array<T, N, Config>& a1)
    return is_memory_fully_contiguous<typename Array<T, N, Config>::Memory>(a1.getMemory());
 }
 
+namespace details
+{
+   template <class Array>
+   struct GetBaseMemory
+   {
+      using pointer_type = typename Array::pointer_type;
+
+      pointer_type operator()(const Array& array)
+      {
+         ensure(0, "<Array> doesn't define a base memory! Invalid call");
+      }
+   };
+
+   template <class T, size_t N, class Allocator, class Mapper, class PointerType>
+   struct GetBaseMemory<Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, Mapper, Allocator, PointerType>>>>
+   {
+      using array_type = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, Mapper, Allocator, PointerType>>>;
+      using pointer_type = typename array_type::pointer_type;
+
+      pointer_type operator()(const array_type& array)
+      {
+         return array.getMemory()._getBaseData();
+      }
+   };
+
+   //
+   // TODO extend your custom types here
+   //
+}
+
+/**
+ @brief Return the base memory of an array
+
+ This method is only available for specific memory type (e.g., contiguous), meaning that 
+ the data can be stored in a single contiguous memory store
+ */
+template <class Array>
+typename Array::pointer_type array_base_memory(const Array& array)
+{
+   return details::GetBaseMemory<Array>()(array);
+}
+
 DECLARE_NAMESPACE_NLL_END

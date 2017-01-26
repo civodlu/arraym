@@ -27,18 +27,22 @@ void axpy(T a, const Array<T, N, Config>& x, Array<T, N, Config2>& y)
    ensure(x.shape() == y.shape(), "must have the same shape!");
    ensure(same_data_ordering(x, y), "data must have a similar ordering!");
 
+   using pointer_type = typename Array<T, N, Config>::Memory::pointer_type;
+   using const_pointer = typename array_add_const<pointer_type>::type;
+
    using index_type = typename Array<T, N, Config>::index_type;
    if (is_array_fully_contiguous(x) && is_array_fully_contiguous(y))
    {
       // the two array are using contiguous memory with no gap at all, so we can just
       // use BLAS on the array's memory all at once
-      T const* ptr_x = &x(index_type());
-      T* ptr_y       = &y(index_type());
+      const_pointer ptr_x = array_base_memory(x);
+      pointer_type ptr_y = array_base_memory(y);
       blas::axpy<T>(static_cast<blas::BlasInt>(x.size()), a, ptr_x, 1, ptr_y, 1);
    }
    else
    {
-      auto op = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements) {
+      auto op = [&](pointer_type y_pointer, ui32 y_stride, const_pointer x_pointer, ui32 x_stride, ui32 nb_elements)
+      {
          blas::axpy<T>(static_cast<blas::BlasInt>(nb_elements), a, x_pointer, x_stride, y_pointer, y_stride);
       };
       iterate_array_constarray(y, x, op);
@@ -51,17 +55,18 @@ void axpy(T a, const Array<T, N, Config>& x, Array<T, N, Config2>& y)
 template <class T, size_t N, class Config>
 void scal(Array<T, N, Config>& y, T a)
 {
+   using pointer_type = typename Array<T, N, Config>::Memory::pointer_type;
    using index_type = typename Array<T, N, Config>::index_type;
    if (is_array_fully_contiguous(y))
    {
       // the two array are using contiguous memory with no gap at all, so we can just
       // use BLAS on the array's memory all at once
-      T* ptr_y = &y(index_type());
+      pointer_type ptr_y = array_base_memory(y);
       blas::scal<T>(static_cast<blas::BlasInt>(y.size()), a, ptr_y, 1);
    }
    else
    {
-      auto op = [&](T* y_pointer, ui32 y_stride, ui32 nb_elements) { blas::scal<T>(static_cast<blas::BlasInt>(nb_elements), a, y_pointer, y_stride); };
+      auto op = [&](pointer_type y_pointer, ui32 y_stride, ui32 nb_elements) { blas::scal<T>(static_cast<blas::BlasInt>(nb_elements), a, y_pointer, y_stride); };
       iterate_array(y, op);
    }
 }

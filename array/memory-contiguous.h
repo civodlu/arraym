@@ -665,6 +665,11 @@ public:
       return _allocator;
    }
 
+   pointer_type _getBaseData() const
+   {
+      return _data;
+   }
+
 private:
    // arrange py decreasing size order to help with the structure packing
    IndexMapper        _indexMapper;
