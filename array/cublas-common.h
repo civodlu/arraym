@@ -6,11 +6,11 @@ DECLARE_NAMESPACE_NLL
    ensure((expr) == CUBLAS_STATUS_SUCCESS, "CUBLAS failed!");
 
 #define INIT_AND_CHECK_CUDA(expr) \
-   {config.init(); ensure((expr) == CUBLAS_STATUS_SUCCESS, "CUBLAS failed!");}
+   {NAMESPACE_NLL::blas::detail::config.init(); ensure((expr) == CUBLAS_STATUS_SUCCESS, "CUBLAS failed!");}
 
 // do a CUDA function call. Always make sure the init was run beforehand
 #define CUDA_PASSED(expr)                                 \
-     config.init(), (!((expr) == CUBLAS_STATUS_SUCCESS)); \
+     NAMESPACE_NLL::blas::detail::config.init(), (!((expr) == CUBLAS_STATUS_SUCCESS)); \
 
 namespace blas
 {

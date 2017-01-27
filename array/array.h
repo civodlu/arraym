@@ -200,7 +200,6 @@ public:
     */
    Array& operator=(const std::initializer_list<T>& list)
    {
-      // TODO: move to memory
       ensure(list.size() == this->size(), "initializer and current array must have the same size!");
       auto ptr_initializer = list.begin();
 
@@ -222,7 +221,7 @@ public:
 
       while (hasMoreElements)
       {
-         pointer_type ptr_array = 0;
+         pointer_type ptr_array(nullptr);
          hasMoreElements        = iterator.accessSingleElement(ptr_array);
          *ptr_array             = *(ptr_initializer++);
       }
@@ -668,10 +667,16 @@ namespace details
 @brief returns true if two array have similar data ordering. (i.e., using an iterator, we point to the same
 index for both arrays)
 @todo needs to be extensible (using class specialization) for custom types!
+@todo this test is not 100% accurate: ambiguous in case the one dim == 1
 */
 template <class T, size_t N, class Config, class Config2>
 bool same_data_ordering(const Array<T, N, Config>& a1, const Array<T, N, Config2>& a2)
 {
+   // manually resolve the ambiguity, still problems for higher dimension
+   if (N == 2 && (a1.shape()[0] == 1 || a1.shape()[1] == 1))
+   {
+      return true;
+   }
    const auto i1 = details::getFastestVaryingIndexes<T, N, Config>(a1);
    const auto i2 = details::getFastestVaryingIndexes<T, N, Config2>( a2 );
    return i1 == i2;
