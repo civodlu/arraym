@@ -98,6 +98,7 @@ struct TestMatrixInv
             if (residual > 1e-2)
             {
                std::cout << i2 << std::endl;
+               std::cout << "r=" << residual << std::endl;
             }
             TESTER_ASSERT(residual < 1e-2f);
          }

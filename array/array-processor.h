@@ -544,12 +544,14 @@ namespace details
 template <class T, size_t N, class Config, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
 void iterate_array(Array<T, N, Config>& a1, Op& op)
 {
-   ArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
+   using array_type = Array<T, N, Config>;
+   using pointer_type = typename array_type::pointer_type;
+   ArrayProcessor_contiguous_byMemoryLocality<array_type> processor_a1(a1);
 
    bool hasMoreElements = true;
    while (hasMoreElements)
    {
-      T* ptr_a1       = nullptr;
+      pointer_type ptr_a1(nullptr);
       hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
       op(ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements());
    }
@@ -563,12 +565,14 @@ void iterate_array(Array<T, N, Config>& a1, Op& op)
 template <class T, size_t N, class Config, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
 void iterate_constarray(const Array<T, N, Config>& a1, Op& op)
 {
-   ConstArrayProcessor_contiguous_byMemoryLocality<Array<T, N, Config>> processor_a1(a1);
+   using array_type = Array<T, N, Config>;
+   using const_pointer_type = typename array_type::const_pointer_type;
+   ConstArrayProcessor_contiguous_byMemoryLocality<array_type> processor_a1(a1);
 
    bool hasMoreElements = true;
    while (hasMoreElements)
    {
-      T const* ptr_a1 = nullptr;
+      const_pointer_type ptr_a1(nullptr);
       hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
       op(ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements());
    }

@@ -27,10 +27,7 @@ struct TestArrayExp
             3, 4 };
       //a = transpose(a);
 
-      std::cout << a << std::endl;
-
       auto result = a * 3.0 + int(1) + a / 1.0f - 3;
-      std::cout << result << std::endl;
       TESTER_ASSERT(result.shape() == vector2ui(2, 2));
       TESTER_ASSERT(result(0, 0) == 1 * 4 + 1 - 3);
       TESTER_ASSERT(result(0, 1) == 2 * 4 + 1 - 3);

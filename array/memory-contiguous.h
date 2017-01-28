@@ -665,15 +665,10 @@ public:
       return _allocator;
    }
 
-   pointer_type _getBaseData() const
-   {
-      return _data;
-   }
-
 private:
    // arrange py decreasing size order to help with the structure packing
    IndexMapper        _indexMapper;
-   pointer_type       _data = nullptr;
+   pointer_type       _data = nullptr;       /// BEWARE *_data may not be equal to at(index_type()) as there may be an offset in the index mapper
    Memory_contiguous* _sharedView = nullptr; /// the original array
    index_type         _shape;
    allocator_type     _allocator;
@@ -687,8 +682,12 @@ template <class T, size_t N, class Allocator = std::allocator<T>>
 using Memory_contiguous_column_major = Memory_contiguous<T, N, IndexMapper_contiguous_column_major<N>, Allocator>;
 
 #ifdef WITH_CUDA
-template <class T, size_t N, class Allocator = AllocatorCuda<T>>
-using Memory_cuda_contiguous_column_major = Memory_contiguous<T, N, IndexMapper_contiguous_column_major<N>, Allocator, cuda_ptr<T>>;
+/**
+ @tparam ___IndexMapper make no mistake: cuda based memory ONLY support column-major ordering! However, we can use
+         a different mapper for the same column-major ordering (e.g., matrix)
+*/
+template <class T, size_t N, class Allocator = AllocatorCuda<T>, class ___IndexMapper = IndexMapper_contiguous_column_major<N>>
+using Memory_cuda_contiguous_column_major = Memory_contiguous<T, N, ___IndexMapper, Allocator, cuda_ptr<T>>;
 #endif
 
 DECLARE_NAMESPACE_NLL_END

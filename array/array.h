@@ -223,7 +223,8 @@ public:
       {
          pointer_type ptr_array(nullptr);
          hasMoreElements        = iterator.accessSingleElement(ptr_array);
-         *ptr_array             = *(ptr_initializer++);
+         details::copy_naive(ptr_array, 1, &(*(ptr_initializer++)), 1, 1);
+         //*ptr_array             = *(ptr_initializer++);
       }
 
       return *this;
@@ -524,6 +525,12 @@ using Array_column_major = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory
 #ifdef WITH_CUDA
 template <class T, size_t N, class Allocator = AllocatorCuda<T>>
 using Array_cuda_column_major = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_cuda_contiguous_column_major<T, N, Allocator>>>;
+
+template <class T, class Allocator = AllocatorCuda<T>>
+using Matrix_cuda_column_major = Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_cuda_contiguous_column_major<T, 2, Allocator, IndexMapper_contiguous_matrix_column_major>>>;
+
+template <class T, class Allocator = AllocatorCuda<T>>
+using Vector_cuda = Array_cuda_column_major<T, 1, Allocator>;
 #endif
 
 template <class T, class Allocator = std::allocator<T>>
@@ -727,7 +734,7 @@ namespace details
    {
       using pointer_type = typename Array::pointer_type;
 
-      pointer_type operator()(const Array& array)
+      pointer_type operator()(const Array& UNUSED(array))
       {
          ensure(0, "<Array> doesn't define a base memory! Invalid call");
       }
@@ -738,10 +745,11 @@ namespace details
    {
       using array_type = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, Mapper, Allocator, PointerType>>>;
       using pointer_type = typename array_type::pointer_type;
+      using index_type = typename array_type::index_type;
 
       pointer_type operator()(const array_type& array)
       {
-         return array.getMemory()._getBaseData();
+         return array.getMemory().at(index_type());
       }
    };
 

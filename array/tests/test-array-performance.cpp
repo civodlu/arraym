@@ -170,7 +170,7 @@ struct TestArrayPerformance
 TESTER_TEST_SUITE(TestArrayPerformance);
 TESTER_TEST( test_range_dummy );
 TESTER_TEST( test_range );
-//TESTER_TEST(test_iterator_single);
-//TESTER_TEST(test_iterator_max);
-//TESTER_TEST(test_iterator_dummy);
+TESTER_TEST(test_iterator_single);
+TESTER_TEST(test_iterator_max);
+TESTER_TEST(test_iterator_dummy);
 TESTER_TEST_SUITE_END();

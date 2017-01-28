@@ -70,11 +70,8 @@ struct TestMatrixCov
       
       using T1 = typename  Array<T, N, Config>::template rebind_dim<N - 1>::other;
 
-      std::cout << "M=" << points << std::endl;
-
       const auto covariance = cov(points);
-      std::cout << "Cov=" << std::endl << covariance << std::endl;
-
+      
       TESTER_ASSERT(covariance.shape() == vector2ui(3, 3));
       TESTER_ASSERT(equal<double>(covariance(0, 0), 0.025, 1e-5));
       TESTER_ASSERT(equal<double>(covariance(0, 1), 0.0075, 1e-5));
@@ -148,7 +145,6 @@ struct TestMatrixCov
 
       auto m = as_array_column_major(vec, vector2ui(3, 2));
 
-      std::cout << m << std::endl;
       TESTER_ASSERT(m.shape() == vector2ui(3, 2));
       TESTER_ASSERT(m(0, 0) == 1);
       TESTER_ASSERT(m(0, 1) == 2);
@@ -171,7 +167,6 @@ struct TestMatrixCov
 
       auto m = as_array_column_major( vec, vector2ui( 3, 2 ) );
 
-      std::cout << m << std::endl;
       TESTER_ASSERT( m.shape() == vector2ui( 3, 2 ) );
       TESTER_ASSERT( m( 0, 0 ) == 1 );
       TESTER_ASSERT( m( 0, 1 ) == 2 );
@@ -194,7 +189,6 @@ struct TestMatrixCov
 
       auto m = as_array_row_major(vec, vector2ui(3, 2));
 
-      std::cout << m << std::endl;
       TESTER_ASSERT(m.shape() == vector2ui(3, 2));
       TESTER_ASSERT(m(0, 0) == 1);
       TESTER_ASSERT(m(1, 0) == 2);
@@ -212,7 +206,6 @@ struct TestMatrixCov
 
       auto m = as_array(vec, vector3ui(3, 2, 1));
 
-      std::cout << m << std::endl;
       TESTER_ASSERT(m.shape() == vector3ui(3, 2, 1));
       TESTER_ASSERT(m(0, 0, 0) == 1);
       TESTER_ASSERT(m(1, 0, 0) == 2);

@@ -10,8 +10,12 @@ DECLARE_NAMESPACE_NLL
 template <class T, size_t N, class Config, class Function>
 Array<T, N, Config> constarray_apply_function(const Array<T, N, Config>& array, Function& f)
 {
+   using array_type = Array<T, N, Config>;
+   using pointer_type = typename array_type::pointer_type;
+   using const_pointer_type = typename array_type::const_pointer_type;
+
    static_assert(is_callable_with<Function, T>::value, "Op is not callable!");
-   auto op = [&](T* a1_pointer, ui32 a1_stride, const T* a2_pointer, ui32 a2_stride, ui32 nb_elements)
+   auto op = [&](pointer_type a1_pointer, ui32 a1_stride, const_pointer_type a2_pointer, ui32 a2_stride, ui32 nb_elements)
    {
       details::apply_naive2(a1_pointer, a1_stride, a2_pointer, a2_stride, nb_elements, f);
    };
@@ -28,12 +32,15 @@ Array<T, N, Config> constarray_apply_function(const Array<T, N, Config>& array, 
 template <class T, size_t N, class Config, class Op>
 void constarray_apply_function_inplace(const Array<T, N, Config>& array, Op& op)
 {
+   using array_type = Array<T, N, Config>;
+   using const_pointer_type = typename array_type::const_pointer_type;
+
    auto f = [&](T value)
    {
       op(value);
    };
 
-   auto op_constarray = [&](T const* a1_pointer, ui32 a1_stride, ui32 nb_elements)
+   auto op_constarray = [&](const_pointer_type a1_pointer, ui32 a1_stride, ui32 nb_elements)
    {
       details::apply_naive1_const(a1_pointer, a1_stride, nb_elements, f);
    };

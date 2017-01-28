@@ -40,7 +40,6 @@ struct TestArrayRangeA
       TESTER_ASSERT(a2.shape() == vector2ui(2, 1));
       TESTER_ASSERT(a2(0, 0) == a1(0, 0));
       TESTER_ASSERT(a2(1, 0) == a1(1, 0));
-      std::cout << "a2=" << a2 << std::endl;
 
       auto a3 = a1(R(1, 2), R(0, 2));
       TESTER_ASSERT(a3.shape() == vector2ui(1, 2));
@@ -109,7 +108,6 @@ struct TestArrayRangeA
       TESTER_ASSERT(a2.shape() == vector2ui(2, 1));
       TESTER_ASSERT(a2(0, 0) == a1(0, 0));
       TESTER_ASSERT(a2(1, 0) == a1(1, 0));
-      std::cout << "a2=" << a2 << std::endl;
       
       auto a3 = a1(R(1, 2), R(0, 2));
       TESTER_ASSERT(a3.shape() == vector2ui(1, 2));
@@ -242,7 +240,6 @@ struct TestArrayRangeA
    void test_range_dynamic()
    {
       auto r = range(0, 10);
-      std::cout << typeid(r).name() << std::endl;
 
       for (auto i : r)
       {

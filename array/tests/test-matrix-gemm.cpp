@@ -39,7 +39,6 @@ struct TestMatrixGemm
       //
       matrix_type A( memory_type( vector2ui(6, 5), A_values, vector2ui(5, 1) ) );
 
-      std::cout << A << std::endl;
 
       value_type B_values[] =
       {
@@ -53,7 +52,6 @@ struct TestMatrixGemm
 
       matrix_type B( memory_type( vector2ui( 5, 4 ), B_values, vector2ui( 4, 1 ) ) );
 
-      std::cout << B << std::endl;
 
       value_type C_values[] =
       {
@@ -68,12 +66,9 @@ struct TestMatrixGemm
 
       matrix_type C( memory_type( vector2ui( 6, 4 ), C_values, vector2ui( 4, 1 ) ) );
 
-      std::cout << C << std::endl;
-
+      
       NAMESPACE_NLL::details::gemm<value_type>( 1, A, B, 2, C );
-      std::cout << C << std::endl;
-
-
+      
       matrix_type C_expected( 6, 4 );
       C_expected = {
          24.0, 13.0, -5.0, 3.0,
@@ -83,11 +78,9 @@ struct TestMatrixGemm
          -4.0, -6.0, 5.0, 5.0,
          16.0, 7.0, -4.0, 7.0,
       };
-      std::cout << C_expected << std::endl;
 
       const auto diff = C - C_expected;
-      std::cout << diff << std::endl;
-
+      
       const auto error = norm2( C - C_expected );
 
       TESTER_ASSERT( error < 1e-4 );
@@ -124,7 +117,6 @@ struct TestMatrixGemm
       TESTER_ASSERT(array(0, 1) == 4);
       TESTER_ASSERT(array(1, 1) == 5);
       TESTER_ASSERT(array(2, 1) == 6);
-      std::cout << array << std::endl;
 
       // now copy the array to another with a different memory ordering
       array_type array2 = array;
@@ -164,14 +156,12 @@ struct TestMatrixGemm
 
       // make sure we have the expected array
       array_type array(memory_type(vector2ui(2, 3), values, vector2ui(1, 2)));
-      std::cout << array << std::endl;
       TESTER_ASSERT(array(0, 0) == 1);
       TESTER_ASSERT(array(1, 0) == 2);
       TESTER_ASSERT(array(0, 1) == 3);
       TESTER_ASSERT(array(1, 1) == 4);
       TESTER_ASSERT(array(0, 2) == 5);
       TESTER_ASSERT(array(1, 2) == 6);
-      std::cout << array << std::endl;
 
       // now copy the array to another with a different memory ordering
       array_type array2 = array;
@@ -207,8 +197,7 @@ struct TestMatrixGemm
       };
 
       matrix_type A( memory_type( vector2ui( 3, 2 ), A_values, vector2ui( 1, 4 ) ) );
-      std::cout << A << std::endl;
-
+      
       value_type B_values[] =
       {
          1, 2, 1,
@@ -216,8 +205,7 @@ struct TestMatrixGemm
       };
 
       matrix_type B( memory_type( vector2ui( 3, 2 ), B_values, vector2ui( 1, 3 ) ) );
-      std::cout << B << std::endl;
-
+      
 
       value_type C_values[] =
       {
@@ -227,13 +215,11 @@ struct TestMatrixGemm
       };
 
       matrix_type C( memory_type( vector2ui( 3, 3 ), C_values, vector2ui( 1, 5 ) ) );
-      std::cout << C << std::endl;
-
+      
       // see example 2, http://www.ibm.com/support/knowledgecenter/SSFHY8_5.5.0/com.ibm.cluster.essl.v5r5.essl100.doc/am5gr_hsgemm.htm
       NAMESPACE_NLL::details::gemm<value_type>( false, true, 1, A, B, 2, C );
 
-      std::cout << C << std::endl;
-
+      
       TESTER_ASSERT(C(0, 0) == 11);
       TESTER_ASSERT(C(1, 0) == -9);
       TESTER_ASSERT(C(2, 0) == 5);
@@ -245,7 +231,6 @@ struct TestMatrixGemm
       TESTER_ASSERT(C(0, 2) == 5);
       TESTER_ASSERT(C(1, 2) == -1);
       TESTER_ASSERT(C(2, 2) == 3);
-      std::cout << C << std::endl;
    }
 };
 

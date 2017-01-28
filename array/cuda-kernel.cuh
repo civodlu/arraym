@@ -5,6 +5,15 @@ DECLARE_NAMESPACE_NLL
 #ifdef WITH_CUDA
 
 /**
+define this flag to enable the dereferencement of a single ptr. This should be avoided for performance reason
+But this can be useful when performance is not an issue (e.g., to test the cuda based array, we can reuse all
+the tests of the CPU arrays)
+
+Note: using a static variable to store the actual value. So invalid in multithreading.
+*/
+//#define ___TEST_ONLY___CUDA_ENABLE_SLOW_DEREFERENCEMENT
+
+/**
 @brief Simple wrapper on CUDA memory to differentiate CPU vs GPU memory
 */
 template <class T>
@@ -22,7 +31,18 @@ struct cuda_ptr
 
    T& operator*()
    {
+#ifdef ___TEST_ONLY___CUDA_ENABLE_SLOW_DEREFERENCEMENT
+      // this is mostly for test purposes so that we can have a drop in replacement of the CPU based array
+      // we need several "banks" as we can do array1[0] + array2[0] overriding the static variable
+      static T values[1000];
+      static int index = 0;
+
+      index = (index + 1) % 1000;
+      cudaAssert(cudaMemcpy(values+index, ptr, sizeof(T), cudaMemcpyKind::cudaMemcpyDeviceToHost));
+      return *(values + index);
+#else
       ensure(0, "no possible dereferencement! This memory is on the GPU!");
+#endif
    }
 
    cuda_ptr operator + ( size_t offset ) const

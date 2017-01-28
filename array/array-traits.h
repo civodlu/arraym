@@ -68,6 +68,13 @@ class is_matrix<Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous
 {
 };
 
+#ifdef WITH_CUDA
+template <class T, class Allocator>
+class is_matrix<Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_cuda_contiguous_column_major<T, 2, Allocator, IndexMapper_contiguous_matrix_column_major>>>> : public std::true_type
+{
+};
+#endif
+
 // any other type: no particular specialization
 template <class ArrayT, class Config>
 class ArrayTraits<ArrayT, Config, typename std::enable_if<Config::RANK != 2>::type> : public ArrayTraitsDefault<ArrayT, Config>

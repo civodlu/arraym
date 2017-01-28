@@ -52,6 +52,20 @@ struct MatrixMemoryOrder_<Matrix_row_major<T, Allocator>>
       return CBLAS_ORDER::CblasRowMajor;
    }
 };
+
+#ifdef WITH_CUDA
+template <class T, class Allocator>
+struct MatrixMemoryOrder_<Matrix_cuda_column_major<T, Allocator>>
+{
+   using Array = Matrix_cuda_column_major<T, Allocator>;
+
+   static CBLAS_ORDER compute(const Array& UNUSED(array))
+   {
+      return CBLAS_ORDER::CblasColMajor;
+   }
+};
+#endif
+
 }
 
 template <class Array>
@@ -115,10 +129,12 @@ void gemm(bool trans_a, bool trans_b, T alpha, const Array<T, 2, Config>& opa, c
    const auto k = columns(opa, trans_a);
 
    ensure(opc.rows() == m, "must be a opa.rows() * opb.columns()");
+   using pointer_type = typename Array<T, 2, Config3>::pointer_type;
+   using const_pointer_type = typename Array<T, 2, Config3>::const_pointer_type;
 
    core::blas::gemm<T>(order, trans_a_blas, trans_b_blas,
                        m, n, k,
-                       alpha, &opa(0, 0), lda, &opb(0, 0), ldb, beta, &opc(0, 0), ldc);
+                       alpha, array_base_memory(opa), lda, array_base_memory(opb), ldb, beta, array_base_memory(opc), ldc);
 }
 
 template <class T, class Config, class Config2, class Config3>

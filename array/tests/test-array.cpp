@@ -622,7 +622,6 @@ struct TestArray
       TESTER_ASSERT(slice2(0) == a1(0, slice_b, slice_a));
       TESTER_ASSERT(slice2(1) == a1(1, slice_b, slice_a));
       TESTER_ASSERT(slice2(2) == a1(2, slice_b, slice_a));
-      std::cout << slice.shape() << std::endl;
    }
 
    void testArray_processor_const()

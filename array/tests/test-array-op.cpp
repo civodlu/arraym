@@ -1,5 +1,6 @@
 #pragma warning(disable : 4244)
 
+#define ___TEST_ONLY___CUDA_ENABLE_SLOW_DEREFERENCEMENT
 #include <array/forward.h>
 #include <tester/register.h>
 
@@ -9,6 +10,13 @@ using vector3ui = StaticVector<ui32, 3>;
 using vector2ui = StaticVector<ui32, 2>;
 using vector1ui = StaticVector<ui32, 1>;
 
+/// slow version, only used for test equality
+template <class T>
+bool tequal(T a1, T a2, double eps = 1e-3)
+{
+   return abs(double(a1) - double(a2)) < eps;
+}
+
 struct TestArrayOp
 {
    void test_static()
@@ -17,6 +25,15 @@ struct TestArrayOp
       using A = Matrix<float>;
       static_assert(array_use_blas<A>::value, "BLAS should be enabled for this type");
       static_assert(std::is_same<A, Matrix_BlasEnabled<A::value_type, 2, A::Config>>::value, "BLAS should be enabled for this type");
+#endif
+
+#ifdef WITH_CUDA
+      {
+         using A = Matrix_cuda_column_major<float>;
+         static_assert(array_use_blas<A>::value, "BLAS should be enabled for this type");
+         static_assert(is_matrix<A>::value, "A should be a matrix");
+         static_assert(std::is_same<A, Matrix_BlasEnabled<A::value_type, 2, A::Config>>::value, "BLAS should be enabled for this type");
+      }
 #endif
 
    }
@@ -74,16 +91,27 @@ struct TestArrayOp
 
    void test_matrixAdd()
    {
+#ifdef WITH_CUDA
+      test_matrixAdd_impl<NAMESPACE_NLL::Array_cuda_column_major<float, 2>>(); // CUBLAS, fully contiguous
+#endif
       test_matrixAdd_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
       test_matrixAdd_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       test_matrixAdd_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       test_matrixAdd_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
+      
+      
 
+#ifdef WITH_CUDA
+      test_matrixAddOp_impl<NAMESPACE_NLL::Array_cuda_column_major<float, 2>>(); // CUBLAS, fully contiguous
+#endif
       test_matrixAddOp_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
       test_matrixAddOp_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       test_matrixAddOp_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       test_matrixAddOp_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
 
+#ifdef WITH_CUDA
+      test_matrixAddOpInPlace_impl<NAMESPACE_NLL::Array_cuda_column_major<float, 2>>(); // CUBLAS, fully contiguous
+#endif
       test_matrixAddOpInPlace_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
       test_matrixAddOpInPlace_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       test_matrixAddOpInPlace_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
@@ -102,7 +130,7 @@ struct TestArrayOp
 
       Array result = a1;
       NAMESPACE_NLL::details::array_add(result, a2);
-
+      
       TESTER_ASSERT(result(0, 0) == a1(0, 0) + a2(0, 0));
       TESTER_ASSERT(result(1, 0) == a1(1, 0) + a2(1, 0));
 
@@ -160,11 +188,17 @@ struct TestArrayOp
 
    void test_matrixSub()
    {
+#ifdef WITH_CUDA
+      test_matrixSub_impl<NAMESPACE_NLL::Array_cuda_column_major<float, 2>>(); // CUBLAS, fully contiguous
+#endif
       test_matrixSub_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
       test_matrixSub_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       test_matrixSub_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       test_matrixSub_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
 
+#ifdef WITH_CUDA
+      test_matrixSubOp_impl<NAMESPACE_NLL::Array_cuda_column_major<float, 2>>(); // CUBLAS, fully contiguous
+#endif
       test_matrixSubOp_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
       test_matrixSubOp_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       test_matrixSubOp_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
@@ -218,16 +252,25 @@ struct TestArrayOp
 
    void testArray_mul_cte()
    {
+#ifdef WITH_CUDA
+      testArray_mul_cte_impl<NAMESPACE_NLL::Array_cuda_column_major<float, 2>>(); // CUBLAS, fully contiguous
+#endif
       testArray_mul_cte_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
       testArray_mul_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       testArray_mul_cte_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       testArray_mul_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
 
+#ifdef WITH_CUDA
+      testArray_mul_cte_right_impl<NAMESPACE_NLL::Array_cuda_column_major<float, 2>>(); // CUBLAS, fully contiguous
+#endif
       testArray_mul_cte_right_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
       testArray_mul_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       testArray_mul_cte_right_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       testArray_mul_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
 
+#ifdef WITH_CUDA
+      testArray_mul_cte_left_impl<NAMESPACE_NLL::Array_cuda_column_major<float, 2>>(); // CUBLAS, fully contiguous
+#endif
       testArray_mul_cte_left_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
       testArray_mul_cte_left_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       testArray_mul_cte_left_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
@@ -293,11 +336,17 @@ struct TestArrayOp
 
    void testArray_div_cte()
    {
+#ifdef WITH_CUDA
+      testArray_div_cte_impl<NAMESPACE_NLL::Array_cuda_column_major<float, 2>>(); // CUBLAS, fully contiguous
+#endif
       testArray_div_cte_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
       testArray_div_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       testArray_div_cte_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       testArray_div_cte_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
 
+#ifdef WITH_CUDA
+      testArray_div_cte_right_impl<NAMESPACE_NLL::Array_cuda_column_major<float, 2>>(); // CUBLAS, fully contiguous
+#endif
       testArray_div_cte_right_impl<NAMESPACE_NLL::Array<int, 2>>();                        // naive, contiguous
       testArray_div_cte_right_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       testArray_div_cte_right_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
@@ -343,6 +392,9 @@ struct TestArrayOp
 
    void testArray_mul_array()
    {
+#ifdef WITH_CUDA
+      testArray_mul_array<NAMESPACE_NLL::Matrix_cuda_column_major<float>>(); // CUBLAS, fully contiguous
+#endif
       testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<float>>(); // BLAS, contiguous
       testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<int>>();      // naive, contiguous
       testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<int>>();   // naive, contiguous
@@ -405,6 +457,9 @@ struct TestArrayOp
 
    void testMatrix_transpose()
    {
+#ifdef WITH_CUDA
+      testMatrix_transpose_impl<NAMESPACE_NLL::Matrix_cuda_column_major<float>>(); // CUBLAS, fully contiguous
+#endif
       testMatrix_transpose_impl<NAMESPACE_NLL::Matrix_row_major<int>>();      // naive, contiguous
       testMatrix_transpose_impl<NAMESPACE_NLL::Matrix_column_major<int>>();   // naive, contiguous
       testMatrix_transpose_impl<NAMESPACE_NLL::Matrix_row_major<float>>();    // BLAS, contiguous
@@ -430,22 +485,22 @@ struct TestArrayOp
 
    void testMatrix_vector()
    {
-      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_column_major<float>>(); // BLAS, contiguous
-      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_row_major<int>>();      // naive, contiguous
-      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_column_major<int>>();   // naive, contiguous
-      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_row_major<float>>();    // BLAS, contiguous
-      
+#ifdef WITH_CUDA
+      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_cuda_column_major<float>, Vector_cuda<float>>(); // CUBLAS, fully contiguous
+#endif
+      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_column_major<float>, Vector<float>>(); // BLAS, contiguous
+      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_row_major<int>, Vector<int>>();      // naive, contiguous
+      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_column_major<int>, Vector<int>>();   // naive, contiguous
+      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_row_major<float>, Vector<float>>();    // BLAS, contiguous
    }
 
-   template <class Array>
+   template <class Array, class Vector>
    void testMatrix_vector_impl()
    {
       Array m1(3, 3);
       m1 = { 1, 0, 0,
              0, 2, 0,
              0, 0, 3 };
-
-      using Vector = Vector<typename Array::value_type>;
 
       Vector v1(3);
       v1 = { 2, 3, 4 };

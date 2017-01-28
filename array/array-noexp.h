@@ -122,9 +122,11 @@ Array_NaiveOperatorEnabled<T, 2, Config1> operator*(const Array<T, 2, Config1>& 
 {
    using matrix_type = Array<T, 2, Config1>;
    using vector_type = Array<T, 1, Config2>;
+   using pointer_type = typename matrix_type::pointer_type;
    static_assert(IsArrayLayoutContiguous<vector_type>::value, "TODO handle rhs not a Memory_contiguous");
    
-   typename matrix_type::Memory memory({ rhs.size(), 1 }, const_cast<T*>(&rhs(0)));
+   pointer_type ptr_rhs = array_base_memory(rhs);
+   typename matrix_type::Memory memory({ rhs.size(), 1 }, ptr_rhs);
    matrix_type rhs_2d(std::move(memory));
    return array_mul_array(lhs, rhs_2d);
 }
