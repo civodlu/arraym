@@ -137,6 +137,27 @@ namespace details
          cuda::kernel_copy(x_pointer, x_stride, y_pointer, y_stride, nb_elements);
       }
    }
+
+   template <class T>
+   void cos(cuda_ptr<T> output, ui32 output_stride, const cuda_ptr<T> input, ui32 input_stride, ui32 nb_elements);
+
+   template <class T>
+   void sin(cuda_ptr<T> output, ui32 output_stride, const cuda_ptr<T> input, ui32 input_stride, ui32 nb_elements);
+
+   template <class T>
+   void sqrt(cuda_ptr<T> output, ui32 output_stride, const cuda_ptr<T> input, ui32 input_stride, ui32 nb_elements);
+
+   template <class T>
+   void sqr(cuda_ptr<T> output, ui32 output_stride, const cuda_ptr<T> input, ui32 input_stride, ui32 nb_elements);
+
+   template <class T>
+   void abs(cuda_ptr<T> output, ui32 output_stride, const cuda_ptr<T> input, ui32 input_stride, ui32 nb_elements);
+
+   template <class T>
+   void exp(cuda_ptr<T> output, ui32 output_stride, const cuda_ptr<T> input, ui32 input_stride, ui32 nb_elements);
+
+   template <class T>
+   void log(cuda_ptr<T> output, ui32 output_stride, const cuda_ptr<T> input, ui32 input_stride, ui32 nb_elements);
 }
 
 #endif // WITH_CUDA

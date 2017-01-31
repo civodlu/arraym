@@ -95,6 +95,7 @@
 #include "array-op-impl-naive.h"
 #include "blas-wrapper.h"
 #include "cuda-blas-wrapper.h"
+#include "cuda-array-op.h"
 #include "array-op-impl-blas.h"
 #include "array-op.h"
 #include "array-op-axis.h"

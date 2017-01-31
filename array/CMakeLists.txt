@@ -59,7 +59,9 @@ set (CudaKernel cuda-kernel.cu
 				cuda-utils.h
 				cuda-utils.cpp
 				cuda-blas-wrapper.h
-				cuda-blas-wrapper.cpp)
+				cuda-blas-wrapper.cpp
+				cuda-array-op.h
+				cuda-array-op.cpp)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_BINARY_DIR}/${LIBNAME}/config.h)
 source_group(Sources FILES ${Sources} ${Headers})
@@ -71,7 +73,7 @@ MESSAGE("OpenBLAS=" ${OpenBLAS_LIB})
 if(${CUDA_FOUND})
    # CUDA NVBLAS must be before any other BLAS implementation
    set(CUDA_PROPAGATE_HOST_FLAGS ON)
-   cuda_add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers} ${CudaKernel})
+   cuda_add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers} ${CudaKernel} OPTIONS --expt-extended-lambda)
 else()
    add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers})
 endif()

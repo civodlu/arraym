@@ -155,6 +155,152 @@ struct TestArrayCuda
       TESTER_ASSERT(*ptr++ == 30);
       TESTER_ASSERT(*ptr++ == 60);
    }
+
+   void testStridedTransform_unit()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 1>;
+      
+      auto gpu_1 = Array_gpu(10);
+      auto gpu_2 = Array_gpu(10);
+      gpu_1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+      auto ptr_1 = array_base_memory(gpu_1);
+      auto ptr_2 = array_base_memory(gpu_2);
+      NAMESPACE_NLL::details::cos(ptr_2, 1, ptr_1, 1, 10);
+
+      for ( size_t n = 0; n < 10; ++n )
+      {
+          TESTER_ASSERT( fabs( gpu_2( n ) - std::cos( gpu_1( n ) ) ) < 1e-4f );
+      }
+   }
+
+   void testStridedTransform_nonunit_cos()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 1>;
+
+      auto gpu_1 = Array_gpu( 20 );
+      auto gpu_2 = Array_gpu( 30 );
+      gpu_1 = { 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0 };
+
+      auto ptr_1 = array_base_memory( gpu_1 );
+      auto ptr_2 = array_base_memory( gpu_2 );
+      NAMESPACE_NLL::details::cos( ptr_2, 3, ptr_1, 2, 10 );
+
+      for ( size_t n = 0; n < 10; ++n )
+      {
+         TESTER_ASSERT( fabs( gpu_2( n * 3 ) - std::cos( gpu_1( n * 2 ) ) ) < 1e-4f );
+      }
+   }
+
+   void testStridedTransform_nonunit_sin()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 1>;
+
+      auto gpu_1 = Array_gpu( 20 );
+      auto gpu_2 = Array_gpu( 30 );
+      gpu_1 = { 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0 };
+
+      auto ptr_1 = array_base_memory( gpu_1 );
+      auto ptr_2 = array_base_memory( gpu_2 );
+      NAMESPACE_NLL::details::sin( ptr_2, 3, ptr_1, 2, 10 );
+
+      for ( size_t n = 0; n < 10; ++n )
+      {
+         TESTER_ASSERT( fabs( gpu_2( n * 3 ) - std::sin( gpu_1( n * 2 ) ) ) < 1e-4f );
+      }
+   }
+
+   void testStridedTransform_nonunit_sqrt()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 1>;
+
+      auto gpu_1 = Array_gpu( 20 );
+      auto gpu_2 = Array_gpu( 30 );
+      gpu_1 = { 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0 };
+
+      auto ptr_1 = array_base_memory( gpu_1 );
+      auto ptr_2 = array_base_memory( gpu_2 );
+      NAMESPACE_NLL::details::sqrt( ptr_2, 3, ptr_1, 2, 10 );
+
+      for ( size_t n = 0; n < 10; ++n )
+      {
+         TESTER_ASSERT( fabs( gpu_2( n * 3 ) - std::sqrt( gpu_1( n * 2 ) ) ) < 1e-4f );
+      }
+   }
+
+   void testStridedTransform_nonunit_log()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 1>;
+
+      auto gpu_1 = Array_gpu( 20 );
+      auto gpu_2 = Array_gpu( 30 );
+      gpu_1 = { 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0 };
+
+      auto ptr_1 = array_base_memory( gpu_1 );
+      auto ptr_2 = array_base_memory( gpu_2 );
+      NAMESPACE_NLL::details::log( ptr_2, 3, ptr_1, 2, 10 );
+
+      for ( size_t n = 0; n < 10; ++n )
+      {
+         TESTER_ASSERT( fabs( gpu_2( n * 3 ) - std::log( gpu_1( n * 2 ) ) ) < 1e-4f );
+      }
+   }
+
+   void testStridedTransform_nonunit_exp()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 1>;
+
+      auto gpu_1 = Array_gpu( 24 );
+      auto gpu_2 = Array_gpu( 300 );
+      gpu_1 = { 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 0, 0, 0, 0 };
+
+      auto ptr_1 = array_base_memory( gpu_1 );
+      auto ptr_2 = array_base_memory( gpu_2 );
+      NAMESPACE_NLL::details::exp( ptr_2, 3, ptr_1, 2, 10 );
+
+      for ( size_t n = 0; n < 10; ++n )
+      {
+         const auto expected = std::exp( gpu_1( n * 2 ) );
+         const auto found = gpu_2( n * 3 );
+         TESTER_ASSERT( fabs( expected - found ) < 1e-2f );
+      }
+   }
+
+   void testStridedTransform_nonunit_sqr()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 1>;
+
+      auto gpu_1 = Array_gpu( 20 );
+      auto gpu_2 = Array_gpu( 30 );
+      gpu_1 = { 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0 };
+
+      auto ptr_1 = array_base_memory( gpu_1 );
+      auto ptr_2 = array_base_memory( gpu_2 );
+      NAMESPACE_NLL::details::sqr( ptr_2, 3, ptr_1, 2, 10 );
+
+      for ( size_t n = 0; n < 10; ++n )
+      {
+         TESTER_ASSERT( fabs( gpu_2( n * 3 ) - ( gpu_1( n * 2 ) * gpu_1( n * 2 ) ) ) < 1e-4f );
+      }
+   }
+
+   void testStridedTransform_nonunit_abs()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 1>;
+
+      auto gpu_1 = Array_gpu( 20 );
+      auto gpu_2 = Array_gpu( 30 );
+      gpu_1 = { 1, 0, 2, 0, 3, 0, -4, 0, -5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0 };
+
+      auto ptr_1 = array_base_memory( gpu_1 );
+      auto ptr_2 = array_base_memory( gpu_2 );
+      NAMESPACE_NLL::details::abs( ptr_2, 3, ptr_1, 2, 10 );
+
+      for ( size_t n = 0; n < 10; ++n )
+      {
+         TESTER_ASSERT( fabs( gpu_2( n * 3 ) - std::abs( gpu_1( n * 2 ) ) ) < 1e-4f );
+      }
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayCuda);
@@ -164,6 +310,14 @@ TESTER_TEST(test_op_add);
 TESTER_TEST(test_construction);
 TESTER_TEST(test_slow_dereferencement);
 TESTER_TEST(test_matrix_access);
+TESTER_TEST(testStridedTransform_unit);
+TESTER_TEST(testStridedTransform_nonunit_cos);
+TESTER_TEST( testStridedTransform_nonunit_sin );
+TESTER_TEST( testStridedTransform_nonunit_sqr );
+TESTER_TEST( testStridedTransform_nonunit_sqrt );
+TESTER_TEST( testStridedTransform_nonunit_log );
+TESTER_TEST( testStridedTransform_nonunit_exp );
+TESTER_TEST( testStridedTransform_nonunit_abs );
 TESTER_TEST_SUITE_END();
 
 #endif

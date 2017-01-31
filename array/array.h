@@ -523,6 +523,13 @@ template <class T, size_t N, class Allocator = std::allocator<T>>
 using Array_column_major = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, IndexMapper_contiguous_column_major<N>, Allocator>>>;
 
 #ifdef WITH_CUDA
+
+namespace details
+{
+   template <class T, size_t N, class Allocator>
+   using ArrayTraitsConfigCuda = ArrayTraitsConfig<T, N, Allocator, Memory_cuda_contiguous_column_major<T, N, Allocator>>;
+}
+
 template <class T, size_t N, class Allocator = AllocatorCuda<T>>
 using Array_cuda_column_major = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_cuda_contiguous_column_major<T, N, Allocator>>>;
 
