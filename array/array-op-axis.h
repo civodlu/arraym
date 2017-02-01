@@ -62,11 +62,14 @@ constarray_axis_apply_function(const Array<T, N, Config>& array, size_t axis, Fu
    using array_result = axis_apply_fun_type<T, N, Config, Function>;
    array_result result(shape_result);
 
+   using pointer_type = typename array_result::pointer_type;
+   using const_pointer_type = typename array_result::const_pointer_type;
+
    bool hasMoreElements = true;
    ArrayProcessor_contiguous_byMemoryLocality<array_result> iterator(result);
    while (hasMoreElements)
    {
-      typename array_result::value_type* ptr = 0;
+      pointer_type ptr(nullptr);
       const auto currentIndex = iterator.getArrayIndex();
       hasMoreElements = iterator.accessSingleElement(ptr);
 
@@ -77,7 +80,9 @@ constarray_axis_apply_function(const Array<T, N, Config>& array, size_t axis, Fu
       }
       // finally apply the operation along <axis>
       const auto ref = const_cast<Array<T, N, Config>&>(array)(min_index, max_index);  // for interface usability, the sub-array of a const array is not practical. Instead, unconstify the array and constify the reference 
-      *ptr = f(ref);
+      const auto value = f( ref );
+      details::copy_naive( ptr, 1, &value, 1, 1 ); // TODO evaluate performance cost. This is to support CUDA based arrays
+      //*ptr = value; // before
    }
    return result;
 }
@@ -89,13 +94,12 @@ namespace details
 
    The purpose is to simplify the API: let the compiler figure out what is the type of the array
    */
-   template <class Accum>
    struct adaptor_mean
    {
       template <class T, size_t N, class Config>
-      Accum operator()(const Array<T, N, Config>& array) const
+      T operator()(const Array<T, N, Config>& array) const
       {
-         return mean<T, N, Config, Accum>(array);
+         return mean(array);
       }
    };
 
@@ -104,13 +108,12 @@ namespace details
 
    The purpose is to simplify the API: let the compiler figure out what is the type of the array
    */
-   template <class Accum>
    struct adaptor_sum
    {
       template <class T, size_t N, class Config>
-      Accum operator()(const Array<T, N, Config>& array) const
+      T operator()(const Array<T, N, Config>& array) const
       {
-         return sum<T, N, Config, Accum>(array);
+         return sum( array );
       }
    };
 
@@ -146,27 +149,27 @@ namespace details
 /**
 @brief return the mean value of all the elements contained in the array along a given axis
 */
-template <class T, size_t N, class Config, class Accum = T>
-axis_apply_fun_type<T, N, Config, details::adaptor_mean<Accum>> mean(const Array<T, N, Config>& array, size_t axis)
+template <class T, size_t N, class Config>
+axis_apply_fun_type<T, N, Config, details::adaptor_mean> mean(const Array<T, N, Config>& array, size_t axis)
 {
-   details::adaptor_mean<Accum> f;
+   details::adaptor_mean f;
    return constarray_axis_apply_function(array, axis, f);
 }
 
 /**
 @brief return the sum of all the elements contained in the array along a given axis
 */
-template <class T, size_t N, class Config, class Accum = T>
-axis_apply_fun_type<T, N, Config, details::adaptor_sum<Accum>> sum(const Array<T, N, Config>& array, size_t axis)
+template <class T, size_t N, class Config>
+axis_apply_fun_type<T, N, Config, details::adaptor_sum> sum(const Array<T, N, Config>& array, size_t axis)
 {
-   details::adaptor_sum<Accum> f;
+   details::adaptor_sum f;
    return constarray_axis_apply_function(array, axis, f);
 }
 
 /**
 @brief return the max value of all the elements contained in the array along a given axis
 */
-template <class T, size_t N, class Config, class Accum = T>
+template <class T, size_t N, class Config>
 axis_apply_fun_type<T, N, Config, details::adaptor_max> max(const Array<T, N, Config>& array, size_t axis)
 {
    details::adaptor_max f;
@@ -176,7 +179,7 @@ axis_apply_fun_type<T, N, Config, details::adaptor_max> max(const Array<T, N, Co
 /**
 @brief return the min value of all the elements contained in the array along a given axis
 */
-template <class T, size_t N, class Config, class Accum = T>
+template <class T, size_t N, class Config>
 axis_apply_fun_type<T, N, Config, details::adaptor_min> min(const Array<T, N, Config>& array, size_t axis)
 {
    details::adaptor_min f;

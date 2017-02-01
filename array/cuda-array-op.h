@@ -128,7 +128,7 @@ Accum sum(const Array<T, N, details::ArrayTraitsConfigCuda<T, N, Allocator>>& ar
    using array_type = Array<T, N, details::ArrayTraitsConfigCuda<T, N, Allocator>>;
    using const_pointer_type = typename array_type::const_pointer_type;
 
-   T(*ptr)(const cuda_ptr<T>, ui32, ui32) = &details::sum<T>;
+   T(*ptr)(const cuda_ptr<T>, ui32, ui32) = &details::sum<T, Accum>;
 
    Accum value = 0;
    auto op_constarray = [&](const_pointer_type a1_pointer, ui32 a1_stride, ui32 nb_elements)

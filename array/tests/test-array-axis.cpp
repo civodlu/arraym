@@ -1,4 +1,4 @@
-
+#define ___TEST_ONLY___CUDA_ENABLE_SLOW_DEREFERENCEMENT
 #include <array/forward.h>
 #include <tester/register.h>
 
@@ -19,6 +19,9 @@ struct TestArrayAxis
 
    void test_axis_function()
    {
+#ifdef WITH_CUDA
+      //test_axis_function_impl<Array_cuda_column_major<float, 2>>();
+#endif
       test_axis_function_impl<Array_row_major<float, 2>>();
       test_axis_function_impl<Array_row_major<int, 2>>();
 
@@ -48,7 +51,7 @@ struct TestArrayAxis
             3, 4,
             5, 6 };
 
-      details::adaptor_mean<typename Array::value_type> f;
+      details::adaptor_mean f;
       auto result = constarray_axis_apply_function(a, 1, f);
 
       TESTER_ASSERT(result.shape() == vector1ui(2));
@@ -63,6 +66,9 @@ struct TestArrayAxis
 
    void test_axis_function2()
    {
+#ifdef WITH_CUDA
+      test_axis_function_impl2<Array_cuda_column_major<float, 2>>();
+#endif
       test_axis_function_impl2<Array_row_major<float, 2>>();
       test_axis_function_impl2<Array_row_major<int, 2>>();
 
@@ -81,7 +87,7 @@ struct TestArrayAxis
          3, 4,
          5, 6 };
 
-      details::adaptor_mean<typename Array::value_type> f;
+      details::adaptor_mean f;
       auto result = constarray_axis_apply_function(a, 0, f);
 
       TESTER_ASSERT(result.shape() == vector1ui(3));
