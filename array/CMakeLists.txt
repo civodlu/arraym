@@ -61,7 +61,7 @@ set (CudaKernel cuda-kernel.cu
 				cuda-blas-wrapper.h
 				cuda-blas-wrapper.cpp
 				cuda-array-op.h
-				cuda-array-op.cpp)
+				cuda-array-op.cu)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_BINARY_DIR}/${LIBNAME}/config.h)
 source_group(Sources FILES ${Sources} ${Headers})

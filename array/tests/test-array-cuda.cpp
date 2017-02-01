@@ -192,6 +192,69 @@ struct TestArrayCuda
       }
    }
 
+   void testStridedTransform_unit_cos_array()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 1>;
+
+      auto gpu_1 = Array_gpu(10);
+      gpu_1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+      auto gpu_2 = NAMESPACE_NLL::cos(gpu_1);
+
+      for (size_t n = 0; n < 10; ++n)
+      {
+         TESTER_ASSERT(fabs(gpu_2(n) - std::cos(gpu_1(n))) < 1e-4f);
+      }
+   }
+
+   void testStridedTransform_unit_max_array()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 2>;
+
+      auto gpu_1 = Array_gpu(2, 3);
+      gpu_1 = { 2, 6, 3, 4, 5, 1};
+
+      auto value = NAMESPACE_NLL::max(gpu_1);
+
+      TESTER_ASSERT(value == 6);
+   }
+
+   void testStridedTransform_unit_min_array()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 2>;
+
+      auto gpu_1 = Array_gpu(2, 3);
+      gpu_1 = { 2, 6, 3, 1, 5, 4 };
+
+      auto value = NAMESPACE_NLL::min(gpu_1);
+
+      TESTER_ASSERT(value == 1);
+   }
+
+   void testStridedTransform_unit_sum_array()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 2>;
+
+      auto gpu_1 = Array_gpu(2, 3);
+      gpu_1 = { 1, 2, 3, 4, 5, 6 };
+
+      auto value = NAMESPACE_NLL::sum(gpu_1);
+
+      TESTER_ASSERT(value == 21);
+   }
+
+   void testStridedTransform_unit_mean_array()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 2>;
+
+      auto gpu_1 = Array_gpu(2, 3);
+      gpu_1 = { 1, 2, 3, 4, 5, 6 };
+
+      auto value = NAMESPACE_NLL::mean(gpu_1);
+
+      TESTER_ASSERT(value == 21 / 6.0f);
+   }
+
    void testStridedTransform_nonunit_sin()
    {
       using Array_gpu = Array_cuda_column_major<float, 1>;
@@ -301,6 +364,63 @@ struct TestArrayCuda
          TESTER_ASSERT( fabs( gpu_2( n * 3 ) - std::abs( gpu_1( n * 2 ) ) ) < 1e-4f );
       }
    }
+
+   void testStridedTransform_nonunit_max()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 1>;
+      auto gpu_1 = Array_gpu(20);
+      gpu_1 = { 1, 0, 2, 0, 3, 0, -4, 0, -5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0 };
+
+      auto ptr_1 = array_base_memory(gpu_1);
+
+      {
+         auto result = NAMESPACE_NLL::details::max(ptr_1, 2, 10);
+         TESTER_ASSERT(result == 10);
+      }
+
+      {
+         auto result = NAMESPACE_NLL::details::max(ptr_1, 2, 5);
+         TESTER_ASSERT(result == 3);
+      }
+   }
+
+   void testStridedTransform_nonunit_min()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 1>;
+      auto gpu_1 = Array_gpu(20);
+      gpu_1 = { 1, 0, 2, 0, 3, 0, -4, 0, -5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0 };
+
+      auto ptr_1 = array_base_memory(gpu_1);
+
+      {
+         auto result = NAMESPACE_NLL::details::min(ptr_1, 2, 10);
+         TESTER_ASSERT(result == -5);
+      }
+
+      {
+         auto result = NAMESPACE_NLL::details::min(ptr_1, 2, 3);
+         TESTER_ASSERT(result == 1);
+      }
+   }
+
+   void testStridedTransform_nonunit_sum()
+   {
+      using Array_gpu = Array_cuda_column_major<float, 1>;
+      auto gpu_1 = Array_gpu(20);
+      gpu_1 = { 1, 0, 2, 0, 3, 0, -4, 0, -5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0 };
+
+      auto ptr_1 = array_base_memory(gpu_1);
+
+      {
+         auto result = NAMESPACE_NLL::details::sum(ptr_1, 2, 5);
+         TESTER_ASSERT(result == -3);
+      }
+
+      {
+         auto result = NAMESPACE_NLL::details::sum(ptr_1, 2, 3);
+         TESTER_ASSERT(result == 6);
+      }
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayCuda);
@@ -312,12 +432,20 @@ TESTER_TEST(test_slow_dereferencement);
 TESTER_TEST(test_matrix_access);
 TESTER_TEST(testStridedTransform_unit);
 TESTER_TEST(testStridedTransform_nonunit_cos);
-TESTER_TEST( testStridedTransform_nonunit_sin );
-TESTER_TEST( testStridedTransform_nonunit_sqr );
-TESTER_TEST( testStridedTransform_nonunit_sqrt );
-TESTER_TEST( testStridedTransform_nonunit_log );
-TESTER_TEST( testStridedTransform_nonunit_exp );
-TESTER_TEST( testStridedTransform_nonunit_abs );
+TESTER_TEST(testStridedTransform_nonunit_sin);
+TESTER_TEST(testStridedTransform_nonunit_sqr);
+TESTER_TEST(testStridedTransform_nonunit_sqrt);
+TESTER_TEST(testStridedTransform_nonunit_log);
+TESTER_TEST(testStridedTransform_nonunit_exp);
+TESTER_TEST(testStridedTransform_nonunit_abs);
+TESTER_TEST(testStridedTransform_nonunit_max);
+TESTER_TEST(testStridedTransform_nonunit_min);
+TESTER_TEST(testStridedTransform_nonunit_sum);
+TESTER_TEST(testStridedTransform_unit_max_array);
+TESTER_TEST(testStridedTransform_unit_cos_array);
+TESTER_TEST(testStridedTransform_unit_min_array);
+TESTER_TEST(testStridedTransform_unit_sum_array);
+TESTER_TEST(testStridedTransform_unit_mean_array);
 TESTER_TEST_SUITE_END();
 
 #endif

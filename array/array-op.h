@@ -248,7 +248,7 @@ T min(const Array<T, N, Config>& array)
 template <class T, size_t N, class Config>
 T max(const Array<T, N, Config>& array)
 {
-   T max_value = std::numeric_limits<T>::min();
+   T max_value = std::numeric_limits<T>::lowest();
    auto f = [&](T value)
    {
       max_value = std::max(max_value, value);
