@@ -170,15 +170,20 @@ namespace cuda
    }
 
    template ARRAY_API void kernel_init(cuda_ptr<float> ptr, const size_t nb_elements, const float val);
-   
    template ARRAY_API void kernel_copy(const cuda_ptr<float> input, const size_t nb_elements, cuda_ptr<float> output);
    template ARRAY_API void kernel_copy(const cuda_ptr<float> input, const size_t nb_elements, float* output);
    template ARRAY_API void kernel_copy(const float* input, const size_t nb_elements, cuda_ptr<float> output);
-   
-   
    template ARRAY_API void kernel_copy(const cuda_ptr<float> input, const size_t input_stride, cuda_ptr<float> output, const size_t output_stride, const size_t nb_elements);
    template ARRAY_API void kernel_copy(const float* input, const size_t input_stride, cuda_ptr<float> output, const size_t output_stride, const size_t nb_elements);
    template ARRAY_API void kernel_copy(const cuda_ptr<float> input, const size_t input_stride, float* output, const size_t output_stride, const size_t nb_elements);
+
+   template ARRAY_API void kernel_init( cuda_ptr<double> ptr, const size_t nb_elements, const double val );
+   template ARRAY_API void kernel_copy( const cuda_ptr<double> input, const size_t nb_elements, cuda_ptr<double> output );
+   template ARRAY_API void kernel_copy( const cuda_ptr<double> input, const size_t nb_elements, double* output );
+   template ARRAY_API void kernel_copy( const double* input, const size_t nb_elements, cuda_ptr<double> output );
+   template ARRAY_API void kernel_copy( const cuda_ptr<double> input, const size_t input_stride, cuda_ptr<double> output, const size_t output_stride, const size_t nb_elements );
+   template ARRAY_API void kernel_copy( const double* input, const size_t input_stride, cuda_ptr<double> output, const size_t output_stride, const size_t nb_elements );
+   template ARRAY_API void kernel_copy( const cuda_ptr<double> input, const size_t input_stride, double* output, const size_t output_stride, const size_t nb_elements );
 }
 
 namespace details

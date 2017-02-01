@@ -20,7 +20,7 @@ struct TestArrayAxis
    void test_axis_function()
    {
 #ifdef WITH_CUDA
-      //test_axis_function_impl<Array_cuda_column_major<float, 2>>();
+      test_axis_function_impl<Array_cuda_column_major<float, 2>>();
 #endif
       test_axis_function_impl<Array_row_major<float, 2>>();
       test_axis_function_impl<Array_row_major<int, 2>>();
