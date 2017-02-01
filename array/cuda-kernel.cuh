@@ -45,6 +45,22 @@ struct cuda_ptr
 #endif
    }
 
+   const T& operator*() const
+   {
+#ifdef ___TEST_ONLY___CUDA_ENABLE_SLOW_DEREFERENCEMENT
+      // this is mostly for test purposes so that we can have a drop in replacement of the CPU based array
+      // we need several "banks" as we can do array1[0] + array2[0] overriding the static variable
+      static T values[ 1000 ];
+      static int index = 0;
+
+      index = ( index + 1 ) % 1000;
+      cudaAssert( cudaMemcpy( values + index, ptr, sizeof( T ), cudaMemcpyKind::cudaMemcpyDeviceToHost ) );
+      return *( values + index );
+#else
+      ensure( 0, "no possible dereferencement! This memory is on the GPU!" );
+#endif
+   }
+
    cuda_ptr operator + ( size_t offset ) const
    {
       return cuda_ptr( ptr + offset );

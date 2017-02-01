@@ -1,3 +1,4 @@
+#define ___TEST_ONLY___CUDA_ENABLE_SLOW_DEREFERENCEMENT
 #include <array/forward.h>
 #include <tester/register.h>
 #include "test-utils.h"
@@ -49,32 +50,63 @@ struct TestArrayOpApply
       test_array_apply_functions_cos_impl<Array<float, 2>>();
       test_array_apply_functions_cos_impl<Array_row_major_multislice<float, 2>>();
 
+#ifdef WITH_CUDA
+      test_array_apply_functions_cos_impl<Array_cuda_column_major<float, 2>>();
+#endif
+
       test_array_apply_functions_sin_impl<Array<float, 2>>();
       test_array_apply_functions_sin_impl<Array_row_major_multislice<float, 2>>();
+#ifdef WITH_CUDA
+      test_array_apply_functions_sin_impl<Array_cuda_column_major<float, 2>>();
+#endif
 
       test_array_apply_functions_sqrt_impl<Array<float, 2>>();
       test_array_apply_functions_sqrt_impl<Array_row_major_multislice<float, 2>>();
+#ifdef WITH_CUDA
+      test_array_apply_functions_sqrt_impl<Array_cuda_column_major<float, 2>>();
+#endif
 
       test_array_apply_functions_abs_impl<Array<float, 2>>();
       test_array_apply_functions_abs_impl<Array_row_major_multislice<float, 2>>();
+#ifdef WITH_CUDA
+      test_array_apply_functions_abs_impl<Array_cuda_column_major<float, 2>>();
+#endif
 
       test_array_apply_functions_min_impl<Array<float, 2>>();
       test_array_apply_functions_min_impl<Array_row_major_multislice<float, 2>>();
+#ifdef WITH_CUDA
+      test_array_apply_functions_min_impl<Array_cuda_column_major<float, 2>>();
+#endif
 
       test_array_apply_functions_max_impl<Array<float, 2>>();
       test_array_apply_functions_max_impl<Array_row_major_multislice<float, 2>>();
+#ifdef WITH_CUDA
+      test_array_apply_functions_max_impl<Array_cuda_column_major<float, 2>>();
+#endif
 
       test_array_apply_functions_log_impl<Array<float, 2>>();
       test_array_apply_functions_log_impl<Array_row_major_multislice<float, 2>>();
+#ifdef WITH_CUDA
+      test_array_apply_functions_log_impl<Array_cuda_column_major<float, 2>>();
+#endif
 
       test_array_apply_functions_exp_impl<Array<float, 2>>();
       test_array_apply_functions_exp_impl<Array_row_major_multislice<float, 2>>();
+#ifdef WITH_CUDA
+      test_array_apply_functions_exp_impl<Array_cuda_column_major<float, 2>>();
+#endif
 
       test_array_apply_functions_mean_impl<Array<float, 2>>();
       test_array_apply_functions_mean_impl<Array_row_major_multislice<float, 2>>();
+#ifdef WITH_CUDA
+      test_array_apply_functions_mean_impl<Array_cuda_column_major<float, 2>>();
+#endif
 
       test_array_apply_functions_sqr_impl<Array<float, 2>>();
       test_array_apply_functions_sqr_impl<Array_row_major_multislice<float, 2>>();
+#ifdef WITH_CUDA
+      test_array_apply_functions_sqr_impl<Array_cuda_column_major<float, 2>>();
+#endif
    }
 
    template <class Array>
