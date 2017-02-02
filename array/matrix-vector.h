@@ -143,7 +143,9 @@ Array<T, N2, typename Config::template rebind_dim<N2>::other> as_array(const Arr
    const auto last_element = max_index - original_physical_stride.begin();
    other_mapper_type().extend_stride( physical_stride, shape, N, int(last_element) );
 
-   other_array_type array( typename other_array_type::Memory( shape, const_cast<T*>( &v( typename array_type::index_type() ) ), physical_stride, v.getMemory().getAllocator() ) );
+   auto ptr = array_base_memory(v);
+   using pointer_type = typename other_array_type::pointer_type;
+   other_array_type array( typename other_array_type::Memory( shape, ptr, physical_stride, v.getMemory().getAllocator() ) );
    ensure(array.size() == v.size(), "must have the same size!");
    return array;
 }

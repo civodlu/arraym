@@ -47,6 +47,12 @@ namespace blas
       const cuda_ptr<T> A, const BlasInt lda,
       const cuda_ptr<T> x, const BlasInt incX, const T beta,
       cuda_ptr<T> y, const BlasInt incY);
+
+   template <class T>
+   BlasInt getrf(CBLAS_ORDER matrixOrder, BlasInt m, BlasInt n, cuda_ptr<T> a, BlasInt lda, cuda_ptr<BlasInt> ipiv);
+
+   template <class T>
+   BlasInt getri(CBLAS_ORDER matrixOrder, BlasInt n, cuda_ptr<T> a, BlasInt lda, const cuda_ptr<BlasInt> ipiv);
 }
 
 DECLARE_NAMESPACE_NLL_END

@@ -1,3 +1,4 @@
+#define ___TEST_ONLY___CUDA_ENABLE_SLOW_DEREFERENCEMENT
 #include <array/forward.h>
 #include <tester/register.h>
 #include "test-utils.h"
@@ -26,6 +27,9 @@ struct TestMatrixCov
    {
       test_random_impl<Matrix_row_major<float>>();
       test_random_impl<Matrix_column_major<float>>();
+#ifdef WITH_CUDA
+      test_random_impl<Matrix_column_major<float>>();
+#endif
       test_random_impl<Matrix_row_major<double>>();
       test_random_impl<Matrix_column_major<double>>();
    }
@@ -47,6 +51,9 @@ struct TestMatrixCov
       test_known_impl<Matrix_column_major<double>>();
       test_known_impl<Matrix_column_major<float>>();
       test_known_impl<Matrix_row_major<double>>();
+#ifdef WITH_CUDA
+      test_known_impl<Matrix_column_major<float>>();
+#endif
    }
 
    template <class matrix_type>

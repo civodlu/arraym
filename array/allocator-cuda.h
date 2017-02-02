@@ -50,7 +50,7 @@ public:
    void construct_n(size_t nb_elements, pointer gpu_ptr, T default_value)
    {
       // just initialize with default value
-      cuda::kernel_init(gpu_ptr, nb_elements, default_value);
+      details::set_naive(gpu_ptr, 1, static_cast<ui32>(nb_elements), default_value);
    }
 
    void destroy_n(pointer UNUSED(gpu_ptr), size_t UNUSED(nb_elements))

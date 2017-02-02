@@ -153,6 +153,13 @@ namespace details
          cuda::kernel_copy(x_pointer, x_stride, y_pointer, y_stride, nb_elements);
       }
    }
+
+   template <class T>
+   void set_naive(cuda_ptr<T> y_pointer, ui32 y_stride, ui32 nb_elements, T value)
+   {
+      ensure(y_stride == 1, "TODO implement!");
+      cuda::kernel_init(y_pointer, nb_elements, value);
+   }
 }
 
 #endif // WITH_CUDA

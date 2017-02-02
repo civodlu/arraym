@@ -13,31 +13,26 @@ Matrix_BlasEnabled<T, 2, Config> inv_nothrow(const Array<T, 2, Config>& a)
    ensure(a.rows() == a.columns(), "must be square!");
    matrix_type i = a;
 
+   using allocator_type = typename matrix_type::allocator_type::template rebind<blas::BlasInt>::other;
+   using pointer = typename allocator_type::pointer;
    const auto size = static_cast<blas::BlasInt>(a.rows());
-   std::unique_ptr<blas::BlasInt> IPIV(new blas::BlasInt[size + 1]);
+   allocator_type allocator_int;
+   auto IPIV_ptr = std::allocator_traits<allocator_type>::allocate(allocator_int, size + 1);
+
+   auto deleter = [&](int* ptr) { allocator_int.deallocate(pointer(ptr), size + 1); };  // we MUST reuse the proper deallocator (e.g., CUDA based allocators)
+   std::unique_ptr<blas::BlasInt, decltype(deleter)> IPIV(IPIV_ptr, deleter);
 
    const auto memory_order = getMatrixMemoryOrder(a);
-   blas::BlasInt lda;
-   const auto& stride_a = i.getMemory().getIndexMapper()._getPhysicalStrides();
-   if (memory_order == CBLAS_ORDER::CblasColMajor)
-   {
-      lda = stride_a[1];
-      ensure(stride_a[0] == 1, "can't have stride != 1 ");
-   }
-   else
-   {
-      lda = stride_a[0];
-      ensure(stride_a[1] == 1, "can't have stride != 1 ");
-   }
-
-   const auto r = core::blas::getrf<T>(memory_order, size, size, &i(0, 0), lda, IPIV.get());
+   const auto lda = leading_dimension<T, Config>(i);
+   
+   const auto r = core::blas::getrf<T>(memory_order, size, size, array_base_memory(i), lda, IPIV_ptr);
    if (r != 0)
    {
       // something is wrong... just return an empty array
       return matrix_type();
    }
 
-   const auto r2 = core::blas::getri<T>(memory_order, size, &i(0, 0), lda, IPIV.get());
+   const auto r2 = core::blas::getri<T>(memory_order, size, array_base_memory(i), lda, IPIV_ptr);
    if (r2 != 0)
    {
       // something is wrong... just return an empty array

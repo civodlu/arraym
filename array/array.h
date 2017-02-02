@@ -578,6 +578,8 @@ class ArrayRef : public Array<T, N, Config>
 public:
    using array_type = Array<T, N, Config>;
    using index_type = typename array_type::index_type;
+   using pointer_type = typename array_type::pointer_type;
+   using const_pointer_type = typename array_type::const_pointer_type;
 
    /**
     @brief Construct an array ref from an array
@@ -596,7 +598,8 @@ public:
    ArrayRef& operator=(const array_type& array)
    {
       ensure(array.shape() == this->shape(), "must have the same shape!");
-      auto op = [&](T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements) {
+      auto op = [&](pointer_type y_pointer, ui32 y_stride, const_pointer_type x_pointer, ui32 x_stride, ui32 nb_elements)
+      {
          details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
       };
       iterate_array_constarray(*this, array, op);
@@ -605,7 +608,10 @@ public:
 
    ArrayRef& operator=(T value)
    {
-      auto op = [&](T* y_pointer, ui32 y_stride, ui32 nb_elements) { details::set_naive(y_pointer, y_stride, nb_elements, value); };
+      auto op = [&](pointer_type y_pointer, ui32 y_stride, ui32 nb_elements)
+      {
+         details::set_naive(y_pointer, y_stride, nb_elements, value);
+      };
       iterate_array(*this, op);
       return *this;
    }

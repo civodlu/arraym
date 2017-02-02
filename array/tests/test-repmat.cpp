@@ -1,3 +1,4 @@
+#define ___TEST_ONLY___CUDA_ENABLE_SLOW_DEREFERENCEMENT
 #include <array/forward.h>
 #include <tester/register.h>
 #include "test-utils.h"
@@ -14,7 +15,17 @@ struct TestArrayRepmat
 {
    void testRepmat_simple()
    {
-      Array<int, 1> vec(3);
+      testRepmat_simple_impl<Array<int, 1>>();
+      testRepmat_simple_impl<Array<float, 1>>();
+#ifdef WITH_CUDA
+      testRepmat_simple_impl<Array_cuda_column_major<float, 1>>();
+#endif
+   }
+
+   template <class Array>
+   void testRepmat_simple_impl()
+   {
+      Array vec(3);
       vec = { 1, 2, 3};
 
       auto vec32 = repmat(vec, vector2ui(1, 2));
