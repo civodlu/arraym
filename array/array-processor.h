@@ -408,14 +408,18 @@ void fill(Array<T, N, Config>& array, Functor functor)
 
    using array_type     = Array<T, N, Config>;
    bool hasMoreElements = true;
+   using pointer_type   = typename array_type::pointer_type;
 
    ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(array);
    while (hasMoreElements)
    {
-      typename array_type::value_type* ptr = 0;
+      pointer_type ptr(nullptr);
       const auto currentIndex              = iterator.getArrayIndex();
       hasMoreElements                      = iterator.accessSingleElement(ptr);
-      *ptr                                 = functor(currentIndex);
+
+      const auto value                     = functor(currentIndex);
+      details::copy_naive(ptr, 1, &value, 1, 1);
+      //*ptr                                 = functor(currentIndex);
    }
 }
 

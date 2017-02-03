@@ -1,3 +1,4 @@
+#define ___TEST_ONLY___CUDA_ENABLE_SLOW_DEREFERENCEMENT
 #include <array/forward.h>
 #include <tester/register.h>
 #include "test-utils.h"
@@ -13,8 +14,15 @@ struct TestMatrixInv
    {
       auto f = [](typename Array::value_type) { return generateUniformDistribution<float>(-5, 5); };
 
-      auto op = [&](typename Array::value_type* y_pointer, ui32 y_stride, ui32 nb_elements) {
-         NAMESPACE_NLL::details::apply_naive1(y_pointer, y_stride, nb_elements, f);
+      auto op = [&](typename Array::pointer_type y_pointer, ui32 y_stride, ui32 nb_elements) {
+         auto y_end = y_pointer + y_stride * nb_elements;
+         for (; y_pointer != y_end; y_pointer += y_stride)
+         {
+            const typename Array::value_type value = f(*y_pointer);
+            NAMESPACE_NLL::details::copy_naive(y_pointer, 1, &value, 1, 1);
+            //*y_pointer = f(*y_pointer);
+         }
+         //NAMESPACE_NLL::details::apply_naive1(y_pointer, y_stride, nb_elements, f);
       };
 
       iterate_array(array, op);
@@ -22,6 +30,9 @@ struct TestMatrixInv
 
    void test_random()
    {
+#ifdef WITH_CUDA
+      test_random_impl<Matrix_cuda_column_major<float>>();
+#endif
       test_random_impl<Matrix_row_major<float>>();
       test_random_impl<Matrix_column_major<float>>();
       test_random_impl<Matrix_row_major<double>>();

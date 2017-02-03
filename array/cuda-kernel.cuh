@@ -66,6 +66,12 @@ struct cuda_ptr
       return cuda_ptr( ptr + offset );
    }
 
+   cuda_ptr& operator +=(size_t offset)
+   {
+      ptr += offset;
+      return *this;
+   }
+
    T* ptr;
 };
 
