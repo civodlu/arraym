@@ -35,7 +35,11 @@ Array_NaiveEnabled<T, N, Config>& array_add(Array<T, N, Config>& a1, const Array
 template <class T, size_t N, class Config>
 Array<T, N, Config>& array_add_cte(Array<T, N, Config>& a1, T a2)
 {
-   auto op = [&](T* ptr, ui32 stride, ui32 elements) { add_naive_cte<T>(ptr, stride, elements, a2); };
+   using pointer_type = typename Array<T, N, Config>::pointer_type;
+   auto op = [&]( pointer_type ptr, ui32 stride, ui32 elements )
+   {
+      add_naive_cte<T>( ptr, stride, elements, a2 );
+   };
    iterate_array(a1, op);
    return a1;
 }
@@ -57,7 +61,11 @@ Array_NaiveEnabled<T, N, Config>& array_sub(Array<T, N, Config>& a1, const Array
 template <class T, size_t N, class Config>
 Array_NaiveEnabled<T, N, Config>& array_mul(Array<T, N, Config>& a1, T a2)
 {
-   auto op = [&](T* ptr, ui32 stride, ui32 elements) { mul_naive(ptr, stride, a2, elements); };
+   using pointer_type = typename Array<T, N, Config>::pointer_type;
+   auto op = [&]( pointer_type ptr, ui32 stride, ui32 elements )
+   {
+      mul_naive( ptr, stride, a2, elements );
+   };
 
    iterate_array(a1, op);
    return a1;
@@ -70,7 +78,11 @@ Array_NaiveEnabled<T, N, Config>& array_mul(Array<T, N, Config>& a1, T a2)
 template <class T, size_t N, class Config>
 Array_NaiveEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
 {
-   auto op = [&](T* ptr, ui32 stride, ui32 elements) { div_naive(ptr, stride, a2, elements); };
+   using pointer_type = typename Array<T, N, Config>::pointer_type;
+   auto op = [&]( pointer_type ptr, ui32 stride, ui32 elements )
+   {
+      div_naive( ptr, stride, a2, elements );
+   };
 
    iterate_array(a1, op);
    return a1;
@@ -79,9 +91,13 @@ Array_NaiveEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
 template <class T, size_t N, class Config>
 typename PromoteFloating<T>::type norm2(const Array<T, N, Config>& a1)
 {
+   using const_pointer_type = typename Array<T, N, Config>::const_pointer_type;
    using return_type = typename PromoteFloating<T>::type;
    return_type accum = 0;
-   auto op           = [&](T const* ptr, ui32 stride, ui32 elements) { accum += norm2_naive_sqr(ptr, stride, elements); };
+   auto op = [&]( const_pointer_type ptr, ui32 stride, ui32 elements )
+   {
+      accum += norm2_naive_sqr( ptr, stride, elements );
+   };
 
    iterate_constarray(a1, op);
    return std::sqrt(accum);

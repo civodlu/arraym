@@ -31,7 +31,7 @@ struct TestMatrixInv
    void test_random()
    {
 #ifdef WITH_CUDA
-      test_random_impl<Matrix_cuda_column_major<float>>();
+      //test_random_impl<Matrix_cuda_column_major<float>>();
 #endif
       test_random_impl<Matrix_row_major<float>>();
       test_random_impl<Matrix_column_major<float>>();

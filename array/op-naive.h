@@ -96,7 +96,7 @@ void static_cast_naive(T* v1, size_t stride_v1, const T2* v2, size_t stride_v2, 
 @brief compute sum(v1^2)
 */
 template <class T, class Accum = T>
-Accum norm2_naive_sqr(T const* v1, size_t stride_v1, size_t nb_elements)
+Accum norm2_naive_sqr( const T* v1, size_t stride_v1, size_t nb_elements )
 {
    const T* end = v1 + nb_elements * stride_v1;
    Accum accum  = 0;
