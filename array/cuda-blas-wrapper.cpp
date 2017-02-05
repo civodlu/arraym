@@ -185,12 +185,14 @@ namespace blas
    template <>
    ARRAY_API BlasInt getrf<float>(CBLAS_ORDER matrixOrder, BlasInt m, BlasInt n, cuda_ptr<float> a, BlasInt lda, cuda_ptr<BlasInt> ipiv)
    {
+      using value_type = float;
       ensure(matrixOrder == CBLAS_ORDER::CblasColMajor, "CUBLAS handle only column major");
       ensure(m == n, "CUBLAS handles only M == N");
 
       const int batch_size = 1;
-      auto A_ptr2 = cuda::allocate_gpu<float*>(1);
-      cudaMemcpy(A_ptr2.get(), &a.ptr, sizeof(float*), cudaMemcpyKind::cudaMemcpyHostToDevice);
+      auto A_ptr2 = cuda::allocate_gpu<value_type*>(1);
+      auto r = cudaMemcpy(A_ptr2.get(), &a.ptr, sizeof(value_type*), cudaMemcpyKind::cudaMemcpyHostToDevice);
+      ensure(r == cudaError_t::cudaSuccess, "failed!");
 
       auto info_array = cuda::allocate_gpu<int>(1);
       INIT_AND_CHECK_CUDA(cublasSgetrfBatched(detail::config.handle(), m, A_ptr2.get(), lda, ipiv, info_array.get(), batch_size));
@@ -204,28 +206,35 @@ namespace blas
    template <>
    ARRAY_API BlasInt getri<float>(CBLAS_ORDER matrixOrder, BlasInt n, cuda_ptr<float> a, BlasInt lda, const cuda_ptr<BlasInt> ipiv)
    {
+      using value_type = float;
       ensure(matrixOrder == CBLAS_ORDER::CblasColMajor, "CUBLAS handle only column major");
 
       const int batch_size = 1;
 
       // CUBLAS can't do the inversion inplace
-      auto A_ptr2 = cuda::allocate_gpu<float*>(1);
-      cudaMemcpy(A_ptr2.get(), &a, sizeof(float*), cudaMemcpyKind::cudaMemcpyHostToDevice);
+      auto A_ptr2 = cuda::allocate_gpu<value_type*>(1);
+      auto r = cudaMemcpy(A_ptr2.get(), &a, sizeof(value_type*), cudaMemcpyKind::cudaMemcpyHostToDevice);
+      ensure(r == cudaError_t::cudaSuccess, "failed!");
 
-      auto c = cuda::allocate_gpu<float>(n * n);
-      auto C_ptr2 = cuda::allocate_gpu<float*>(1);
-      cudaMemcpy(C_ptr2.get(), &c, sizeof(float*), cudaMemcpyKind::cudaMemcpyHostToDevice);
+      auto c = cuda::allocate_gpu<value_type>(n * n);
+      auto C_ptr2 = cuda::allocate_gpu<value_type*>(1);
+      r = cudaMemcpy(C_ptr2.get(), &c, sizeof(value_type*), cudaMemcpyKind::cudaMemcpyHostToDevice);
+      ensure(r == cudaError_t::cudaSuccess, "failed!");
 
       const int ldc = n;
       auto info_array = cuda::allocate_gpu<int>(1);
 
-      float** A_ptr3 = A_ptr2.get();
-      float** C_ptr3 = C_ptr2.get();
-      INIT_AND_CHECK_CUDA(cublasSgetriBatched(detail::config.handle(), n, (const float**)A_ptr3, lda, ipiv, C_ptr3, ldc, info_array.get(), batch_size));
-
+      value_type** A_ptr3 = A_ptr2.get();
+      value_type** C_ptr3 = C_ptr2.get();
+      INIT_AND_CHECK_CUDA(cublasSgetriBatched(detail::config.handle(), n, (const value_type**)A_ptr3, lda, ipiv, C_ptr3, ldc, info_array.get(), batch_size));
+      
       int result;
       cuda::vector_gpu_to_cpu(1, info_array.get(), 1, &result, 1);
       ensure(result == 0, "cublasSgetrfBatched failed!");
+
+      // copy the result back
+      r = cudaMemcpy(a, c.get(), sizeof(value_type) * n * n, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
+      ensure(r == cudaError_t::cudaSuccess, "failed!");
       return 0;
    }
 }

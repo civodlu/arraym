@@ -35,6 +35,9 @@ namespace details
 
    template <class T, class Accum=T>
    Accum sum(const cuda_ptr<T> input, ui32 input_stride, ui32 nb_elements);
+
+   template <class T, class Accum = T>
+   Accum norm2_naive_sqr(const cuda_ptr<T> input, size_t input_stride, size_t nb_elements);
 }
 
 template <class T, size_t N, class Allocator>

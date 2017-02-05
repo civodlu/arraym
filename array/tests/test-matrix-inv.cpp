@@ -31,7 +31,7 @@ struct TestMatrixInv
    void test_random()
    {
 #ifdef WITH_CUDA
-      //test_random_impl<Matrix_cuda_column_major<float>>();
+      test_random_impl<Matrix_cuda_column_major<float>>();
 #endif
       test_random_impl<Matrix_row_major<float>>();
       test_random_impl<Matrix_column_major<float>>();
@@ -46,6 +46,7 @@ struct TestMatrixInv
       {
          srand(n);
          const auto nb = generateUniformDistribution<size_t>(3, 10);
+         //const auto nb = generateUniformDistribution<size_t>(3, 4);
 
          Matrix id(vector2ui(nb, nb));
          identity(id);
@@ -54,7 +55,6 @@ struct TestMatrixInv
          random(a);
 
          const Matrix b = inv(a);
-
          {
             const auto i2         = b * a - id;
             const double residual = norm2(i2);

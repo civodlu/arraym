@@ -281,4 +281,66 @@ Accum mean( const Array<T, N, Config>& array )
    return sum(array) / static_cast<T>(array.size());
 }
 
+template <class T, size_t N, class Config>
+typename PromoteFloating<T>::type norm2(const Array<T, N, Config>& a1)
+{
+   using const_pointer_type = typename Array<T, N, Config>::const_pointer_type;
+   using return_type = typename PromoteFloating<T>::type;
+   return_type accum = 0;
+   auto op = [&](const_pointer_type ptr, ui32 stride, ui32 elements)
+   {
+      accum += details::norm2_naive_sqr(ptr, stride, elements);
+   };
+
+   iterate_constarray(a1, op);
+   return std::sqrt(accum);
+}
+
+/**
+ @brief Stack arrays of a same shape into a higher dimensional array
+
+ Input arrays are stored at the last dimension
+ */
+template <class T, size_t N, class Config, typename... Other>
+Array<T, N + 1, typename Config::template rebind_dim<N + 1>::other> stack(const Array<T, N, Config>& array, const Other&... other)
+{
+   using array_type = Array<T, N, Config>;
+   using result_type = Array<T, N + 1, typename Config::template rebind_dim<N + 1>::other>;
+   using array_ref = ArrayRef<T, N, Config>;
+   static_assert(is_same_nocvr<array_type, Other...>::value, "arguments must all be of the same type!");
+
+   // pack everything in an array for easy manipulation
+   const Array<T, N, Config>* arrays[] =
+   {
+      &array,
+      &other...
+   };
+
+   const size_t nb_array = sizeof...(Other)+1;
+   for (auto index : range<size_t>(1, nb_array))
+   {
+      ensure(arrays[0]->shape() == arrays[index]->shape(), "all arrays must be of the same shape");
+   }
+
+   // precompute some variables
+   typename result_type::index_type min_index_result;
+   typename result_type::index_type result_size;
+   for (auto index : range(N))
+   {
+      result_size[index] = arrays[0]->shape()[index];
+   }
+   result_size[N] = nb_array;
+
+   // copy slice by slice the arrays
+   result_type s(result_size);
+   for (auto index : range<ui32>(0, nb_array))
+   {
+      min_index_result[N] = index;
+      auto slice = s.slice<N>(min_index_result);
+      auto slice_ref = array_ref(slice);  // here we do not want to create a new array but replace the content hence the "array_ref"
+      slice_ref = (*arrays[index]);
+   }
+   return s;
+}
+
 DECLARE_NAMESPACE_NLL_END

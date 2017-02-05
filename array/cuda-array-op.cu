@@ -166,6 +166,27 @@ namespace details
       return thrust::reduce(range_input.begin(), range_input.end());
    }
 
+   template <class T, class Accum>
+   Accum norm2_naive_sqr(const cuda_ptr<T> input, size_t input_stride, size_t nb_elements)
+   {
+      thrust::device_ptr<T> dev_ptr_in((T*)input);
+      using strided_range = cuda::strided_range<thrust::device_ptr<T>>;
+      auto range_input = strided_range(dev_ptr_in, dev_ptr_in + nb_elements * input_stride, input_stride);
+
+      auto sqr = []__device__(T value)->Accum
+      {
+         return value * value;
+      };
+
+      Accum init = static_cast<Accum>(0);
+
+      return thrust::transform_reduce(range_input.begin(),
+         range_input.end(),
+         sqr,
+         init,
+         thrust::plus<Accum>());
+   }
+
    template ARRAY_API void cos(cuda_ptr<float> output, ui32 output_stride, const cuda_ptr<float> input, ui32 input_stride, ui32 nb_elements);
    template ARRAY_API void sin(cuda_ptr<float> output, ui32 output_stride, const cuda_ptr<float> input, ui32 input_stride, ui32 nb_elements);
    template ARRAY_API void log(cuda_ptr<float> output, ui32 output_stride, const cuda_ptr<float> input, ui32 input_stride, ui32 nb_elements);
@@ -177,6 +198,8 @@ namespace details
    template ARRAY_API float max(const cuda_ptr<float> input, ui32 input_stride, ui32 nb_elements);
    template ARRAY_API float min(const cuda_ptr<float> input, ui32 input_stride, ui32 nb_elements);
    template ARRAY_API float sum(const cuda_ptr<float> input, ui32 input_stride, ui32 nb_elements);
+
+   template ARRAY_API float norm2_naive_sqr(const cuda_ptr<float> input, size_t input_stride, size_t nb_elements);
 }
 
 DECLARE_NAMESPACE_NLL_END
