@@ -336,7 +336,7 @@ Array<T, N + 1, typename Config::template rebind_dim<N + 1>::other> stack(const 
    for (auto index : range<ui32>(0, nb_array))
    {
       min_index_result[N] = index;
-      auto slice = s.slice<N>(min_index_result);
+      auto slice = s.template slice<N>(min_index_result);
       slice = (*arrays[index]);
    }
    return s;

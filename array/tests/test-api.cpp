@@ -12,6 +12,7 @@ struct TestArrayApi
 {
    using vector_type = Array<float, 1>;
    using array_type = Array<float, 2>;
+   using array_column_major_type = Array_column_major<float, 2>;
    using array_type_multislice = Array_row_major_multislice<float, 2>;
    using array_type_small = MatrixSmall_column_major<float, 16>;
    using matrix_type = Matrix<float>;
@@ -134,15 +135,15 @@ struct TestArrayApi
    void api_cuda_array()
    {
       // initialize the memory on the CPU
-      array_type cpu_memory(4, 1);
+      array_column_major_type cpu_memory( 4, 1 );
       cpu_memory = { 1, 2, 3, 4 };
 
       // transfer to GPU and run calculations
-      array_type gpu_memory = cpu_memory;
+      array_gpu gpu_memory = cpu_memory;
       gpu_memory = cos(gpu_memory);
 
       // once all calculations are performed, get the result back on the CPU
-      array_type cpu_result = gpu_memory;
+      array_column_major_type cpu_result = gpu_memory;
       for (auto index : range(cpu_memory))
       {
          TESTER_ASSERT(fabs(cpu_result({ index, 0 }) - std::cos(cpu_memory({ index, 0 }))) < 1e-5f);
@@ -271,7 +272,9 @@ TESTER_TEST(api_array_ref_range);
 TESTER_TEST(api_array_ref_range_relative);
 TESTER_TEST(api_array_ref_range_all);
 TESTER_TEST(api_small_array);
+#ifdef WITH_CUDA
 TESTER_TEST(api_cuda_array);
+#endif
 TESTER_TEST(api_dense_linear_algebra);
 TESTER_TEST(api_stacking);
 TESTER_TEST(api_slices);

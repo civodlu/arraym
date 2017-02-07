@@ -479,7 +479,8 @@ public:
    template <size_t slicing_dimension>
    SlicingArrayRef<slicing_dimension> slice(const index_type& index) const
    {
-      return SlicingArrayRef<slicing_dimension>( SlicingArray<slicing_dimension>(_memory.slice<slicing_dimension>(index)) );
+      auto slice = SlicingArray<slicing_dimension>( _memory.template slice<slicing_dimension>( index ) );
+      return SlicingArrayRef<slicing_dimension>( slice );
    }
 
 private:
