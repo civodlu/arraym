@@ -36,12 +36,12 @@ struct TestArrayRangeA
       Array a1(2, 3);
       a1 = { 1, 2, 3, 4, 5, 6 };
 
-      auto a2 = a1(R(0, 2), R(0, 1));
+      auto a2 = a1(R(0, 1), R(0, 0));
       TESTER_ASSERT(a2.shape() == vector2ui(2, 1));
       TESTER_ASSERT(a2(0, 0) == a1(0, 0));
       TESTER_ASSERT(a2(1, 0) == a1(1, 0));
 
-      auto a3 = a1(R(1, 2), R(0, 2));
+      auto a3 = a1(R(1, 1), R(0, 1));
       TESTER_ASSERT(a3.shape() == vector2ui(1, 2));
       TESTER_ASSERT(a3(0, 0) == a1(1, 0));
       TESTER_ASSERT(a3(0, 1) == a1(1, 1));
@@ -57,14 +57,14 @@ struct TestArrayRangeA
              5, 6 };
 
       {
-         auto a2 = a1(R(-2, -1), R(0, 1));
+         auto a2 = a1(R(-2, -1), R(0, 0));
          TESTER_ASSERT(a2.shape() == vector2ui(2, 1));
          TESTER_ASSERT(a2(0, 0) == a1(0, 0));
          TESTER_ASSERT(a2(1, 0) == a1(1, 0));
       }
 
       {
-         auto a2 = a1(R(1, 2), R(-2, -1));
+         auto a2 = a1(R(1, 1), R(-2, -1));
          TESTER_ASSERT(a2.shape() == vector2ui(1, 2));
          TESTER_ASSERT(a2(0, 0) == a1(1, 1));
          TESTER_ASSERT(a2(0, 1) == a1(1, 2));
@@ -81,14 +81,14 @@ struct TestArrayRangeA
          5, 6 };
 
       {
-         auto a2 = a1(rangeAll, R(0, 1));
+         auto a2 = a1(rangeAll, R(0, 0));
          TESTER_ASSERT(a2.shape() == vector2ui(2, 1));
          TESTER_ASSERT(a2(0, 0) == a1(0, 0));
          TESTER_ASSERT(a2(1, 0) == a1(1, 0));
       }
 
       {
-         auto a2 = a1(R(1, 2), rangeAll);
+         auto a2 = a1(R(1, 1), rangeAll);
          TESTER_ASSERT(a2.shape() == vector2ui(1, 3));
          TESTER_ASSERT(a2(0, 0) == a1(1, 0));
          TESTER_ASSERT(a2(0, 1) == a1(1, 1));
@@ -104,12 +104,12 @@ struct TestArrayRangeA
       ax = { 1, 2, 3, 4, 5, 6 };
       const Array& a1 = ax;
 
-      auto a2 = a1(R(0, 2), R(0, 1));
+      auto a2 = a1(R(0, 1), R(0, 0));
       TESTER_ASSERT(a2.shape() == vector2ui(2, 1));
       TESTER_ASSERT(a2(0, 0) == a1(0, 0));
       TESTER_ASSERT(a2(1, 0) == a1(1, 0));
       
-      auto a3 = a1(R(1, 2), R(0, 2));
+      auto a3 = a1(R(1, 1), R(0, 1));
       TESTER_ASSERT(a3.shape() == vector2ui(1, 2));
       TESTER_ASSERT(a3(0, 0) == a1(1, 0));
       TESTER_ASSERT(a3(0, 1) == a1(1, 1));

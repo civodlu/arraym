@@ -346,7 +346,7 @@ public:
    };
 
    /**
-    @tparam Args a list of range[N](min_inclusive, max_exclusive), one for each dimension of the array
+    @tparam Args a list of range[N](min_inclusive, max_inclusive), one for each dimension of the array
     */
    template <typename... Args, typename = typename std::enable_if<is_range_list<Args...>::value>::type>
    array_type_ref operator()(Args&&...args)
@@ -359,7 +359,7 @@ public:
       for (size_t n = 0; n < N; ++n)
       {
          auto min_value = *ranges[n].begin();
-         auto max_value = *ranges[n].end();
+         auto max_value = *ranges[n].end(); // inclusive 
          if (ranges[n] != rangeAll)
          {
             if (min_value < 0)
@@ -368,17 +368,17 @@ public:
             }
             if (max_value < 0)
             {
-               max_value = shape()[n] + max_value + 1;
+               max_value = shape()[n] + max_value;
             }
          }
          else
          {
             min_value = 0;
-            max_value = shape()[n];
+            max_value = shape()[n] - 1;
          }
          NLL_FAST_ASSERT(min_value <= max_value, "min > max");
          min_index_inclusive[n] = min_value;
-         max_index_inclusive[n] = max_value - 1;
+         max_index_inclusive[n] = max_value;
       }
 
       return subarray(min_index_inclusive, max_index_inclusive);
@@ -474,9 +474,12 @@ public:
    using SlicingArray = Array<T, N - 1, ArrayTraitsConfig<T, N - 1, allocator_type, SlicingMemory<slicing_dimension>>>;
 
    template <size_t slicing_dimension>
-   SlicingArray<slicing_dimension> slice(const index_type& index) const
+   using SlicingArrayRef = ArrayRef<T, N - 1, ArrayTraitsConfig<T, N - 1, allocator_type, SlicingMemory<slicing_dimension>>>;
+
+   template <size_t slicing_dimension>
+   SlicingArrayRef<slicing_dimension> slice(const index_type& index) const
    {
-      return _memory.slice<slicing_dimension>(index);
+      return SlicingArrayRef<slicing_dimension>( SlicingArray<slicing_dimension>(_memory.slice<slicing_dimension>(index)) );
    }
 
 private:

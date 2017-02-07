@@ -68,8 +68,8 @@ struct TestArrayCuda
       TESTER_ASSERT(result_cpu(0, 2) == 55);
       TESTER_ASSERT(result_cpu(1, 2) == 66);
 
-      gpu_array_type gpu_1b = gpu_1(R(0, 2), R(2, 3));
-      gpu_array_type gpu_2b = gpu_2(R(0, 2), R(1, 2));
+      gpu_array_type gpu_1b = gpu_1(R(0, 1), R(2, 2));
+      gpu_array_type gpu_2b = gpu_2(R(0, 1), R(1, 1));
       auto result_gpu2 = gpu_1b + gpu_2b;
       cpu_array_type result_cpu2 = result_gpu2;
       TESTER_ASSERT(result_cpu2.shape() == vector2ui(2, 1));

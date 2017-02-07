@@ -337,8 +337,7 @@ Array<T, N + 1, typename Config::template rebind_dim<N + 1>::other> stack(const 
    {
       min_index_result[N] = index;
       auto slice = s.slice<N>(min_index_result);
-      auto slice_ref = array_ref(slice);  // here we do not want to create a new array but replace the content hence the "array_ref"
-      slice_ref = (*arrays[index]);
+      slice = (*arrays[index]);
    }
    return s;
 }
