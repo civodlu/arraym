@@ -4,10 +4,6 @@
 
 using namespace NAMESPACE_NLL;
 
-using vector3ui = StaticVector<ui32, 3>;
-using vector2ui = StaticVector<ui32, 2>;
-using vector1ui = StaticVector<ui32, 1>;
-
 struct TestArrayChunking
 {
    void test_rowMajor()

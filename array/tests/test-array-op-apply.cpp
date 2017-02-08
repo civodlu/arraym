@@ -5,9 +5,6 @@
 
 using namespace NAMESPACE_NLL;
 
-using vector2ui = StaticVector<ui32, 2>;
-using vector3ui = StaticVector<ui32, 3>;
-
 template <class T>
 T f2x(T value)
 {

@@ -5,10 +5,6 @@
 
 using namespace NAMESPACE_NLL;
 
-using vector2ui = StaticVector<ui32, 2>;
-using vector3ui = StaticVector<ui32, 3>;
-using vector4ui = StaticVector<ui32, 4>;
-
 struct TestStack
 {
    template <class Array>

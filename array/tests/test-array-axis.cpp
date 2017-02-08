@@ -4,7 +4,6 @@
 
 using namespace NAMESPACE_NLL;
 
-using vector1ui = StaticVector<ui32, 1>;
 
 struct TestArrayAxis
 {

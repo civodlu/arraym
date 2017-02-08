@@ -6,10 +6,6 @@
 
 using namespace NAMESPACE_NLL;
 
-using vector3ui = StaticVector<ui32, 3>;
-using vector2ui = StaticVector<ui32, 2>;
-using vector1ui = StaticVector<ui32, 1>;
-
 /// slow version, only used for test equality
 template <class T>
 bool tequal(T a1, T a2, double eps = 1e-3)

@@ -4,11 +4,6 @@
 
 using namespace NAMESPACE_NLL;
 
-using vector3ui = StaticVector<ui32, 3>;
-using vector2ui = StaticVector<ui32, 2>;
-using vector1ui = StaticVector<ui32, 1>;
-
-
 struct TestArrayExp
 {
    void test_expr_add_array_array_impl()

@@ -272,4 +272,9 @@ std::ostream& operator<<(std::ostream& o, const StaticVector<T, SIZE>& v)
    return o;
 }
 
+using vector4ui = StaticVector<ui32, 4>;
+using vector3ui = StaticVector<ui32, 3>;
+using vector2ui = StaticVector<ui32, 2>;
+using vector1ui = StaticVector<ui32, 1>;
+
 DECLARE_NAMESPACE_NLL_END

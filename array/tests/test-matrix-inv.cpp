@@ -5,8 +5,6 @@
 
 using namespace NAMESPACE_NLL;
 
-using vector2ui = StaticVector<ui32, 2>;
-
 struct TestMatrixInv
 {
    template <class Array>

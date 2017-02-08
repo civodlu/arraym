@@ -6,10 +6,6 @@
 
 using namespace NAMESPACE_NLL;
 
-using vector1ui = StaticVector<ui32, 1>;
-using vector2ui = StaticVector<ui32, 2>;
-using vector3ui = StaticVector<ui32, 3>;
-
 #include <cuda.h>
 #include <cuda_runtime.h>
 
