@@ -12,14 +12,9 @@ struct TestArrayApi
 {
    using vector_type = Array<float, 1>;
    using array_type = Array<float, 2>;
-   using array_column_major_type = Array_column_major<float, 2>;
    using array_type_multislice = Array_row_major_multislice<float, 2>;
    using array_type_small = MatrixSmall_column_major<float, 16>;
    using matrix_type = Matrix<float>;
-
-#ifdef WITH_CUDA
-   using array_gpu = Array_cuda_column_major<float, 2>;
-#endif
 
    void api_array_init()
    {
@@ -135,18 +130,18 @@ struct TestArrayApi
    void api_cuda_array()
    {
       // initialize the memory on the CPU
-      array_column_major_type cpu_memory( 4, 1 );
+      Array_column_major<float, 1> cpu_memory(4);
       cpu_memory = { 1, 2, 3, 4 };
 
       // transfer to GPU and run calculations
-      array_gpu gpu_memory = cpu_memory;
+      Array_cuda_column_major<float, 1> gpu_memory = cpu_memory;
       gpu_memory = cos(gpu_memory);
 
       // once all calculations are performed, get the result back on the CPU
-      array_column_major_type cpu_result = gpu_memory;
-      for (auto index : range(cpu_memory))
+      Array_column_major<float, 1> cpu_result = gpu_memory;
+      for (size_t index : range(cpu_memory))
       {
-         TESTER_ASSERT(fabs(cpu_result({ index, 0 }) - std::cos(cpu_memory({ index, 0 }))) < 1e-5f);
+         TESTER_ASSERT(fabs(cpu_result(index) - std::cos(cpu_memory(index))) < 1e-5f);
       }
    }
 #endif
@@ -240,7 +235,7 @@ struct TestArrayApi
       array_type array(3, 2);
       array = { 1, 2, 3, 4, 5, 6 };
 
-      // Replicate an array in multiple dimentations
+      // Replicate an array in multiple dimensions
       auto r = repmat(array, vector3ui(1, 1, 2));
       TESTER_ASSERT(r.shape() == vector3ui(3, 2, 2));
       TESTER_ASSERT(r(0, 0, 0) == array(0, 0));
@@ -259,8 +254,29 @@ struct TestArrayApi
       TESTER_ASSERT(r(1, 1, 1) == array(1, 1));
       TESTER_ASSERT(r(2, 1, 1) == array(2, 1));
    }
+
+   void api_dense_linear_algebra_subblocks()
+   {
+      // demonstrate basic linear algebra functions
+      Matrix_column_major<float> array(6, 7);
+
+      // address only a 2x2 sub-block
+      auto sub_2x2 = array(R(1, 2), R(2, 3));
+
+      // initialize the sub-block in axis-order fashion
+      sub_2x2 = { -1, 4, 5, -8 };
+
+      // compute its inverse
+      auto sub_2x2_inv = inv(sub_2x2);
+      
+      // verify inverse properties ||A * inv(A) - I||_2 == 0
+      TESTER_ASSERT(norm2(sub_2x2 * sub_2x2_inv - identity<float>(2)) < 1e-4f);
+   }
 };
 
+//
+// http://pages.cs.wisc.edu/~cs701-1/LectureNotes/trunk/cs701-lec-12-1-2015/cs701-lec-12-01-2015.pdf
+//
 
 
 TESTER_TEST_SUITE(TestArrayApi);
@@ -281,4 +297,5 @@ TESTER_TEST(api_slices);
 TESTER_TEST(api_op);
 TESTER_TEST(api_op_axis);
 TESTER_TEST(api_repmat);
+TESTER_TEST(api_dense_linear_algebra_subblocks);
 TESTER_TEST_SUITE_END();

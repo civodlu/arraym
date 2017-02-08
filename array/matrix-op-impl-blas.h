@@ -112,6 +112,7 @@ void gemm(bool trans_a, bool trans_b, T alpha, const Array<T, 2, Config>& opa, c
    const auto memory_order_b = getMatrixMemoryOrder(opb);
    const auto memory_order_c = getMatrixMemoryOrder(opc);
 
+
    ensure(memory_order_a == memory_order_b, "matrix must have the same memory order");
    ensure(memory_order_a == memory_order_c, "matrix must have the same memory order");
    ensure(memory_order_a != CBLAS_ORDER::UnkwownMajor, "unkown memory order!");
@@ -128,7 +129,12 @@ void gemm(bool trans_a, bool trans_b, T alpha, const Array<T, 2, Config>& opa, c
    const auto n = columns(opb, trans_b);
    const auto k = columns(opa, trans_a);
 
+   // op(A) is an m - by - k matrix,
+   // op(B) is a k - by - n matrix,
+   // C is an m - by - n matrix.
+   ensure(rows(opb, trans_b) == k, "op(B) is a k - by - n matrix");
    ensure(opc.rows() == m, "must be a opa.rows() * opb.columns()");
+   ensure(opc.columns() == n, "must be a opa.rows() * opb.columns()");
    using pointer_type = typename Array<T, 2, Config3>::pointer_type;
    using const_pointer_type = typename Array<T, 2, Config3>::const_pointer_type;
 

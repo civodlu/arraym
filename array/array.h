@@ -619,6 +619,12 @@ public:
       iterate_array(*this, op);
       return *this;
    }
+
+   ArrayRef& operator=(const std::initializer_list<T>& list)
+   {
+      array_type::operator=(list);
+      return *this;
+   }
 };
 
 /**
