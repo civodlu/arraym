@@ -69,7 +69,7 @@ void api_cuda_array()
   Array_column_major<float, 1> cpu_result = gpu_array;
   for (size_t index : range(cpu_array))
   {
-	 TESTER_ASSERT(fabs(cpu_result(index) - std::cos(cpu_array(index))) < 1e-5f);
+	 assert(fabs(cpu_result(index) - std::cos(cpu_array(index))) < 1e-5f);
   }
 }
 ```
