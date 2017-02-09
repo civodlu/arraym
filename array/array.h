@@ -1,5 +1,11 @@
 #pragma once
 
+/**
+ @file
+
+ Defines the multidimentional array and all shorthand typedefs
+ */
+
 DECLARE_NAMESPACE_NLL
 
 template <class T, size_t N, class Config>
@@ -116,6 +122,10 @@ public:
 
    /**
    @brief create a shared sub-block
+   @param array the base array
+   @param origin the index of the new array within @p array
+   @param shape the shape of the new array
+   @param stride the stride of the new array. If a stride is not 1, it will skip (stride-1) elements between elements of the new array
    */
    Array(Array& array, const index_type& origin, const index_type& shape, const index_type& stride) : _memory(array._memory, origin, shape, stride)
    {
@@ -128,11 +138,15 @@ public:
 #endif
    }
 
+   /**
+    @brief Copy an array with a different type & configuration.
+
+    Each element will be static_cast to the array type
+    */
    template <class T2, class Config2>
    explicit Array( const Array<T2, N, Config2>& array ) : Array( array.shape() )
    {
-      // TODO: move to memory
-      auto op = [&]( T* a1_pointer, ui32 a1_stride, const T2* a2_pointer, ui32 a2_stride, ui32 nb_elements )
+      auto op = [&](pointer_type a1_pointer, ui32 a1_stride, typename Array<T2, N, Config2>::const_pointer a2_pointer, ui32 a2_stride, ui32 nb_elements)
       {
          details::static_cast_naive( a1_pointer, a1_stride, a2_pointer, a2_stride, nb_elements );
       };
@@ -140,10 +154,16 @@ public:
       _iterate_array_constarray( *this, array, op );
    }
 
+   /**
+    @brief construct an empty array
+    */
    Array(const allocator_type& allocator = allocator_type()) : _memory(allocator)
    {
    }
 
+   /**
+    @brief Construct an array from a memory
+    */
    Array(const Memory& memory) : _memory(memory)
    {
    }
@@ -158,11 +178,17 @@ public:
       return *this;
    }
 
+   /**
+    @brief copy construction
+    */
    Array(const Array& other)
    {
       _copy(other);
    }
 
+   /**
+    @brief create a copy of an array with a different configuration (e.g., allocator, array type...)
+    */
    template <class Config2>
    Array(const Array<value_type, N, Config2>& other)
    {
@@ -178,19 +204,6 @@ public:
    Array(Array&& other)
    {
       _move(std::forward<Array>(other));
-   }
-
-   template <class A>
-   Array(const Expr<A>& expr)
-   {
-      *this = expr();
-   }
-
-   template <class A>
-   Array& operator=(const Expr<A>& expr)
-   {
-      *this = expr();
-      return *this;
    }
 
    /**
@@ -224,35 +237,46 @@ public:
          pointer_type ptr_array(nullptr);
          hasMoreElements        = iterator.accessSingleElement(ptr_array);
          details::copy_naive(ptr_array, 1, &(*(ptr_initializer++)), 1, 1);
-         //*ptr_array             = *(ptr_initializer++);
       }
 
       return *this;
    }
 
+   /**
+    @return the size of each dimension of the array
+    */
    const index_type& shape() const
    {
       return _memory.shape();
    }
 
    /**
-   @brief Rank of the array
+   @return Rank of the array (i.e., the number of dimensions)
    */
    static size_t rank()
    {
       return N;
    }
 
+   /**
+    @brief serialize to a binary stream the array
+   */
    void write(std::ostream& f) const
    {
       ensure(0, "@TODO implement");
    }
 
+   /**
+    @brief deserialize from a binary stream and populate an array
+    */
    void read(std::istream& f)
    {
       ensure(0, "@TODO implement");
    }
 
+   /**
+    @return the linear size of the array (i.e., the number of elements contained inside the array)
+    */
    size_t size() const
    {
       size_t s = 1;
@@ -263,6 +287,11 @@ public:
       return s;
    }
 
+   /**
+    @brief access an element contained by the array using independently provided index for each dimension
+
+    For example Array<float, 2> can be accessed directly using (x_index, y_index)
+    */
    template <typename... Values, typename = typename std::enable_if<is_unpacked_arguments<Values...>::value>::type>
    reference_type operator()(const Values&... values)
    {
@@ -270,6 +299,11 @@ public:
       return operator()(index);
    }
 
+   /**
+   @brief access an element contained by the array using independently provided index for each dimension
+
+   For example Array<float, 2> can be accessed directly using (x_index, y_index)
+   */
    template <typename... Values, typename = typename std::enable_if<is_unpacked_arguments<Values...>::value>::type>
    const_reference_type operator()(const Values&... values) const
    {
@@ -277,6 +311,11 @@ public:
       return operator()(index);
    }
 
+   /**
+   @brief access an element contained by the array using an index
+
+   For example Array<float, 2> can be accessed directly using (vector2ui(x_index, y_index))
+   */
    reference_type operator()(const index_type& index)
    {
 #ifndef NDEBUG
@@ -288,6 +327,11 @@ public:
       return *_memory.at(index);
    }
 
+   /**
+   @brief access an element contained by the array using an index
+
+   For example Array<float, 2> can be accessed directly using (vector2ui(x_index, y_index))
+   */
    const_reference_type operator()(const index_type& index) const
    {
 #ifndef NDEBUG
@@ -299,11 +343,21 @@ public:
       return *_memory.at(index);
    }
 
+   /**
+   @brief reference a sub-array defined by two indexes (min inclusive, max inclusive)
+
+   The resulting array is a reference, meaning the memory is shared between the reference and this
+   */
    array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive)
    {
       return subarray(min_index_inclusive, max_index_inclusive);
    }
 
+   /**
+   @brief reference a sub-array defined by two indexes (min inclusive, max inclusive)
+
+   The resulting array is a reference, meaning the memory is shared between the reference and this
+   */
    array_type_ref subarray(const index_type& min_index_inclusive, const index_type& max_index_inclusive)
    {
 #ifndef NDEBUG
@@ -318,6 +372,9 @@ public:
       return array_type_ref(*this, min_index_inclusive, size, index_type(1));
    }
 
+   /**
+    @brief Constify an array, ie., view Array<T> as Array<const T>
+    */
    ConstArray asConst() const
    {
       auto m = this->getMemory().asConst();
@@ -325,12 +382,22 @@ public:
       return array;
    }
 
+   /**
+   @brief reference a sub-array defined by two indexes (min inclusive, max inclusive)
+
+   The resulting array is a reference, meaning the memory is shared between the reference and this
+   */
    const_array_type_ref subarray(const index_type& min_index_inclusive, const index_type& max_index_inclusive) const
    {
       // here we create a new array type which embed the const in the data type so that we really can't modify the array
       return asConst().subarray(min_index_inclusive, max_index_inclusive);
    }
    
+   /**
+   @brief reference a sub-array defined by two indexes (min inclusive, max inclusive)
+
+   The resulting array is a reference, meaning the memory is shared between the reference and this
+   */
    const_array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive) const
    {
       return subarray(min_index_inclusive, max_index_inclusive);

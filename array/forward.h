@@ -76,16 +76,17 @@
  @page label_1 High level api
 
  @section label_2 Accessing elements
+ @image html processor_column_major.png
  @section label_3 The processor
  @section label_4 Value based semantic
- @section label_4 Common operations
- @section label_5 Dense linear algebra
- @section label_6 Small array optimization
- @section label_7 Axis-based operations
- @section label_8 GPU based arrays
- @subsection label_8a cuda_ptr<T>
- @subsection label_8b Memory transfers
- @section label_9 BLAS dispatcher
+ @section label_5 Common operations
+ @section label_6 Dense linear algebra
+ @section label_7 Small array optimization
+ @section label_8 Axis-based operations
+ @section label_9 GPU based arrays
+ @subsection label_9a cuda_ptr<T>
+ @subsection label_9b Memory transfers
+ @section label_10 BLAS dispatcher
  */
 
 #include <array/array-api.h>
