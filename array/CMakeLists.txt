@@ -73,7 +73,7 @@ MESSAGE("OpenBLAS=" ${OpenBLAS_LIB})
 if(${CUDA_FOUND})
    # CUDA NVBLAS must be before any other BLAS implementation
    set(CUDA_PROPAGATE_HOST_FLAGS ON)
-   cuda_add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers} ${CudaKernel} OPTIONS --expt-extended-lambda --disable-warnings)
+   cuda_add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers} ${CudaKernel} OPTIONS --expt-extended-lambda)
 else()
    add_library(${LIBNAME} ${LIB_TYPE} ${Sources} ${BLAS} ${Headers} ${BlasWrappers})
 endif()

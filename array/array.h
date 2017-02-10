@@ -146,7 +146,7 @@ public:
    template <class T2, class Config2>
    explicit Array( const Array<T2, N, Config2>& array ) : Array( array.shape() )
    {
-      auto op = [&](pointer_type a1_pointer, ui32 a1_stride, typename Array<T2, N, Config2>::const_pointer a2_pointer, ui32 a2_stride, ui32 nb_elements)
+      auto op = [&](pointer_type a1_pointer, ui32 a1_stride, typename Array<T2, N, Config2>::const_pointer_type a2_pointer, ui32 a2_stride, ui32 nb_elements)
       {
          details::static_cast_naive( a1_pointer, a1_stride, a2_pointer, a2_stride, nb_elements );
       };

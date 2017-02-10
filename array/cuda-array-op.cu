@@ -1,4 +1,7 @@
-#include "forward.h"
+#include <array/config.h>
+#include <array/array-api.h>
+
+#include "cuda-kernel.cuh"
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <thrust/device_vector.h>

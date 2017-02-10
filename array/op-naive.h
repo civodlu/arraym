@@ -211,10 +211,16 @@ inline double absolute(double val)
 @ingroup core
 @brief test if 2 values are equal with a certain tolerance
 */
-template <class T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+template <class T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
 bool equal(const T val1, const T val2, const T tolerance = 2 * std::numeric_limits<T>::epsilon())
 {
-   return absolute((double)val1 - (double)val2) <= (double)tolerance;
+   return std::abs(val1 - val2) <= tolerance;
+}
+
+template <class T, typename = int, typename = typename std::enable_if<std::is_integral<T>::value>::type>
+bool equal( const T val1, const T val2, const T UNUSED(tolerance) = 0 )
+{
+   return val1 == val2;
 }
 
 DECLARE_NAMESPACE_NLL_END
