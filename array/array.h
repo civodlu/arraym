@@ -230,7 +230,7 @@ public:
 
       // special case for matrices: the storage is always transposed
       auto index_fun = is_matrix<Array>::value ? getIndexes_matrix : ArrayProcessor_contiguous_byDimension<Array>::getIndexes;
-      details::ArrayProcessor_contiguous_base<Array> iterator(*this, index_fun);
+      details::ArrayProcessor_contiguous_base<Array> iterator(*this, index_fun, 1);
 
       while (hasMoreElements)
       {

@@ -259,9 +259,46 @@ struct TestArrayOpApply
       const typename Array::value_type a1_fun = max(a1);
       TESTER_ASSERT(a1_fun == 6);
    }
+
+   void test_array_argmax()
+   {
+      test_array_argmax_impl<Array<float, 2>>();
+   }
+
+
+   template <class T, size_t N, class Config>
+   size_t argmax(const Array<T, N, Config>& array)
+   {
+      size_t index = 0;
+      T max_value = std::numeric_limits<T>::lowest();
+      size_t max_index = 0;
+      auto f = [&](T value)
+      {
+         if (value > max_value)
+         {
+            max_value = value;
+            max_index = index;
+         }
+
+         ++index;
+      };
+      constarray_apply_function_inplace(array, f);
+      return max_index;
+   }
+
+   template <class Array>
+   void test_array_argmax_impl()
+   {
+      Array array(3, 2);
+      array = { 4, 2, 1, 5, 6, 3 };
+
+      auto index = argmax(array);
+      TESTER_ASSERT(index == 4);
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayOpApply);
-TESTER_TEST(test_array_apply_function);
-TESTER_TEST(test_array_apply_functions);
+//TESTER_TEST(test_array_apply_function);
+//TESTER_TEST(test_array_apply_functions);
+TESTER_TEST(test_array_argmax);
 TESTER_TEST_SUITE_END();

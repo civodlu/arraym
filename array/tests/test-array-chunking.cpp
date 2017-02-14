@@ -13,31 +13,31 @@ struct TestArrayChunking
       Array a(2, 3);
       a = { 1, 2, 3, 4, 5, 6 };
 
-      ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(0, 1));
+      ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(0, 1), 1);
 
       bool done;
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 0));
-      done = chunking._accessElements(1);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
 
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 0));
-      done = chunking._accessElements(1);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
 
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 1));
-      done = chunking._accessElements(1);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
 
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 1));
-      done = chunking._accessElements(1);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
 
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 2));
-      done = chunking._accessElements(1);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
       
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 2));
-      done = chunking._accessElements(1);
+      done = chunking._accessElements();
       TESTER_ASSERT(!done);
    }
 
@@ -48,31 +48,31 @@ struct TestArrayChunking
       Array a(2, 3);
       a = { 1, 2, 3, 4, 5, 6 };
 
-      ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(1, 0));
+      ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(1, 0), 1);
 
       bool done;
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 0));
-      done = chunking._accessElements(1);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
 
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 1));
-      done = chunking._accessElements(1);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
 
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 2));
-      done = chunking._accessElements(1);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
 
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 0));
-      done = chunking._accessElements(1);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
 
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 1));
-      done = chunking._accessElements(1);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
 
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 2));
-      done = chunking._accessElements(1);
+      done = chunking._accessElements();
       TESTER_ASSERT(!done);
    }
 
@@ -83,19 +83,19 @@ struct TestArrayChunking
       Array a(2, 3);
       a = { 1, 2, 3, 4, 5, 6 };
 
-      ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(0, 1));
+      ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(0, 1), 2);
 
       bool done;
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 0));
-      done = chunking._accessElements(2);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
 
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 1));
-      done = chunking._accessElements(2);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
 
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 2));
-      done = chunking._accessElements(2);
+      done = chunking._accessElements();
       TESTER_ASSERT(!done);
    }
 
@@ -106,15 +106,15 @@ struct TestArrayChunking
       Array a(2, 3);
       a = { 1, 2, 3, 4, 5, 6 };
 
-      ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(1, 0));
+      ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(1, 0), 3);
 
       bool done;
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 0));
-      done = chunking._accessElements(3);
+      done = chunking._accessElements();
       TESTER_ASSERT(done);
 
       TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 0));
-      done = chunking._accessElements(3);
+      done = chunking._accessElements();
       TESTER_ASSERT(!done);
    }
 };

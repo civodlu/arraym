@@ -21,7 +21,11 @@ class ArrayChunking_contiguous_base
 public:
    using index_type = typename Array::index_type;
 
-   ArrayChunking_contiguous_base(const index_type& shape, const index_type& indexesOrder) : _shape(shape)
+   /**
+    @param nbElementsToAccessPerIter the number of elements that will be read for each call to @p _accessElements
+                                     if nbElementsToAccessPerIter == 0, the number of elements will be set to the maximum possible
+    */
+   ArrayChunking_contiguous_base(const index_type& shape, const index_type& indexesOrder, ui32 nbElementsToAccessPerIter) : _shape(shape)
    {
       _indexesOrder = indexesOrder;
       for (ui32 n = 0; n < _indexesOrder.size(); ++n)
@@ -29,15 +33,23 @@ public:
          _indexesOrderInv[_indexesOrder[n]] = n;
          _sizeOrder[n] = shape[_indexesOrder[n]];
       }
-      _maxAccessElements = shape[_indexesOrder[0]];
+
+      const auto maxAccessElements = shape[_indexesOrder[0]];
+      if (nbElementsToAccessPerIter == 0)
+      {
+         _nbElementsToAccessPerIter = maxAccessElements;
+      }
+      else
+      {
+         _nbElementsToAccessPerIter = nbElementsToAccessPerIter;
+      }
+      ensure(_nbElementsToAccessPerIter == 1 || _nbElementsToAccessPerIter == maxAccessElements, "TODO handle different nbElements!");
    }
 
-   // <nbElements> minimum = 1
-   //              maximum = max number of elements contiguous in the fastest varying dimension
-   bool _accessElements(ui32 nbElements)
+   // access @p _nbElementsToAccessPerIter elements
+   bool _accessElements()
    {
-      NLL_FAST_ASSERT(nbElements == 1 || nbElements == _maxAccessElements, "TODO handle different nbElements!");
-      const bool hasMoreElements = Increment<0, false>::run(_iterator_index, _sizeOrder, _pointer_invalid, nbElements);
+      const bool hasMoreElements = Increment<0, false>::run(_iterator_index, _sizeOrder, _pointer_invalid, _nbElementsToAccessPerIter);
       return hasMoreElements;
    }
 
@@ -101,7 +113,7 @@ protected:
 
 protected:
    bool       _pointer_invalid = true;
-   ui32       _maxAccessElements; // maximum number of steps in the fastest varying dimension possible without increasing the other indexes
+   ui32       _nbElementsToAccessPerIter;
    index_type _iterator_index;  // the current index
    index_type _shape;           // shape of the mapped array
    index_type _sizeOrder;       // the size, ordered by <_indexesOrder>

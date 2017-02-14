@@ -264,7 +264,7 @@ struct TestArray
 
       Array covered(size, 0);
 
-      NAMESPACE_NLL::details::ArrayProcessor_contiguous_base<Array> processor(m1, [](const Array&) { return NAMESPACE_NLL::vector3ui(0, 1, 2); });
+      NAMESPACE_NLL::details::ArrayProcessor_contiguous_base<Array> processor(m1, [](const Array&) { return NAMESPACE_NLL::vector3ui(0, 1, 2); }, 1);
       bool has_more = true;
       while (has_more)
       {
@@ -337,7 +337,7 @@ struct TestArray
       Array covered(size_m2, 0);
 
       // single access
-      NAMESPACE_NLL::details::ArrayProcessor_contiguous_base<Array> processor(m2, functor);
+      NAMESPACE_NLL::details::ArrayProcessor_contiguous_base<Array> processor(m2, functor, 1);
       bool has_more = true;
       while (has_more)
       {
@@ -349,7 +349,7 @@ struct TestArray
       }
 
       // multiple accesses
-      NAMESPACE_NLL::ArrayProcessor_contiguous_byMemoryLocality<Array> processor2(m2);
+      NAMESPACE_NLL::ArrayProcessor_contiguous_byMemoryLocality<Array> processor2(m2, 0);
       has_more = true;
       while (has_more)
       {
@@ -360,7 +360,7 @@ struct TestArray
 
          const auto stride =
              processor2.stride() == 0 ? 1 : processor2.stride(); // TODO: not the best UT design, will fail for other types of Memory (eg., non linear)
-         const auto maxElements = processor2.getMaxAccessElements();
+         const auto maxElements = processor2.getNbElementsPerAccess();
          for (ui32 n = 0; n < maxElements; ++n)
          {
             NAMESPACE_NLL::vector3ui index = i;
@@ -389,7 +389,7 @@ struct TestArray
    {
       using array_type = NAMESPACE_NLL::Array_column_major<float, 3>;
       array_type a1(4, 5, 6);
-      NAMESPACE_NLL::ArrayProcessor_contiguous_byDimension<array_type> iterator(a1);
+      NAMESPACE_NLL::ArrayProcessor_contiguous_byDimension<array_type> iterator(a1, 0);
       TESTER_ASSERT(iterator.getVaryingIndexOrder() == NAMESPACE_NLL::vector3ui(0, 1, 2));
    }
 
@@ -397,7 +397,7 @@ struct TestArray
    {
       using array_type = NAMESPACE_NLL::Array_column_major<float, 3>;
       array_type a1(4, 5, 6);
-      NAMESPACE_NLL::ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(a1);
+      NAMESPACE_NLL::ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(a1, 0);
       TESTER_ASSERT(iterator.getVaryingIndexOrder() == NAMESPACE_NLL::vector3ui(2, 1, 0));
    }
 
@@ -630,7 +630,7 @@ struct TestArray
       Array m(3, 2);
       m = {1, 2, 3, 4, 5, 6};
 
-      NAMESPACE_NLL::ConstArrayProcessor_contiguous_byMemoryLocality<Array> processor(m);
+      NAMESPACE_NLL::ConstArrayProcessor_contiguous_byMemoryLocality<Array> processor(m, 0);
       TESTER_ASSERT(processor.getVaryingIndex() == 0);
 
       bool more_elements = true;
@@ -659,7 +659,7 @@ struct TestArray
       Array m(2, 3);
       m = {1, 2, 3, 4, 5, 6};
 
-      NAMESPACE_NLL::ConstArrayProcessor_contiguous_byMemoryLocality<Array> processor(m);
+      NAMESPACE_NLL::ConstArrayProcessor_contiguous_byMemoryLocality<Array> processor(m, 0);
       TESTER_ASSERT(processor.getVaryingIndex() == 1);
 
       bool more_elements = true;
@@ -690,7 +690,7 @@ struct TestArray
       Array m(2, 3);
       m = {1, 2, 3, 4, 5, 6};
 
-      NAMESPACE_NLL::ConstMemoryProcessor_contiguous_byMemoryLocality<Array::Memory> processor(m.getMemory());
+      NAMESPACE_NLL::ConstMemoryProcessor_contiguous_byMemoryLocality<Array::Memory> processor(m.getMemory(), 0);
       TESTER_ASSERT(processor.getVaryingIndex() == 1);
 
       bool more_elements = true;
@@ -721,7 +721,7 @@ struct TestArray
       Array m(2, 3);
       m = {1, 2, 3, 4, 5, 6};
 
-      NAMESPACE_NLL::MemoryProcessor_contiguous_byMemoryLocality<Array::Memory> processor(m.getMemory());
+      NAMESPACE_NLL::MemoryProcessor_contiguous_byMemoryLocality<Array::Memory> processor(m.getMemory(), 0);
       TESTER_ASSERT(processor.getVaryingIndex() == 1);
 
       bool more_elements = true;
@@ -752,7 +752,7 @@ struct TestArray
       Array m(2, 3);
       m = {1, 2, 3, 4, 5, 6};
 
-      NAMESPACE_NLL::ConstArrayProcessor_contiguous_byDimension<Array> processor(m);
+      NAMESPACE_NLL::ConstArrayProcessor_contiguous_byDimension<Array> processor(m, 1);
       TESTER_ASSERT(processor.getVaryingIndex() == 0);
 
       bool more_elements = true;

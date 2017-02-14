@@ -26,13 +26,13 @@ Array<T, N2, typename Config::template rebind_dim<N2>::other> repmat(const Array
 
    // then iterate array in a memory friendly manner
    other_array_type other(other_shape);
-   ArrayChunking_contiguous_base<other_array_type> chunking(times, getFastestVaryingIndexes(other));
+   ArrayChunking_contiguous_base<other_array_type> chunking(times, getFastestVaryingIndexes(other), 1);
 
    bool more_elements = true;
    while (more_elements)
    {
       const auto index = chunking.getArrayIndex() * shape_n2;
-      more_elements = chunking._accessElements(1);
+      more_elements = chunking._accessElements();
       other(index, index + shape_n2 - 1) = array_n2;
    }
 

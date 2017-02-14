@@ -82,7 +82,7 @@ struct TestArrayPerformance
       auto a                       = create(shape);
       const float constructionTime = timer.getElapsedTime();
       std::cout << "ConstructionTime=" << constructionTime << std::endl;
-      ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(a);
+      ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(a, 1);
 
       bool hasMoreElements = true;
       while (hasMoreElements)
@@ -100,7 +100,7 @@ struct TestArrayPerformance
       Timer timer;
 
       auto a = create(shape);
-      ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(a);
+      ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(a, 0);
 
       const float constructionTime = timer.getElapsedTime();
       std::cout << "ConstructionTime=" << constructionTime << std::endl;
@@ -110,7 +110,7 @@ struct TestArrayPerformance
       {
          array_type::value_type* ptr = 0;
          hasMoreElements             = iterator.accessMaxElements(ptr);
-         for (NAMESPACE_NLL::ui32 n = 0; n < iterator.getMaxAccessElements(); ++n)
+         for (NAMESPACE_NLL::ui32 n = 0; n < iterator.getNbElementsPerAccess(); ++n)
          {
             ptr[n] = ptr[n] * ptr[n];
          }

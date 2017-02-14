@@ -130,7 +130,7 @@ std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
 
    o << "[ ";
 
-   ConstArrayProcessor_contiguous_byDimension<Array<T, N, Config>> processor(array);
+   ConstArrayProcessor_contiguous_byDimension<Array<T, N, Config>> processor(array, 1);
    bool hasMoreElements = true;
    while (hasMoreElements)
    {

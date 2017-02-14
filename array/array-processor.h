@@ -46,18 +46,18 @@ public:
    using pointer_type = typename Array::pointer_type;
 
    template <class FunctorGetDimensionOrder>
-   ArrayProcessor_contiguous_base( Array& array, const FunctorGetDimensionOrder& functor ) : Base( array.shape(), functor( array ) ), _array( array )
+   ArrayProcessor_contiguous_base(Array& array, const FunctorGetDimensionOrder& functor, ui32 nbElementsToAccessPerIter) : Base(array.shape(), functor(array), nbElementsToAccessPerIter), _array(array)
    {}
 
+   // TODO deprecate
    bool accessSingleElement(pointer_type& ptrToValue)
    {
-      return _accessElements(ptrToValue, 1);
+      return _accessElements(ptrToValue);
    }
 
-   bool _accessElements(pointer_type& ptrToValue, ui32 nbElements)
-   {
-      NLL_FAST_ASSERT(nbElements == 1 || nbElements == _maxAccessElements, "TODO handle different nbElements!");
 
+   bool _accessElements(pointer_type& ptrToValue)
+   {
       if ( this->_pointer_invalid )
       {
          _iterator = this->_array.beginDim( this->_indexesOrder[ 0 ], this->getArrayIndex() );
@@ -65,10 +65,10 @@ public:
       }
       else
       {
-         _iterator.add(nbElements);
+         _iterator.add(this->_nbElementsToAccessPerIter);
       }
       ptrToValue = pointer_type(_iterator.current_pointer());
-      return this->Base::_accessElements( nbElements );
+      return this->Base::_accessElements();
    }
 
 protected:
@@ -97,7 +97,7 @@ public:
    using value_type   = typename Array::value_type;
 
    template <class FunctorGetDimensionOrder>
-   ConstArrayProcessor_contiguous_base(const Array& array, const FunctorGetDimensionOrder& functor) : _processor(const_cast<Array&>(array), functor)
+   ConstArrayProcessor_contiguous_base(const Array& array, const FunctorGetDimensionOrder& functor, ui32 nbElementsToAccessPerIter) : _processor(const_cast<Array&>(array), functor, nbElementsToAccessPerIter)
    {
    }
 
@@ -128,9 +128,9 @@ public:
    }
 
 protected:
-   bool _accessElements(const_pointer_type& ptrToValue, ui32 nbElements)
+   bool _accessElements(const_pointer_type& ptrToValue)
    {
-      return _processor._accessElements(const_cast<pointer_type&>(ptrToValue), nbElements);
+      return _processor._accessElements(const_cast<pointer_type&>(ptrToValue));
    }
 
 protected:
@@ -190,14 +190,14 @@ public:
    using base         = details::ArrayProcessor_contiguous_base<Array>;
    using pointer_type = typename base::pointer_type;
 
-   ArrayProcessor_contiguous_byMemoryLocality(Array& array)
-       : base(array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config>)
+   ArrayProcessor_contiguous_byMemoryLocality(Array& array, ui32 nbElementsToAccessPerIter)
+      : base(array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config>, nbElementsToAccessPerIter)
    {
    }
 
-   ui32 getMaxAccessElements() const
+   ui32 getNbElementsPerAccess() const
    {
-      return this->_maxAccessElements;
+      return this->_nbElementsToAccessPerIter;
    }
 
    ui32 stride() const
@@ -214,7 +214,7 @@ public:
    */
    bool accessMaxElements(pointer_type& ptrToValue)
    {
-      return this->_accessElements(ptrToValue, this->_maxAccessElements);
+      return this->_accessElements(ptrToValue);
    }
 };
 
@@ -229,13 +229,13 @@ public:
    using base         = details::ArrayProcessor_contiguous_base<Memory>;
    using pointer_type = typename base::pointer_type;
 
-   MemoryProcessor_contiguous_byMemoryLocality(Memory& array) : base(array, &details::getFastestVaryingIndexesMemory<Memory>)
+   MemoryProcessor_contiguous_byMemoryLocality(Memory& array, ui32 nbElementsToAccessPerIter) : base(array, &details::getFastestVaryingIndexesMemory<Memory>, nbElementsToAccessPerIter)
    {
    }
 
-   ui32 getMaxAccessElements() const
+   ui32 getNbElementsPerAccess() const
    {
-      return this->_maxAccessElements;
+      return this->_nbElementsToAccessPerIter;
    }
 
    ui32 stride() const
@@ -252,7 +252,7 @@ public:
    */
    bool accessMaxElements(pointer_type& ptrToValue)
    {
-      return this->_accessElements(ptrToValue, this->_maxAccessElements);
+      return this->_accessElements(ptrToValue);
    }
 };
 
@@ -271,13 +271,13 @@ public:
    using const_pointer_type = typename Memory::const_pointer_type;
    using value_type   = typename Memory::value_type;
    
-   ConstMemoryProcessor_contiguous_byMemoryLocality(const Memory& array) : base(array, &details::getFastestVaryingIndexesMemory<Memory>)
+   ConstMemoryProcessor_contiguous_byMemoryLocality(const Memory& array, ui32 nbElementsToAccessPerIter) : base(array, &details::getFastestVaryingIndexesMemory<Memory>, nbElementsToAccessPerIter)
    {
    }
 
-   ui32 getMaxAccessElements() const
+   ui32 getNbElementsPerAccess() const
    {
-      return this->_processor._maxAccessElements;
+      return this->_processor._nbElementsToAccessPerIter;
    }
 
    ui32 stride() const
@@ -294,7 +294,7 @@ public:
    */
    bool accessMaxElements(const_pointer_type& ptrToValue)
    {
-      return this->_accessElements(ptrToValue, getMaxAccessElements());
+      return this->_accessElements(ptrToValue);
    }
 };
 
@@ -312,14 +312,14 @@ public:
    using const_pointer_type = typename Array::const_pointer_type;
    using value_type   = typename Array::value_type;
 
-   ConstArrayProcessor_contiguous_byMemoryLocality(const Array& array)
-       : base(array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config>)
+   ConstArrayProcessor_contiguous_byMemoryLocality(const Array& array, ui32 nbElementsToAccessPerIter)
+      : base(array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config>, nbElementsToAccessPerIter)
    {
    }
 
-   ui32 getMaxAccessElements() const
+   ui32 getNbElementsPerAccess() const
    {
-      return this->_processor._maxAccessElements;
+      return this->_processor._nbElementsToAccessPerIter;
    }
 
    ui32 stride() const
@@ -336,7 +336,7 @@ public:
    */
    bool accessMaxElements(const_pointer_type& ptrToValue)
    {
-      return this->_accessElements(ptrToValue, getMaxAccessElements());
+      return this->_accessElements(ptrToValue);
    }
 };
 
@@ -360,7 +360,7 @@ public:
    }
 
 public:
-   ArrayProcessor_contiguous_byDimension(Array& array) : details::ArrayProcessor_contiguous_base<Array>(array, &getIndexes)
+   ArrayProcessor_contiguous_byDimension(Array& array, ui32 nbElementsToAccessPerIter) : details::ArrayProcessor_contiguous_base<Array>(array, &getIndexes, nbElementsToAccessPerIter)
    {
    }
 };
@@ -386,7 +386,7 @@ public:
       return indexes;
    }
 
-   ConstArrayProcessor_contiguous_byDimension(const Array& array) : base(array, &getIndexes)
+   ConstArrayProcessor_contiguous_byDimension(const Array& array, ui32 nbElementsToAccessPerIter) : base(array, &getIndexes, nbElementsToAccessPerIter)
    {
    }
 };
@@ -410,7 +410,7 @@ void fill(Array<T, N, Config>& array, Functor functor)
    bool hasMoreElements = true;
    using pointer_type   = typename array_type::pointer_type;
 
-   ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(array);
+   ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(array, 1);
    while (hasMoreElements)
    {
       pointer_type ptr(nullptr);
@@ -444,8 +444,8 @@ namespace impl
       ensure(same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
 
       // we MUST use processors: data may not be contiguous or with stride...
-      ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2);
-      MemoryProcessor_contiguous_byMemoryLocality<Memory1> processor_a1(a1);
+      ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2, 0);
+      MemoryProcessor_contiguous_byMemoryLocality<Memory1> processor_a1(a1, 0);
 
       bool hasMoreElements = true;
       while (hasMoreElements)
@@ -454,15 +454,11 @@ namespace impl
          pointer_const_T2 ptr_a2 = pointer_const_T2(nullptr);
          static_assert(std::is_same<pointer_const_T2, typename ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2>::const_pointer_type>::value, "must be the same!");
 
-         //std::cout << "TYPE=" << typeid(pointer_const_T2).name() << std::endl;
-         
-         //T2 const* ptr_a2 = nullptr;
          hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
          hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
-         NLL_FAST_ASSERT(processor_a1.getMaxAccessElements() == processor_a2.getMaxAccessElements(), "memory line must have the same size");
+         NLL_FAST_ASSERT(processor_a1.getNbElementsPerAccess() == processor_a2.getNbElementsPerAccess(), "memory line must have the same size");
 
-         op(ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getMaxAccessElements());
-         
+         op(ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getNbElementsPerAccess());
       }
    }
 
@@ -482,20 +478,20 @@ namespace impl
 
       // we MUST use processors: data may not be contiguous or with stride...
       // additionally the order of dimensions are different, so map the a2 order
-      ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2);
+      ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2, 1);
       auto functor_order = [&](const Memory1&)
       {
          return processor_a2.getVaryingIndexOrder();
       };
       
-      details::ArrayProcessor_contiguous_base<Memory1> processor_a1(a1, functor_order);
+      details::ArrayProcessor_contiguous_base<Memory1> processor_a1(a1, functor_order, 1);
       
       bool hasMoreElements = true;
       while (hasMoreElements)
       {
-         pointer_T ptr_a1 = pointer_T( nullptr );
-         pointer_const_T2 ptr_a2 = pointer_const_T2( nullptr );
-         hasMoreElements = processor_a1.accessSingleElement( ptr_a1 );
+         pointer_T ptr_a1 = pointer_T(nullptr);
+         pointer_const_T2 ptr_a2 = pointer_const_T2(nullptr);
+         hasMoreElements = processor_a1.accessSingleElement(ptr_a1);
          hasMoreElements = processor_a2.accessSingleElement(ptr_a2);
          op(ptr_a1, 1, ptr_a2, 1, 1); // only single element, so actual stride value is not important, it just can't be 0
       }
@@ -550,14 +546,14 @@ void iterate_array(Array<T, N, Config>& a1, Op& op)
 {
    using array_type = Array<T, N, Config>;
    using pointer_type = typename array_type::pointer_type;
-   ArrayProcessor_contiguous_byMemoryLocality<array_type> processor_a1(a1);
+   ArrayProcessor_contiguous_byMemoryLocality<array_type> processor_a1(a1, 0);
 
    bool hasMoreElements = true;
    while (hasMoreElements)
    {
       pointer_type ptr_a1(nullptr);
       hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
-      op(ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements());
+      op(ptr_a1, processor_a1.stride(), processor_a1.getNbElementsPerAccess());
    }
 }
 
@@ -571,14 +567,14 @@ void iterate_constarray(const Array<T, N, Config>& a1, Op& op)
 {
    using array_type = Array<T, N, Config>;
    using const_pointer_type = typename array_type::const_pointer_type;
-   ConstArrayProcessor_contiguous_byMemoryLocality<array_type> processor_a1(a1);
+   ConstArrayProcessor_contiguous_byMemoryLocality<array_type> processor_a1(a1, 0);
 
    bool hasMoreElements = true;
    while (hasMoreElements)
    {
       const_pointer_type ptr_a1(nullptr);
       hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
-      op(ptr_a1, processor_a1.stride(), processor_a1.getMaxAccessElements());
+      op(ptr_a1, processor_a1.stride(), processor_a1.getNbElementsPerAccess());
    }
 }
 DECLARE_NAMESPACE_NLL_END

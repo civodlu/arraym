@@ -66,7 +66,7 @@ constarray_axis_apply_function(const Array<T, N, Config>& array, size_t axis, Fu
    using const_pointer_type = typename array_result::const_pointer_type;
 
    bool hasMoreElements = true;
-   ArrayProcessor_contiguous_byMemoryLocality<array_result> iterator(result);
+   ArrayProcessor_contiguous_byMemoryLocality<array_result> iterator(result, 1);
    while (hasMoreElements)
    {
       pointer_type ptr(nullptr);
