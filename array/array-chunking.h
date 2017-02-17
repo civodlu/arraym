@@ -55,7 +55,10 @@ public:
    bool _accessElements()
    {
       ++_currentAccess;
-      Increment<0, false>::run(_iterator_index, _sizeOrder, _pointer_invalid, _nbElementsToAccessPerIter);
+      if ( _currentAccess != 1)
+      {
+         Increment<0, false>::run( _iterator_index, _sizeOrder, _pointer_invalid, _nbElementsToAccessPerIter );
+      }
       return _currentAccess < _maxNbAccess;
    }
 

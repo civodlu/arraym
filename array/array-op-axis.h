@@ -70,8 +70,8 @@ constarray_axis_apply_function(const Array<T, N, Config>& array, size_t axis, Fu
    while (hasMoreElements)
    {
       pointer_type ptr(nullptr);
-      const auto currentIndex = iterator.getArrayIndex();
       hasMoreElements = iterator.accessSingleElement(ptr);
+      const auto currentIndex = iterator.getArrayIndex();
 
       for (size_t n = 0; n < N - 1; ++n)
       {

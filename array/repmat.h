@@ -31,8 +31,8 @@ Array<T, N2, typename Config::template rebind_dim<N2>::other> repmat(const Array
    bool more_elements = true;
    while (more_elements)
    {
-      const auto index = chunking.getArrayIndex() * shape_n2;
       more_elements = chunking._accessElements();
+      const auto index = chunking.getArrayIndex() * shape_n2;
       other(index, index + shape_n2 - 1) = array_n2;
    }
 

@@ -27,8 +27,8 @@ void fill_index(Array<T, N, Config>& array, Functor functor)
    while (hasMoreElements)
    {
       pointer_type ptr(nullptr);
-      const auto currentIndex = iterator.getArrayIndex();
       hasMoreElements = iterator.accessSingleElement(ptr);
+      const auto currentIndex = iterator.getArrayIndex();
 
       const auto value = functor(currentIndex);
       details::copy_naive(ptr, 1, &value, 1, 1);

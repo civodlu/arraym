@@ -57,6 +57,7 @@ public:
 
    bool _accessElements(pointer_type& ptrToValue)
    {
+      const bool more_elements = this->Base::_accessElements();
       if ( this->_pointer_invalid )
       {
          _iterator = this->_array.beginDim( this->_indexesOrder[ 0 ], this->getArrayIndex() );
@@ -67,7 +68,7 @@ public:
          _iterator.add(this->_nbElementsToAccessPerIter);
       }
       ptrToValue = pointer_type(_iterator.current_pointer());
-      return this->Base::_accessElements();
+      return more_elements;
    }
 
 protected:

@@ -270,9 +270,9 @@ struct TestArray
       {
          int* value = 0;
 
-         auto i   = processor.getArrayIndex();
          has_more = processor.accessSingleElement(value);
-         TESTER_ASSERT(m1(i) == *value);
+         auto i = processor.getArrayIndex();
+         TESTER_ASSERT( m1( i ) == *value );
 
          covered(i) = 1;
       }
@@ -343,9 +343,9 @@ struct TestArray
       {
          int* value = 0;
 
-         auto i   = processor.getArrayIndex();
          has_more = processor.accessSingleElement(value);
-         TESTER_ASSERT(m2(i) == *value);
+         auto i = processor.getArrayIndex();
+         TESTER_ASSERT( m2( i ) == *value );
       }
 
       // multiple accesses
@@ -355,8 +355,8 @@ struct TestArray
       {
          int* value = 0;
 
-         auto i   = processor2.getArrayIndex();
          has_more = processor2.accessMaxElements(value);
+         auto i = processor2.getArrayIndex();
 
          const auto stride =
              processor2.stride() == 0 ? 1 : processor2.stride(); // TODO: not the best UT design, will fail for other types of Memory (eg., non linear)
@@ -636,17 +636,17 @@ struct TestArray
       bool more_elements = true;
       int const* ptr     = nullptr;
 
-      auto current_index = processor.getArrayIndex();
       more_elements      = processor.accessMaxElements(ptr);
-      TESTER_ASSERT(more_elements);
+      auto current_index = processor.getArrayIndex();
+      TESTER_ASSERT( more_elements );
       TESTER_ASSERT(ptr[0] == 1);
       TESTER_ASSERT(ptr[1] == 2);
       TESTER_ASSERT(ptr[2] == 3);
       TESTER_ASSERT(current_index == NAMESPACE_NLL::vector2ui(0, 0));
 
-      current_index = processor.getArrayIndex();
       more_elements = processor.accessMaxElements(ptr);
-      TESTER_ASSERT(!more_elements);
+      current_index = processor.getArrayIndex();
+      TESTER_ASSERT( !more_elements );
       TESTER_ASSERT(ptr[0] == 4);
       TESTER_ASSERT(ptr[1] == 5);
       TESTER_ASSERT(ptr[2] == 6);
@@ -665,17 +665,17 @@ struct TestArray
       bool more_elements = true;
       int const* ptr     = nullptr;
 
-      auto current_index = processor.getArrayIndex();
       more_elements      = processor.accessMaxElements(ptr);
-      TESTER_ASSERT(more_elements);
+      auto current_index = processor.getArrayIndex();
+      TESTER_ASSERT( more_elements );
       TESTER_ASSERT(ptr[0] == 1);
       TESTER_ASSERT(ptr[1] == 3);
       TESTER_ASSERT(ptr[2] == 5);
       TESTER_ASSERT(current_index == NAMESPACE_NLL::vector2ui(0, 0));
 
-      current_index = processor.getArrayIndex();
       more_elements = processor.accessMaxElements(ptr);
-      TESTER_ASSERT(!more_elements);
+      current_index = processor.getArrayIndex();
+      TESTER_ASSERT( !more_elements );
       TESTER_ASSERT(ptr[0] == 2);
       TESTER_ASSERT(ptr[1] == 4);
       TESTER_ASSERT(ptr[2] == 6);
@@ -696,17 +696,17 @@ struct TestArray
       bool more_elements = true;
       int const* ptr     = nullptr;
 
-      auto current_index = processor.getArrayIndex();
       more_elements      = processor.accessMaxElements(ptr);
-      TESTER_ASSERT(more_elements);
+      auto current_index = processor.getArrayIndex();
+      TESTER_ASSERT( more_elements );
       TESTER_ASSERT(ptr[0] == 1);
       TESTER_ASSERT(ptr[1] == 3);
       TESTER_ASSERT(ptr[2] == 5);
       TESTER_ASSERT(current_index == NAMESPACE_NLL::vector2ui(0, 0));
 
-      current_index = processor.getArrayIndex();
       more_elements = processor.accessMaxElements(ptr);
-      TESTER_ASSERT(!more_elements);
+      current_index = processor.getArrayIndex();
+      TESTER_ASSERT( !more_elements );
       TESTER_ASSERT(ptr[0] == 2);
       TESTER_ASSERT(ptr[1] == 4);
       TESTER_ASSERT(ptr[2] == 6);
@@ -727,17 +727,17 @@ struct TestArray
       bool more_elements = true;
       int* ptr           = nullptr;
 
-      auto current_index = processor.getArrayIndex();
       more_elements      = processor.accessMaxElements(ptr);
-      TESTER_ASSERT(more_elements);
+      auto current_index = processor.getArrayIndex();
+      TESTER_ASSERT( more_elements );
       TESTER_ASSERT(ptr[0] == 1);
       TESTER_ASSERT(ptr[1] == 3);
       TESTER_ASSERT(ptr[2] == 5);
       TESTER_ASSERT(current_index == NAMESPACE_NLL::vector2ui(0, 0));
 
-      current_index = processor.getArrayIndex();
       more_elements = processor.accessMaxElements(ptr);
-      TESTER_ASSERT(!more_elements);
+      current_index = processor.getArrayIndex();
+      TESTER_ASSERT( !more_elements );
       TESTER_ASSERT(ptr[0] == 2);
       TESTER_ASSERT(ptr[1] == 4);
       TESTER_ASSERT(ptr[2] == 6);
@@ -758,39 +758,39 @@ struct TestArray
       bool more_elements = true;
       int const* ptr     = nullptr;
 
-      auto current_index = processor.getArrayIndex();
       more_elements      = processor.accessSingleElement(ptr);
-      TESTER_ASSERT(more_elements);
+      auto current_index = processor.getArrayIndex();
+      TESTER_ASSERT( more_elements );
       TESTER_ASSERT(ptr[0] == 1);
       TESTER_ASSERT(current_index == NAMESPACE_NLL::vector2ui(0, 0));
 
-      current_index = processor.getArrayIndex();
       more_elements = processor.accessSingleElement(ptr);
-      TESTER_ASSERT(more_elements);
+      current_index = processor.getArrayIndex();
+      TESTER_ASSERT( more_elements );
       TESTER_ASSERT(ptr[0] == 2);
       TESTER_ASSERT(current_index == NAMESPACE_NLL::vector2ui(1, 0));
 
-      current_index = processor.getArrayIndex();
       more_elements = processor.accessSingleElement(ptr);
-      TESTER_ASSERT(more_elements);
+      current_index = processor.getArrayIndex();
+      TESTER_ASSERT( more_elements );
       TESTER_ASSERT(ptr[0] == 3);
       TESTER_ASSERT(current_index == NAMESPACE_NLL::vector2ui(0, 1));
 
-      current_index = processor.getArrayIndex();
       more_elements = processor.accessSingleElement(ptr);
-      TESTER_ASSERT(more_elements);
+      current_index = processor.getArrayIndex();
+      TESTER_ASSERT( more_elements );
       TESTER_ASSERT(ptr[0] == 4);
       TESTER_ASSERT(current_index == NAMESPACE_NLL::vector2ui(1, 1));
 
-      current_index = processor.getArrayIndex();
       more_elements = processor.accessSingleElement(ptr);
-      TESTER_ASSERT(more_elements);
+      current_index = processor.getArrayIndex();
+      TESTER_ASSERT( more_elements );
       TESTER_ASSERT(ptr[0] == 5);
       TESTER_ASSERT(current_index == NAMESPACE_NLL::vector2ui(0, 2));
 
-      current_index = processor.getArrayIndex();
       more_elements = processor.accessSingleElement(ptr);
-      TESTER_ASSERT(!more_elements);
+      current_index = processor.getArrayIndex();
+      TESTER_ASSERT( !more_elements );
       TESTER_ASSERT(ptr[0] == 6);
       TESTER_ASSERT(current_index == NAMESPACE_NLL::vector2ui(1, 2));
    }

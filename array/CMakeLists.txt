@@ -8,7 +8,6 @@ set(Headers array.h
             array.h
             range.h
             allocator-static.h
-			allocator-cuda.h
             array-processor.h
             array-traits.h
             array-exp.h
@@ -58,6 +57,7 @@ set(BLAS    wrapper-cblas.cpp
 set (CudaKernel cuda-kernel.cu
                 cuda-kernel.cuh
 				cuda-utils.h
+            allocator-cuda.h
 				cuda-utils.cpp
 				cuda-blas-wrapper.h
 				cuda-blas-wrapper.cpp

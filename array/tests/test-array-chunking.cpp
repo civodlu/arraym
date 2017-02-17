@@ -16,29 +16,29 @@ struct TestArrayChunking
       ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(0, 1), 1);
 
       bool done;
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 0));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 0, 0 ) );
+      TESTER_ASSERT( done );
 
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 0));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 1, 0 ) );
+      TESTER_ASSERT( done );
 
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 1));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 0, 1 ) );
+      TESTER_ASSERT( done );
 
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 1));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 1, 1 ) );
+      TESTER_ASSERT( done );
 
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 2));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 0, 2 ) );
+      TESTER_ASSERT( done );
       
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 2));
       done = chunking._accessElements();
-      TESTER_ASSERT(!done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 1, 2 ) );
+      TESTER_ASSERT( !done );
    }
 
    void test_colMajor()
@@ -51,29 +51,29 @@ struct TestArrayChunking
       ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(1, 0), 1);
 
       bool done;
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 0));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 0, 0 ) );
+      TESTER_ASSERT( done );
 
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 1));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 0, 1 ) );
+      TESTER_ASSERT( done );
 
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 2));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 0, 2 ) );
+      TESTER_ASSERT( done );
 
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 0));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 1, 0 ) );
+      TESTER_ASSERT( done );
 
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 1));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 1, 1 ) );
+      TESTER_ASSERT( done );
 
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 2));
       done = chunking._accessElements();
-      TESTER_ASSERT(!done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 1, 2 ) );
+      TESTER_ASSERT( !done );
    }
 
    void test_rowMajor_max()
@@ -86,17 +86,17 @@ struct TestArrayChunking
       ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(0, 1), 2);
 
       bool done;
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 0));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 0, 0 ) );
+      TESTER_ASSERT( done );
 
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 1));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 0, 1 ) );
+      TESTER_ASSERT( done );
 
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 2));
       done = chunking._accessElements();
-      TESTER_ASSERT(!done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 0, 2 ) );
+      TESTER_ASSERT( !done );
    }
 
    void test_colMajor_max()
@@ -109,13 +109,13 @@ struct TestArrayChunking
       ArrayChunking_contiguous_base<Array> chunking(a.shape(), vector2ui(1, 0), 3);
 
       bool done;
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(0, 0));
       done = chunking._accessElements();
-      TESTER_ASSERT(done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 0, 0 ) );
+      TESTER_ASSERT( done );
 
-      TESTER_ASSERT(chunking.getArrayIndex() == vector2ui(1, 0));
       done = chunking._accessElements();
-      TESTER_ASSERT(!done);
+      TESTER_ASSERT( chunking.getArrayIndex() == vector2ui( 1, 0 ) );
+      TESTER_ASSERT( !done );
    }
 };
 
