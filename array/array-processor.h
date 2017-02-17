@@ -55,7 +55,6 @@ public:
       return _accessElements(ptrToValue);
    }
 
-
    bool _accessElements(pointer_type& ptrToValue)
    {
       if ( this->_pointer_invalid )
@@ -391,38 +390,6 @@ public:
    }
 };
 
-/**
-@brief Generic fill of an array. The index order is defined by memory locality
-@param functor will be called using functor(index_type(x, y, z, ...)), i.e., each coordinate components
-*/
-template <class T, size_t N, class Config, class Functor>
-void fill(Array<T, N, Config>& array, Functor functor)
-{
-   using functor_return = typename function_traits<Functor>::return_type;
-   static_assert(std::is_same<functor_return, T>::value, "functor return type must be the same as array type");
-
-   if (array.isEmpty())
-   {
-      return;
-   }
-
-   using array_type     = Array<T, N, Config>;
-   bool hasMoreElements = true;
-   using pointer_type   = typename array_type::pointer_type;
-
-   ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(array, 1);
-   while (hasMoreElements)
-   {
-      pointer_type ptr(nullptr);
-      const auto currentIndex              = iterator.getArrayIndex();
-      hasMoreElements                      = iterator.accessSingleElement(ptr);
-
-      const auto value                     = functor(currentIndex);
-      details::copy_naive(ptr, 1, &value, 1, 1);
-      //*ptr                                 = functor(currentIndex);
-   }
-}
-
 template <class T>
 struct CompileError
 {
@@ -500,7 +467,7 @@ namespace impl
 
 /**
 @brief iterate array & const array jointly
-@tparam must be callable using (T* a1_pointer, a1_stride, const T* a2_pointer, a2_stride, nb_elements)
+@tparam must be callable using (pointer_type a1_pointer, ui32 a1_stride, const_pointer_type a2_pointer, ui32 a2_stride, ui32 nb_elements)
 @note this is only instantiated for linear memory
 */
 template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
@@ -517,7 +484,7 @@ void iterate_memory_constmemory(Memory1& a1, const Memory2& a2, const Op& op)
 
 /**
 @brief iterate array & const array jointly
-@tparam Op must be callable using (T* a1_pointer, a1_stride, const T* a2_pointer, a2_stride, nb_elements)
+@tparam Op must be callable using (pointer_type a1_pointer, ui32 a1_stride, const_pointer_type a2_pointer, ui32 a2_stride, ui32 nb_elements)
 @note this is only instantiated for linear memory
 */
 template <class T, class T2, size_t N, class Config, class Config2, class Op,
@@ -538,7 +505,7 @@ namespace details
 
 /**
 @brief iterate array
-@tparam must be callable using (T* a1_pointer, ui32 a1_stride, ui32 nb_elements)
+@tparam must be callable using (pointer_type a1_pointer, ui32 a1_stride, ui32 nb_elements)
 @note this is only instantiated for linear memory
 */
 template <class T, size_t N, class Config, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
@@ -547,6 +514,8 @@ void iterate_array(Array<T, N, Config>& a1, Op& op)
    using array_type = Array<T, N, Config>;
    using pointer_type = typename array_type::pointer_type;
    ArrayProcessor_contiguous_byMemoryLocality<array_type> processor_a1(a1, 0);
+
+   static_assert(is_callable_with<Op, pointer_type, ui32, ui32>::value, "Op is not callable with the correct arguments!");
 
    bool hasMoreElements = true;
    while (hasMoreElements)
@@ -559,7 +528,7 @@ void iterate_array(Array<T, N, Config>& a1, Op& op)
 
 /**
 @brief iterate array
-@tparam must be callable using (T const* a1_pointer, ui32 a1_stride, ui32 nb_elements)
+@tparam must be callable using (const_pointer_type a1_pointer, ui32 a1_stride, ui32 nb_elements)
 @note this is only instantiated for linear memory
 */
 template <class T, size_t N, class Config, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
@@ -568,6 +537,8 @@ void iterate_constarray(const Array<T, N, Config>& a1, Op& op)
    using array_type = Array<T, N, Config>;
    using const_pointer_type = typename array_type::const_pointer_type;
    ConstArrayProcessor_contiguous_byMemoryLocality<array_type> processor_a1(a1, 0);
+
+   static_assert(is_callable_with<Op, const_pointer_type, ui32, ui32>::value, "Op is not callable with the correct arguments!");
 
    bool hasMoreElements = true;
    while (hasMoreElements)

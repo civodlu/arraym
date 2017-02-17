@@ -72,7 +72,16 @@ struct TestArrayPerformance
       array_type array(shape);
 
       auto functor = [](const array_type::index_type&) { return array_type::value_type(rand() % 1000); };
-      fill(array, functor);
+      fill_index(array, functor);
+      return array;
+   }
+
+   static array_type create_max(const array_type::index_type& shape)
+   {
+      array_type array(shape);
+
+      auto functor = [](const array_type::value_type) { return array_type::value_type(rand() % 1000); };
+      fill_value(array, functor);
       return array;
    }
 
@@ -99,7 +108,7 @@ struct TestArrayPerformance
    {
       Timer timer;
 
-      auto a = create(shape);
+      auto a = create_max(shape);
       ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(a, 0);
 
       const float constructionTime = timer.getElapsedTime();

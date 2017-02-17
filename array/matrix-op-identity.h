@@ -26,7 +26,7 @@ void identity(Array<T, 2, Config>& m)
    ensure(m.shape()[0] == m.shape()[1], "must be square!");
 
    auto op = [](const typename Array<T, 2, Config>::index_type& i) { return static_cast<T>(i[0] == i[1]); };
-   fill(m, op);
+   fill_index(m, op);
 }
 
 DECLARE_NAMESPACE_NLL_END

@@ -409,7 +409,7 @@ struct TestArray
 
       auto functor = [](const NAMESPACE_NLL::StaticVector<ui32, 2>& index) { return (int)(index[0] * index[1]); };
 
-      NAMESPACE_NLL::fill(a1, functor);
+      NAMESPACE_NLL::fill_index(a1, functor);
 
       TESTER_ASSERT(a1(2, 3) == 2 * 3);
       TESTER_ASSERT(a1(1, 2) == 1 * 2);
@@ -428,7 +428,7 @@ struct TestArray
       array_type a1(20, 30, 40);
 
       int index = 0;
-      NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
+      NAMESPACE_NLL::fill_index(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
 
       const NAMESPACE_NLL::vector3ui min_index(4, 5, 6);
       const NAMESPACE_NLL::vector3ui max_index(8, 10, 16);
@@ -524,7 +524,7 @@ struct TestArray
 
          Array a1(size);
          short index = 0;
-         NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
+         NAMESPACE_NLL::fill_index(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
 
          const auto origin = NAMESPACE_NLL::vector3ui{generateUniformDistribution<size_t>(0, size[0] - 1), generateUniformDistribution<size_t>(0, size[1] - 1),
                                                       generateUniformDistribution<size_t>(0, size[2] - 1)};
@@ -565,7 +565,7 @@ struct TestArray
 
          Array a1(size);
          short index = 0;
-         NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
+         NAMESPACE_NLL::fill_index(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
 
          const auto origin = NAMESPACE_NLL::vector3ui{generateUniformDistribution<size_t>(0, size[0] - 1), generateUniformDistribution<size_t>(0, size[1] - 1),
                                                       generateUniformDistribution<size_t>(0, size[2] - 1)};
@@ -603,7 +603,7 @@ struct TestArray
 
       Array a1(size);
       short index = 0;
-      NAMESPACE_NLL::fill(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
+      NAMESPACE_NLL::fill_index(a1, [&](const NAMESPACE_NLL::vector3ui&) { return index++; });
 
       // just to clarify if there is a problem with the template here...
       using SlicedMemory = typename Array::template SlicingMemory<2>;

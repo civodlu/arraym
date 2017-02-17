@@ -13,6 +13,7 @@ set(Headers array.h
             array-traits.h
             array-exp.h
             array-noexp.h
+			array-fill.h
             array-op-impl-naive.h
             array-op-impl-blas.h
             array-op.h

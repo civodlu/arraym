@@ -348,9 +348,9 @@ public:
 
    The resulting array is a reference, meaning the memory is shared between the reference and this
    */
-   array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive)
+   array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive, const index_type& stride = index_type(1))
    {
-      return subarray(min_index_inclusive, max_index_inclusive);
+      return subarray(min_index_inclusive, max_index_inclusive, stride);
    }
 
    /**
@@ -358,7 +358,7 @@ public:
 
    The resulting array is a reference, meaning the memory is shared between the reference and this
    */
-   array_type_ref subarray(const index_type& min_index_inclusive, const index_type& max_index_inclusive)
+   array_type_ref subarray(const index_type& min_index_inclusive, const index_type& max_index_inclusive, const index_type& stride = index_type(1))
    {
 #ifndef NDEBUG
       for (int n = 0; n < N; ++n)
@@ -368,8 +368,8 @@ public:
          NLL_FAST_ASSERT(min_index_inclusive[n] <= max_index_inclusive[n], "min > max!");
       }
 #endif
-      const auto size = max_index_inclusive - min_index_inclusive + 1;
-      return array_type_ref(*this, min_index_inclusive, size, index_type(1));
+      const auto size = (max_index_inclusive - min_index_inclusive + 1) / stride;
+      return array_type_ref(*this, min_index_inclusive, size, stride);
    }
 
    /**
@@ -387,10 +387,10 @@ public:
 
    The resulting array is a reference, meaning the memory is shared between the reference and this
    */
-   const_array_type_ref subarray(const index_type& min_index_inclusive, const index_type& max_index_inclusive) const
+   const_array_type_ref subarray(const index_type& min_index_inclusive, const index_type& max_index_inclusive, const index_type& stride = index_type(1)) const
    {
       // here we create a new array type which embed the const in the data type so that we really can't modify the array
-      return asConst().subarray(min_index_inclusive, max_index_inclusive);
+      return asConst().subarray(min_index_inclusive, max_index_inclusive, stride);
    }
    
    /**
@@ -398,9 +398,9 @@ public:
 
    The resulting array is a reference, meaning the memory is shared between the reference and this
    */
-   const_array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive) const
+   const_array_type_ref operator()(const index_type& min_index_inclusive, const index_type& max_index_inclusive, const index_type& stride = index_type(1)) const
    {
-      return subarray(min_index_inclusive, max_index_inclusive);
+      return subarray(min_index_inclusive, max_index_inclusive, stride);
    }
 
    /**

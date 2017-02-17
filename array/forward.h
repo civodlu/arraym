@@ -109,6 +109,7 @@
 #include "array.h"
 #include "array-chunking.h"
 #include "array-processor.h"
+#include "array-fill.h"
 #include "cuda-array-op.h"
 #include "array-op-impl-naive.h"
 #include "blas-wrapper.h"

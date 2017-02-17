@@ -28,8 +28,10 @@ public:
    ArrayChunking_contiguous_base(const index_type& shape, const index_type& indexesOrder, ui32 nbElementsToAccessPerIter) : _shape(shape)
    {
       _indexesOrder = indexesOrder;
+      ui32 nb_elements = 1;
       for (ui32 n = 0; n < _indexesOrder.size(); ++n)
       {
+         nb_elements *= shape[n];
          _indexesOrderInv[_indexesOrder[n]] = n;
          _sizeOrder[n] = shape[_indexesOrder[n]];
       }
@@ -44,13 +46,17 @@ public:
          _nbElementsToAccessPerIter = nbElementsToAccessPerIter;
       }
       ensure(_nbElementsToAccessPerIter == 1 || _nbElementsToAccessPerIter == maxAccessElements, "TODO handle different nbElements!");
+
+      // after calling _maxNbAccess times @ref _accessElements, all elements will have been read
+      _maxNbAccess = nb_elements / _nbElementsToAccessPerIter;
    }
 
-   // access @p _nbElementsToAccessPerIter elements
+   // access @ref _nbElementsToAccessPerIter elements
    bool _accessElements()
    {
-      const bool hasMoreElements = Increment<0, false>::run(_iterator_index, _sizeOrder, _pointer_invalid, _nbElementsToAccessPerIter);
-      return hasMoreElements;
+      ++_currentAccess;
+      Increment<0, false>::run(_iterator_index, _sizeOrder, _pointer_invalid, _nbElementsToAccessPerIter);
+      return _currentAccess < _maxNbAccess;
    }
 
    // this is the specific view index reordered by <functor>
@@ -85,7 +91,7 @@ protected:
    template <int I, bool B>
    struct Increment
    {
-      FORCE_INLINE static bool run(StaticVector<ui32, Array::RANK>& index, const StaticVector<ui32, Array::RANK>& size, bool& recomputeIterator,
+      FORCE_INLINE static void run(StaticVector<ui32, Array::RANK>& index, const StaticVector<ui32, Array::RANK>& size, bool& recomputeIterator,
          ui32 nbElements)
       {
          index[I] += nbElements;
@@ -96,24 +102,27 @@ protected:
             {
                index[n] = 0;
             }
-            return Increment<I + 1, (I + 1) == Array::RANK>::run(index, size, recomputeIterator, 1);
+            Increment<I + 1, (I + 1) == Array::RANK>::run(index, size, recomputeIterator, 1);
+            return;
          }
-         return true;
+         return;
       }
    };
 
    template <int I>
    struct Increment<I, true>
    {
-      FORCE_INLINE static bool run(StaticVector<ui32, Array::RANK>&, const StaticVector<ui32, Array::RANK>&, bool&, ui32)
+      FORCE_INLINE static void run(StaticVector<ui32, Array::RANK>&, const StaticVector<ui32, Array::RANK>&, bool&, ui32)
       {
-         return false;
+         return;
       }
    };
 
 protected:
    bool       _pointer_invalid = true;
-   ui32       _nbElementsToAccessPerIter;
+   ui32       _nbElementsToAccessPerIter;   // this defines how many elements will be read during a single iteration
+   ui32       _maxNbAccess;                 // after this number of @p _accessElements calls, all elements will have been accessed
+   ui32       _currentAccess = 0;           // so far the current number of @p _accessElements calls
    index_type _iterator_index;  // the current index
    index_type _shape;           // shape of the mapped array
    index_type _sizeOrder;       // the size, ordered by <_indexesOrder>

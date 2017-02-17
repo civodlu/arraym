@@ -67,16 +67,6 @@ void constarray_apply_function_inplace(const Array<T, N, Config>& array, Op& op)
 
 namespace details
 {
-   template <class T, class F>
-   void apply_fun_array_strided(T* output, ui32 output_stride, const T* input, ui32 input_stride, ui32 nb_elements, F f)
-   {
-      const T* input_end = input + input_stride * nb_elements;
-      for (; input != input_end; input += input_stride, output += output_stride)
-      {
-         *output = f(*input);
-      }
-   };
-
    //
    // Here we want to expose the function as a strided array. This is to enable more custom implementations
    // using overloads (e.g., CUDA gpu)

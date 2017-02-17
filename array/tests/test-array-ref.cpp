@@ -13,7 +13,7 @@ struct TestArrayRef
       array_type array(shape);
 
       auto functor = [](const typename array_type::index_type&) { return typename array_type::value_type(rand() % 1000); };
-      fill(array, functor);
+      fill_index(array, functor);
       return array;
    }
 
