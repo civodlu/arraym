@@ -128,7 +128,7 @@ std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
       return o;
    }
 
-   o << "[ ";
+   o << "[";
 
    ConstArrayProcessor_contiguous_byDimension<Array<T, N, Config>> processor(array, 1);
    bool hasMoreElements = true;
@@ -136,13 +136,13 @@ std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
    {
       T const* ptr     = nullptr;
       hasMoreElements  = processor.accessSingleElement(ptr);
-      const auto index = processor.getArrayIndex()[0];
       o << *ptr;
-      if (index == 0 && hasMoreElements)
+      auto index = processor.getArrayIndex();
+      if (index[0] + 1 == array.shape()[0] && hasMoreElements)
       {
-         o << "\n ";
+         o << '\n';
       }
-      else
+      if (hasMoreElements)
       {
          o << ' ';
       }

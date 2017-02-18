@@ -133,9 +133,9 @@ template <class T, size_t N, typename T2, typename = typename std::enable_if<std
 inline StaticVector<T, N>& operator/=(StaticVector<T, N>& lhs, const StaticVector<T2, N>& rhs)
 {
    // Do NOT cast to T => we might be dividing by a float...
-   NLL_FAST_ASSERT(rhs != 0, "div by 0");
    for (size_t n = 0; n < N; ++n)
    {
+      NLL_FAST_ASSERT(rhs[n] != 0, "div by 0");
       lhs[n] /= static_cast<T>(rhs[n]);
    }
    return lhs;

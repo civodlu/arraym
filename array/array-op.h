@@ -332,4 +332,64 @@ Array<T, N + 1, typename Config::template rebind_dim<N + 1>::other> stack(const 
    return s;
 }
 
+/**
+@brief Return the index of the max element of the array
+*/
+template <class T, size_t N, class Config>
+typename Array<T, N, Config>::index_type argmax(const Array<T, N, Config>& array)
+{
+   using array_type = Array<T, N, Config>;
+   using const_pointer_type = typename array_type::const_pointer_type;
+   ConstArrayProcessor_contiguous_byMemoryLocality<array_type> processor_a1(array, 0);
+
+   T max_value = std::numeric_limits<T>::lowest();
+   typename array_type::index_type max_value_index;
+
+   bool hasMoreElements = true;
+   while (hasMoreElements)
+   {
+      const_pointer_type ptr_a1(nullptr);
+      hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
+      auto pair_index_max = details::argmax(ptr_a1, processor_a1.stride(), processor_a1.getNbElementsPerAccess());
+      if (pair_index_max.second > max_value)
+      {
+         max_value = pair_index_max.second;
+         max_value_index = processor_a1.getArrayIndex();
+         max_value_index[processor_a1.getVaryingIndex()] += pair_index_max.first;
+      }
+   }
+
+   return max_value_index;
+}
+
+/**
+@brief Return the index of the min element of the array
+*/
+template <class T, size_t N, class Config>
+typename Array<T, N, Config>::index_type argmin(const Array<T, N, Config>& array)
+{
+   using array_type = Array<T, N, Config>;
+   using const_pointer_type = typename array_type::const_pointer_type;
+   ConstArrayProcessor_contiguous_byMemoryLocality<array_type> processor_a1(array, 0);
+
+   T min_value = std::numeric_limits<T>::max();
+   typename array_type::index_type min_value_index;
+
+   bool hasMoreElements = true;
+   while (hasMoreElements)
+   {
+      const_pointer_type ptr_a1(nullptr);
+      hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
+      auto pair_index_min = details::argmin(ptr_a1, processor_a1.stride(), processor_a1.getNbElementsPerAccess());
+      if (pair_index_min.second < min_value)
+      {
+         min_value = pair_index_min.second;
+         min_value_index = processor_a1.getArrayIndex();
+         min_value_index[processor_a1.getVaryingIndex()] += pair_index_min.first;
+      }
+   }
+
+   return min_value_index;
+}
+
 DECLARE_NAMESPACE_NLL_END

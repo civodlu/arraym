@@ -81,8 +81,7 @@ constarray_axis_apply_function(const Array<T, N, Config>& array, size_t axis, Fu
       // finally apply the operation along <axis>
       const auto ref = const_cast<Array<T, N, Config>&>(array)(min_index, max_index);  // for interface usability, the sub-array of a const array is not practical. Instead, unconstify the array and constify the reference 
       const auto value = f( ref );
-      details::copy_naive( ptr, 1, &value, 1, 1 ); // TODO evaluate performance cost. This is to support CUDA based arrays
-      //*ptr = value; // before
+      details::copy_naive( ptr, 1, &value, 1, 1 );
    }
    return result;
 }
@@ -144,6 +143,34 @@ namespace details
          return min(array);
       }
    };
+
+   /**
+   @brief Simple adaptor for the argmin function
+
+   The purpose is to simplify the API: let the compiler figure out what is the type of the array
+   */
+   struct adaptor_argmin
+   {
+      template <class T, size_t N, class Config>
+      typename Array<T, N, Config>::index_type operator()(const Array<T, N, Config>& array) const
+      {
+         return argmin(array);
+      }
+   };
+
+   /**
+   @brief Simple adaptor for the min function
+
+   The purpose is to simplify the API: let the compiler figure out what is the type of the array
+   */
+   struct adaptor_argmax
+   {
+      template <class T, size_t N, class Config>
+      typename Array<T, N, Config>::index_type operator()(const Array<T, N, Config>& array) const
+      {
+         return argmax(array);
+      }
+   };
 }
 
 /**
@@ -184,6 +211,89 @@ axis_apply_fun_type<T, N, Config, details::adaptor_min> min(const Array<T, N, Co
 {
    details::adaptor_min f;
    return constarray_axis_apply_function(array, axis, f);
+}
+
+namespace details
+{
+   // custom version of <constarray_axis_apply_function> where we add the based index to the functor's result
+   // TODO: lot of code duplication, can we do better?
+   template <class T, size_t N, class Config, class Function>
+   axis_apply_fun_type<T, N, Config, Function>
+      constarray_axis_apply_function_baseindex(const Array<T, N, Config>& array, size_t axis, Function& f)
+   {
+      static_assert(N >= 2, "can only do this for RANK >= 2");
+      if (array.size() == 0)
+      {
+         return axis_apply_fun_type<T, N, Config, Function>();
+      }
+
+      StaticVector<ui32, N> min_index;
+      StaticVector<ui32, N> max_index;
+
+
+      // find the bounds, result shape and mapping result->array
+      StaticVector<ui32, N - 1> shape_result;
+      StaticVector<ui32, N - 1> mapping_result_array;
+      size_t index = 0;
+      for (ui32 n = 0; n < N; ++n)
+      {
+         if (n != axis)
+         {
+            shape_result[index] = array.shape()[n];
+            mapping_result_array[index] = n;
+            ++index;
+         }
+         max_index[n] = array.shape()[n] - 1; // inclusive bounds
+      }
+
+      // for each value of <result>, iterate over the <axis> dimension
+      // here we can only iterate over a single element at a time
+      using array_result = axis_apply_fun_type<T, N, Config, Function>;
+      array_result result(shape_result);
+
+      using pointer_type = typename array_result::pointer_type;
+      using const_pointer_type = typename array_result::const_pointer_type;
+
+      bool hasMoreElements = true;
+      ArrayProcessor_contiguous_byMemoryLocality<array_result> iterator(result, 1);
+      while (hasMoreElements)
+      {
+         pointer_type ptr(nullptr);
+         hasMoreElements = iterator.accessSingleElement(ptr);
+         const auto currentIndex = iterator.getArrayIndex();
+
+         for (size_t n = 0; n < N - 1; ++n)
+         {
+            max_index[mapping_result_array[n]] = currentIndex[n];
+            min_index[mapping_result_array[n]] = currentIndex[n];
+         }
+         // finally apply the operation along <axis>
+         const auto ref = const_cast<Array<T, N, Config>&>(array)(min_index, max_index);  // for interface usability, the sub-array of a const array is not practical. Instead, unconstify the array and constify the reference 
+         const auto value = f(ref) + min_index;
+         details::copy_naive(ptr, 1, &value, 1, 1);
+      }
+      return result;
+   }
+}
+
+/**
+@brief return the index of the the min value of all the elements contained in the array along a given axis
+*/
+template <class T, size_t N, class Config>
+axis_apply_fun_type<T, N, Config, details::adaptor_argmin> argmin(const Array<T, N, Config>& array, size_t axis)
+{
+   details::adaptor_argmin f;
+   return details::constarray_axis_apply_function_baseindex(array, axis, f);
+}
+
+/**
+@brief return the index of the max value of all the elements contained in the array along a given axis
+*/
+template <class T, size_t N, class Config>
+axis_apply_fun_type<T, N, Config, details::adaptor_argmax> argmax(const Array<T, N, Config>& array, size_t axis)
+{
+   details::adaptor_argmax f;
+   return details::constarray_axis_apply_function_baseindex(array, axis, f);
 }
 
 DECLARE_NAMESPACE_NLL_END

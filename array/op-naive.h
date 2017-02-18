@@ -185,6 +185,48 @@ void set_naive(T* y_pointer, ui32 y_stride, ui32 nb_elements, T value)
       *y_pointer = value;
    }
 }
+
+/**
+@brief In a strided array, return the max index
+*/
+template <class T>
+std::pair<ui32, T> argmax(const T* ptr_start, ui32 stride, ui32 nb_elements)
+{
+   ui32 index = 0;
+   T max_value = ptr_start[0];
+   const T* end_ptr = ptr_start + nb_elements * stride;
+   for (const T* ptr = ptr_start; ptr != end_ptr; ptr += stride)
+   {
+      auto value = *ptr;
+      if (max_value < value)
+      {
+         max_value = value;
+         index = static_cast<ui32>((ptr - ptr_start) / stride);
+      }
+   }
+   return std::make_pair(index, max_value);
+}
+
+/**
+@brief In a strided array, return the min index
+*/
+template <class T>
+std::pair<ui32, T> argmin(const T* ptr_start, ui32 stride, ui32 nb_elements)
+{
+   ui32 index = 0;
+   T min_value = ptr_start[0];
+   const T* end_ptr = ptr_start + nb_elements * stride;
+   for (const T* ptr = ptr_start; ptr != end_ptr; ptr += stride)
+   {
+      auto value = *ptr;
+      if (min_value > value)
+      {
+         min_value = value;
+         index = static_cast<ui32>((ptr - ptr_start) / stride);
+      }
+   }
+   return std::make_pair(index, min_value);
+}
 }
 
 template <class T, class Accum = T>
