@@ -549,4 +549,44 @@ void iterate_constarray(const Array<T, N, Config>& a1, Op& op)
       op(ptr_a1, processor_a1.stride(), processor_a1.getNbElementsPerAccess());
    }
 }
+
+/**
+@tparam Op must be callable with (pointer_type1 a1, ui32 stride_a1, const_pointer_type2 a2, ui32 stride_a2, const_pointer_type3 a3, ui32 stride_a3, ui32 nb_elements)
+*/
+template <class T1, class T2, class T3, size_t N, class Config1, class Config2, class Config3, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T1, N, Config1>>::value>::type>
+void iterate_array_constarray_constarray( Array<T1, N, Config1>& a1, const Array<T2, N, Config2>& a2, const Array<T3, N, Config3>& a3, Op& op )
+{
+   ensure( a1.shape() == a2.shape(), "must have the same shape!" );
+   ensure( a1.shape() == a3.shape(), "must have the same shape!" );
+   ensure( same_data_ordering( a1, a2 ), "must have the same ordering!" );
+   ensure( same_data_ordering( a1, a3 ), "must have the same ordering!" );
+
+   using array_type1 = Array<T1, N, Config1>;
+   using array_type2 = Array<T2, N, Config2>;
+   using array_type3 = Array<T3, N, Config3>;
+
+   using pointer_type1 = typename array_type1::pointer_type;
+   using const_pointer_type2 = typename array_type2::const_pointer_type;
+   using const_pointer_type3 = typename array_type3::const_pointer_type;
+   ArrayProcessor_contiguous_byMemoryLocality<array_type1>      processor_a1( a1, 0 );
+   ConstArrayProcessor_contiguous_byMemoryLocality<array_type2> processor_a2( a2, 0 );
+   ConstArrayProcessor_contiguous_byMemoryLocality<array_type3> processor_a3( a3, 0 );
+
+   static_assert( is_callable_with<Op, pointer_type1, ui32, const_pointer_type2, ui32, const_pointer_type3, ui32, ui32>::value, "Op is not callable with the correct arguments!" );
+
+   bool hasMoreElements = true;
+   while ( hasMoreElements )
+   {
+      pointer_type1 ptr_a1( nullptr );
+      hasMoreElements = processor_a1.accessMaxElements( ptr_a1 );
+
+      const_pointer_type2 ptr_a2( nullptr );
+      processor_a2.accessMaxElements( ptr_a2 );
+
+      const_pointer_type2 ptr_a3( nullptr );
+      processor_a3.accessMaxElements( ptr_a3 );
+
+      op( ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), ptr_a3, processor_a3.stride(), processor_a1.getNbElementsPerAccess() );
+   }
+}
 DECLARE_NAMESPACE_NLL_END

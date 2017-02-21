@@ -116,6 +116,7 @@
 #include "cuda-blas-wrapper.h"
 #include "array-op-impl-blas.h"
 #include "array-op.h"
+#include "array-op-logical.h"
 #include "array-op-axis.h"
 
 #include "array-exp.h"
