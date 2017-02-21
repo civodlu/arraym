@@ -77,6 +77,7 @@
 
 DECLARE_NAMESPACE_NLL
 using ui32 = uint32_t;
+using ui8 = unsigned char;
 DECLARE_NAMESPACE_NLL_END
 
 /**

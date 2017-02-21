@@ -40,12 +40,12 @@ namespace details
    /**
     @brief For each element of a strided array, apply a functor and copy the result to output
     */
-   template <class T, class F>
-   void apply_fun_array_strided(T* output, ui32 output_stride, const T* input, ui32 input_stride, ui32 nb_elements, F f)
+   template <class T1, class T2, class F>
+   void apply_fun_array_strided(T1* output, ui32 output_stride, const T2* input, ui32 input_stride, ui32 nb_elements, F f)
    {
-      static_assert(is_callable_with<F, T>::value, "Op is not callable with the correct arguments!");
+      static_assert(is_callable_with<F, T2>::value, "Op is not callable with the correct arguments!");
 
-      const T* input_end = input + input_stride * nb_elements;
+      const T2* input_end = input + input_stride * nb_elements;
       for (; input != input_end; input += input_stride, output += output_stride)
       {
          *output = f(*input);
