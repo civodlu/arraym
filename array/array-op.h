@@ -392,4 +392,23 @@ typename Array<T, N, Config>::index_type argmin(const Array<T, N, Config>& array
    return min_value_index;
 }
 
+/**
+@brief count the number of times the predicate if true
+*/
+template <class T, size_t N, class Config, class Predicate>
+ui32 count( const Array<T, N, Config>& array, const Predicate& predicate )
+{
+   ui32 c = 0;
+   auto f = [&]( T value )
+   {
+      if ( predicate( value ) )
+      {
+         ++c;
+      }
+   };
+
+   constarray_apply_function_inplace( array, f );
+   return c;
+}
+
 DECLARE_NAMESPACE_NLL_END
