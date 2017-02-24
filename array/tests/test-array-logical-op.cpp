@@ -384,6 +384,24 @@ struct TestArrayLogicalOp
 
       TESTER_ASSERT( r == 3 );
    }
+
+   void test_count_axis()
+   {
+      using array_type = Array_column_major<int, 2>;
+
+      array_type array1(3, 2);
+      array1 = { 2, 6, 3,
+         5, -1, 4 };
+      
+      auto r = count(array1, 0, [](int v)
+      {
+         return v >= 4;
+      });
+
+      TESTER_ASSERT(r.shape() == vector1ui(2));
+      TESTER_ASSERT(r(0) == 1);
+      TESTER_ASSERT(r(1) == 2);
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayLogicalOp);
@@ -401,4 +419,5 @@ TESTER_TEST(test_or);
 TESTER_TEST(test_and);
 TESTER_TEST(test_not);
 TESTER_TEST(test_count);
+TESTER_TEST(test_count_axis);
 TESTER_TEST_SUITE_END();

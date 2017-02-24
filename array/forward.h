@@ -89,6 +89,20 @@
  @section label_10 BLAS dispatcher
  */
 
+/*
+TODO nice to have functions:
+ - linspace
+ - rand
+ - reshape
+ - dot
+ - indexing
+ - split
+ - reorder axis (swap or transpose)
+ - all, any
+ - std, var
+ - histograms
+*/
+
 #include <array/array-api.h>
 #include "wrapper-common.h"
 
@@ -126,6 +140,7 @@
 #include "matrix-op-identity.h"
 #include "matrix-vector.h"
 #include "repmat.h"
+#include "concat.h"
 
 // BLAS based operations
 #include "matrix-op-impl-blas.h"

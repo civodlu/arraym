@@ -298,7 +298,7 @@ struct TestArrayOpApply
 };
 
 TESTER_TEST_SUITE(TestArrayOpApply);
-//TESTER_TEST(test_array_apply_function);
-//TESTER_TEST(test_array_apply_functions);
+TESTER_TEST(test_array_apply_function);
+TESTER_TEST(test_array_apply_functions);
 TESTER_TEST(test_array_argmax);
 TESTER_TEST_SUITE_END();

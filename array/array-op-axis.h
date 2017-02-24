@@ -13,7 +13,7 @@ DECLARE_NAMESPACE_NLL
  @brief compute the return type of a funtion applied to an array
  */
 template <class T, size_t N, class Config, class Function>
-using function_return_type = decltype(Function()(Array<T, N, Config>()));
+using function_return_type = decltype((*reinterpret_cast<Function*>(nullptr))(Array<T, N, Config>()));
 
 /**
 @brief compute the expected return type of a funtion applied to an array along a given axis
@@ -171,6 +171,26 @@ namespace details
          return argmax(array);
       }
    };
+
+   /**
+   @brief Simple adaptor for the min function
+
+   The purpose is to simplify the API: let the compiler figure out what is the type of the array
+   */
+   template <class Predicate>
+   struct adaptor_count
+   {
+      adaptor_count(const Predicate& predicate) : predicate(predicate)
+      {}
+
+      template <class T, size_t N, class Config>
+      ui32 operator()(const Array<T, N, Config>& array) const
+      {
+         return count(array, predicate);
+      }
+
+      const Predicate& predicate;
+   };
 }
 
 /**
@@ -210,6 +230,16 @@ template <class T, size_t N, class Config>
 axis_apply_fun_type<T, N, Config, details::adaptor_min> min(const Array<T, N, Config>& array, size_t axis)
 {
    details::adaptor_min f;
+   return constarray_axis_apply_function(array, axis, f);
+}
+
+/**
+@brief return the min value of all the elements contained in the array along a given axis
+*/
+template <class T, size_t N, class Config, class Predicate>
+axis_apply_fun_type<T, N, Config, details::adaptor_count<Predicate>> count(const Array<T, N, Config>& array, size_t axis, const Predicate& predicate)
+{
+   details::adaptor_count<Predicate> f(predicate);
    return constarray_axis_apply_function(array, axis, f);
 }
 
