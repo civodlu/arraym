@@ -127,6 +127,16 @@ public:
       return _processor.getVaryingIndexOrder();
    }
 
+   void stop()
+   {
+      _processor.stop();
+   }
+
+   bool finished() const
+   {
+      return _processor.finished();
+   }
+
 protected:
    bool _accessElements(const_pointer_type& ptrToValue)
    {

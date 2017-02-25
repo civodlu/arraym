@@ -91,14 +91,11 @@
 
 /*
 TODO nice to have functions:
- - linspace
  - rand
  - reshape
  - dot
- - indexing
  - split
  - reorder axis (swap or transpose)
- - all, any
  - std, var
  - histograms
 */
@@ -141,6 +138,9 @@ TODO nice to have functions:
 #include "matrix-vector.h"
 #include "repmat.h"
 #include "concat.h"
+#include "linspace.h"
+#include "lookup.h"
+#include "where.h"
 
 // BLAS based operations
 #include "matrix-op-impl-blas.h"

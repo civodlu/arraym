@@ -2,6 +2,18 @@
 
 DECLARE_NAMESPACE_NLL
 
+/**
+ @brief Concat two array on a given axis
+
+
+                 | 1, 2, 3 |                                            | 1, 2, 3 |
+ concat array1 = | 4, 5, 6 | array2 = | 7, 8, 9 |, axis = 1    result = | 4, 5, 6 |
+                                                                        | 7, 8, 9 |
+ 
+                | 1, 4 |          | 7 |                          | 1, 4, 7 |
+ concat arra1 = | 2, 5 | array2 = | 8 |, axis = 0,      result = | 2, 5, 8 |
+                | 3, 6 |          | 9 |                          | 3, 6, 9 |
+ */
 template <class T, size_t N, class Config>
 Array<T, N, Config> concat(const Array<T, N, Config>& array1, const Array<T, N, Config>& array2, size_t axis)
 {

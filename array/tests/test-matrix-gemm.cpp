@@ -120,8 +120,6 @@ struct TestMatrixGemm
       array_type array2 = array;
       TESTER_ASSERT(&array2(0, 0) != &array(0, 0));
 
-      std::cout << array << std::endl;
-      std::cout << array2 << std::endl;
       // make sure we have copied correctly despite the memory ordering
       TESTER_ASSERT(array2(0, 0) == 1);
       TESTER_ASSERT(array2(1, 0) == 2);

@@ -3,6 +3,10 @@
 
 using namespace NAMESPACE_NLL;
 
+DECLARE_NAMESPACE_NLL
+
+DECLARE_NAMESPACE_NLL_END
+
 struct TestArrayLogicalOp
 {
    void test_lessthan()
@@ -402,6 +406,62 @@ struct TestArrayLogicalOp
       TESTER_ASSERT(r(0) == 1);
       TESTER_ASSERT(r(1) == 2);
    }
+
+   void test_any()
+   {
+      using array_type = Array_row_major<int, 2>;
+
+      auto predicate_true = [](int value)->bool { return value > 4; };
+      auto predicate_false = [](int value)->bool { return value > 30; };
+      array_type array(3, 2);
+
+      array = { 1, 2, 3, 
+                4, 5, 6 };
+
+      std::vector<StaticVector<ui32, 2>> indexes;
+      StaticVector<ui32, 2> index;
+      TESTER_ASSERT(any(array, predicate_true, &index, &indexes));
+      TESTER_ASSERT(index == vector2ui(1, 1));
+      TESTER_ASSERT(indexes.size() == 2);
+      TESTER_ASSERT(indexes[0] == vector2ui(1, 1));
+      TESTER_ASSERT(indexes[1] == vector2ui(2, 1));
+      TESTER_ASSERT(!any(array, predicate_false));
+
+
+      TESTER_ASSERT(any(array, predicate_true, &index));
+      TESTER_ASSERT(index == vector2ui(1, 1));
+   }
+
+   void test_all()
+   {
+      using array_type = Array_column_major<int, 2>;
+
+      auto predicate_true = [](int value)->bool { return value > 0; };
+      auto predicate_false = [](int value)->bool { return value < 6; };
+      array_type array(2, 3);
+
+      array = { 1, 2, 3, 4, 5, 6 };
+      TESTER_ASSERT(all(array, predicate_true));
+      TESTER_ASSERT(!all(array, predicate_false));
+   }
+
+   void test_where()
+   {
+      using array_type = Array_column_major<int, 2>;
+
+      array_type a(2, 3);
+      a = { 1, 2,
+         3, 4,
+         5, 6 };
+
+      auto r = where(a, [](int value) { return value >= 3; });
+
+      TESTER_ASSERT(r.size() == 4);
+      TESTER_ASSERT(r[0] == vector2ui(0, 1));
+      TESTER_ASSERT(r[1] == vector2ui(0, 2));
+      TESTER_ASSERT(r[2] == vector2ui(1, 1));
+      TESTER_ASSERT(r[3] == vector2ui(1, 2));
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayLogicalOp);
@@ -420,4 +480,7 @@ TESTER_TEST(test_and);
 TESTER_TEST(test_not);
 TESTER_TEST(test_count);
 TESTER_TEST(test_count_axis);
+TESTER_TEST(test_any);
+TESTER_TEST(test_all);
+TESTER_TEST(test_where);
 TESTER_TEST_SUITE_END();

@@ -62,6 +62,11 @@ public:
       return _currentAccess < _maxNbAccess;
    }
 
+   bool finished() const
+   {
+      return _currentAccess >= _maxNbAccess;
+   }
+
    // this is the specific view index reordered by <functor>
    const index_type& getIteratorIndex() const
    {
@@ -88,6 +93,14 @@ public:
    const index_type& getVaryingIndexOrder() const
    {
       return _indexesOrder;
+   }
+
+   /**
+    @brief Force the iterator to stop. Note that at least one more iteration after the break will be executed
+    */
+   void stop()
+   {
+      _currentAccess = _maxNbAccess;
    }
 
 protected:

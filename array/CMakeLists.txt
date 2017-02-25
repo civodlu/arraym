@@ -37,6 +37,10 @@ set(Headers array.h
             static-vector-math.h
             static-vector-op.h
             traits.h
+			linspace.h
+			concat.h
+			lookup.h
+			where.h
 			${CMAKE_BINARY_DIR}/${LIBNAME}/config.h
 )
                

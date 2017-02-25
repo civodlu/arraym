@@ -215,4 +215,103 @@ typename Array<T1, N, Config1>::template rebind<ui8>::other operator!( const Arr
    return details::ApplyUnaryOp<ui8>()( a1, op );
 }
 
+/**
+@brief Return true if any predicate is true
+
+any([1, 2, 3, 4, 5], value > 4) = true
+any([1, 2, 3, 4, 5], value > 14) = false
+
+if indexes_out != nullptr, the full list of indexes satisfying the predicate will be returned (i.e., no early stopping)
+
+if index_out != nullptr, one index satisfying the predicate will be returned (i.e., no early stopping)
+*/
+template <class T, size_t N, class Config, class Predicate>
+bool any(const Array<T, N, Config>& array, Predicate p, StaticVector<ui32, N>* index_out = nullptr, std::vector<StaticVector<ui32, N>>* indexes_out = nullptr)
+{
+   using array_type = Array<T, N, Config>;
+   using const_pointer_type = typename array_type::const_pointer_type;
+   StaticVector<ui32, N> index;
+
+   ConstArrayProcessor_contiguous_byMemoryLocality<array_type> processor(array, 0);
+   bool hasMoreElements = true;
+   ui32 current_varying_index;
+
+   bool result = false;
+   auto functor = [&](T value)
+   {
+      if (p(value))
+      {
+         result = true;
+         if (index_out)
+         {
+            index = processor.getArrayIndex();
+            index[processor.getVaryingIndex()] += current_varying_index;
+            *index_out = index;
+            index_out = nullptr;
+         }
+
+         if (indexes_out)
+         {
+            index = processor.getArrayIndex();
+            index[processor.getVaryingIndex()] += current_varying_index;
+            indexes_out->push_back(index);
+         }
+         
+         if (!indexes_out)
+         {
+            processor.stop();  // early stop, we know the result is true
+         }
+      }
+   };
+
+   while (hasMoreElements)
+   {
+      const_pointer_type ptr(nullptr);
+      hasMoreElements = processor.accessMaxElements(ptr);
+
+      const auto y_stride = processor.stride();
+      const T* y_end = ptr + y_stride * processor.getNbElementsPerAccess();
+      for (current_varying_index = 0; ptr != y_end; ptr += y_stride, ++current_varying_index)
+      {
+         functor(*ptr);
+      }
+   }
+   return result;
+}
+
+/**
+@brief Return true if all predicate is true for all values
+
+all([1, 2, 3, 4, 5], value > 0) = true
+all([1, 2, 3, 4, 5], value > 4) = false
+*/
+template <class T, size_t N, class Config, class Predicate>
+bool all(const Array<T, N, Config>& array, Predicate p)
+{
+   using array_type = Array<T, N, Config>;
+   using const_pointer_type = typename array_type::const_pointer_type;
+
+   ConstArrayProcessor_contiguous_byMemoryLocality<array_type> processor(array, 0);
+   bool hasMoreElements = true;
+
+   bool result = true;
+   auto functor = [&](T value)
+   {
+      if (!p(value))
+      {
+         result = false;
+         processor.stop();  // early stop, we know the result is true
+      }
+   };
+
+   while (hasMoreElements)
+   {
+      const_pointer_type ptr(nullptr);
+      hasMoreElements = processor.accessMaxElements(ptr);
+
+      details::apply_naive1_const(ptr, processor.stride(), processor.getNbElementsPerAccess(), functor);
+   }
+   return result;
+}
+
 DECLARE_NAMESPACE_NLL_END
