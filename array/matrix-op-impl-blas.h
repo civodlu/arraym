@@ -125,14 +125,14 @@ void gemm(bool trans_a, bool trans_b, T alpha, const Array<T, 2, Config>& opa, c
    const auto trans_a_blas = trans_a ? blas::CblasTrans : blas::CblasNoTrans;
    const auto trans_b_blas = trans_b ? blas::CblasTrans : blas::CblasNoTrans;
 
-   const auto m = rows(opa, trans_a);
-   const auto n = columns(opb, trans_b);
-   const auto k = columns(opa, trans_a);
+   const auto m = rows_nb(opa, trans_a);
+   const auto n = columns_nb( opb, trans_b );
+   const auto k = columns_nb( opa, trans_a );
 
    // op(A) is an m - by - k matrix,
    // op(B) is a k - by - n matrix,
    // C is an m - by - n matrix.
-   ensure(rows(opb, trans_b) == k, "op(B) is a k - by - n matrix");
+   ensure(rows_nb(opb, trans_b) == k, "op(B) is a k - by - n matrix");
    ensure(opc.rows() == m, "must be a opa.rows() * opb.columns()");
    ensure(opc.columns() == n, "must be a opa.rows() * opb.columns()");
    using pointer_type = typename Array<T, 2, Config3>::pointer_type;
@@ -159,7 +159,7 @@ Matrix_BlasEnabled<T, 2, Config> array_mul_array(const Array<T, 2, Config>& opa,
 }
 
 template <class T, class Config>
-blas::BlasInt rows( const Array<T, 2, Config>& a, bool a_transposed = false )
+blas::BlasInt rows_nb( const Array<T, 2, Config>& a, bool a_transposed = false )
 {
    if ( !a_transposed )
    {
@@ -171,7 +171,7 @@ blas::BlasInt rows( const Array<T, 2, Config>& a, bool a_transposed = false )
 }
 
 template <class T, class Config>
-blas::BlasInt columns( const Array<T, 2, Config>& a, bool a_transposed = false )
+blas::BlasInt columns_nb( const Array<T, 2, Config>& a, bool a_transposed = false )
 {
    if ( !a_transposed )
    {

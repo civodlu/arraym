@@ -143,6 +143,7 @@ TODO nice to have functions:
 #include "linspace.h"
 #include "lookup.h"
 #include "where.h"
+#include "array-dim-iterator.h"
 
 // BLAS based operations
 #include "matrix-op-impl-blas.h"
