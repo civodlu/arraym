@@ -118,6 +118,7 @@ TODO nice to have functions:
 #include "memory-contiguous.h"
 #include "memory-slice.h"
 #include "range.h"
+#include "enumerate.h"
 #include "array-traits.h"
 #include "array.h"
 #include "array-chunking.h"

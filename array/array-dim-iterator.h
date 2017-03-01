@@ -40,8 +40,7 @@ namespace details
          max_index[ dim ] = _current;
 
          auto& array_uc = const_cast<std::remove_cv<typename array_type>::type&>( *_array );
-         array_ref_type ref = array_uc( min_index, max_index );
-         return ref;
+         return array_uc( min_index, max_index );
       }
 
    private:
@@ -73,6 +72,9 @@ namespace details
    };
 }
 
+/**
+ @brief iterate over the rows of an array. Each row will have the same number of dimensions as the array
+ */
 template <class T, size_t N, class Config>
 details::ArrayDimIterator_proxy<Array<T, N, Config>, 1> rows( Array<T, N, Config>& array )
 {
@@ -83,9 +85,13 @@ details::ArrayDimIterator_proxy<Array<T, N, Config>, 1> rows( Array<T, N, Config
    return proxy_type( iter_type( &array, 0 ), iter_type( &array, array.shape()[ dim ] ) );
 }
 
+/**
+@brief iterate over the rows of an array. Each row will have the same number of dimensions as the array
+*/
 template <class T, size_t N, class Config>
 details::ArrayDimIterator_proxy<const Array<T, N, Config>, 1> rows( const Array<T, N, Config>& array )
 {
+   // TODO here we lose constness... (copy a reference)
    static_assert( N >= 2, "must have at least 2 dimensions!" );
    static const ui32 dim = 1;
    using proxy_type = details::ArrayDimIterator_proxy<const Array<T, N, Config>, dim>;
@@ -93,6 +99,9 @@ details::ArrayDimIterator_proxy<const Array<T, N, Config>, 1> rows( const Array<
    return proxy_type( iter_type( &array, 0 ), iter_type( &array, array.shape()[ dim ] ) );
 }
 
+/**
+@brief iterate over the columns of an array. Each column will have the same number of dimensions as the array
+*/
 template <class T, size_t N, class Config>
 details::ArrayDimIterator_proxy<Array<T, N, Config>, 0> columns( Array<T, N, Config>& array )
 {
@@ -103,9 +112,13 @@ details::ArrayDimIterator_proxy<Array<T, N, Config>, 0> columns( Array<T, N, Con
    return proxy_type( iter_type( &array, 0 ), iter_type( &array, array.shape()[ dim ] ) );
 }
 
+/**
+@brief iterate over the columns of an array. Each column will have the same number of dimensions as the array
+*/
 template <class T, size_t N, class Config>
 details::ArrayDimIterator_proxy<const Array<T, N, Config>, 0> columns( const Array<T, N, Config>& array )
 {
+   // TODO here we lose constness... (copy a reference)
    static_assert( N >= 2, "must have at least 2 dimensions!" );
    static const ui32 dim = 0;
    using proxy_type = details::ArrayDimIterator_proxy<const Array<T, N, Config>, dim>;
@@ -113,12 +126,29 @@ details::ArrayDimIterator_proxy<const Array<T, N, Config>, 0> columns( const Arr
    return proxy_type( iter_type( &array, 0 ), iter_type( &array, array.shape()[ dim ] ) );
 }
 
+/**
+@brief iterate over the slices of an array. Each slice will have the same number of dimensions as the array
+*/
 template <class T, size_t N, class Config>
 details::ArrayDimIterator_proxy<const Array<T, N, Config>, 2> slices( const Array<T, N, Config>& array )
 {
+   // TODO here we lose constness... (copy a reference)
    static_assert( N >= 3, "must have at least 3 dimensions!" );
    static const ui32 dim = 2;
    using proxy_type = details::ArrayDimIterator_proxy<const Array<T, N, Config>, dim>;
+   using iter_type = typename proxy_type::array_iterator;
+   return proxy_type( iter_type( &array, 0 ), iter_type( &array, array.shape()[ dim ] ) );
+}
+
+/**
+@brief iterate over the slices of an array. Each slice will have the same number of dimensions as the array
+*/
+template <class T, size_t N, class Config>
+details::ArrayDimIterator_proxy<Array<T, N, Config>, 2> slices( Array<T, N, Config>& array )
+{
+   static_assert( N >= 3, "must have at least 3 dimensions!" );
+   static const ui32 dim = 2;
+   using proxy_type = details::ArrayDimIterator_proxy<Array<T, N, Config>, dim>;
    using iter_type = typename proxy_type::array_iterator;
    return proxy_type( iter_type( &array, 0 ), iter_type( &array, array.shape()[ dim ] ) );
 }

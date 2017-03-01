@@ -42,6 +42,7 @@ set(Headers array.h
 			lookup.h
 			where.h
 			array-dim-iterator.h
+			enumerate.h
 			${CMAKE_BINARY_DIR}/${LIBNAME}/config.h
 )
                
