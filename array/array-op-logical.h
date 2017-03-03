@@ -59,7 +59,7 @@ namespace details
 template <class T1, class T2, class Config1, class Config2, size_t N>
 typename Array<T1, N, Config1>::template rebind<ui8>::other operator<( const Array<T1, N, Config1>& a1, const Array<T2, N, Config2>& a2 )
 {
-   auto op = std::less<>();
+   auto op = std::less<void>();
    return details::ApplyBinOp<ui8>()( a1, a2, op );
 }
 
@@ -114,21 +114,21 @@ typename Array<T1, N, Config1>::template rebind<ui8>::other operator<=( T2 value
 template <class T1, class T2, class Config1, class Config2, size_t N>
 typename Array<T1, N, Config1>::template rebind<ui8>::other operator<=( const Array<T1, N, Config1>& a1, const Array<T2, N, Config2>& a2 )
 {
-   auto op = std::less_equal<>();
+   auto op = std::less_equal<void>();
    return details::ApplyBinOp<ui8>()( a1, a2, op );
 }
 
 template <class T1, class T2, class Config1, class Config2, size_t N>
 typename Array<T1, N, Config1>::template rebind<ui8>::other operator>( const Array<T1, N, Config1>& a1, const Array<T2, N, Config2>& a2 )
 {
-   auto op = std::greater<>();
+   auto op = std::greater<void>();
    return details::ApplyBinOp<ui8>()( a1, a2, op );
 }
 
 template <class T1, class T2, class Config1, class Config2, size_t N>
 typename Array<T1, N, Config1>::template rebind<ui8>::other operator>=( const Array<T1, N, Config1>& a1, const Array<T2, N, Config2>& a2 )
 {
-   auto op = std::greater_equal<>();
+   auto op = std::greater_equal<void>();
    return details::ApplyBinOp<ui8>()( a1, a2, op );
 }
 
@@ -183,35 +183,35 @@ typename Array<T1, N, Config1>::template rebind<ui8>::other operator>=( T2 value
 template <class T1, class T2, class Config1, class Config2, size_t N>
 typename Array<T1, N, Config1>::template rebind<ui8>::other operator&( const Array<T1, N, Config1>& a1, const Array<T2, N, Config2>& a2 )
 {
-   auto op = std::logical_and<>();
+   auto op = std::logical_and<void>();
    return details::ApplyBinOp<ui8>()( a1, a2, op );
 }
 
 template <class T1, class T2, class Config1, class Config2, size_t N>
 typename Array<T1, N, Config1>::template rebind<ui8>::other operator|( const Array<T1, N, Config1>& a1, const Array<T2, N, Config2>& a2 )
 {
-   auto op = std::logical_or<>();
+   auto op = std::logical_or<void>();
    return details::ApplyBinOp<ui8>()( a1, a2, op );
 }
 
 template <class T1, class T2, class Config1, class Config2, size_t N>
 typename Array<T1, N, Config1>::template rebind<ui8>::other equal_elementwise( const Array<T1, N, Config1>& a1, const Array<T2, N, Config2>& a2 )
 {
-   auto op = std::equal_to<>();
+   auto op = std::equal_to<void>();
    return details::ApplyBinOp<ui8>()( a1, a2, op );
 }
 
 template <class T1, class T2, class Config1, class Config2, size_t N>
 typename Array<T1, N, Config1>::template rebind<ui8>::other different_elementwise( const Array<T1, N, Config1>& a1, const Array<T2, N, Config2>& a2 )
 {
-   auto op = std::not_equal_to<>;
+   auto op = std::not_equal_to<void>();
    return details::ApplyBinOp<ui8>()( a1, a2, op );
 }
 
 template <class T1, class Config1, size_t N>
 typename Array<T1, N, Config1>::template rebind<ui8>::other operator!( const Array<T1, N, Config1>& a1 )
 {
-   std::logical_not<> op;
+   auto op = std::logical_not<void>();
    return details::ApplyUnaryOp<ui8>()( a1, op );
 }
 

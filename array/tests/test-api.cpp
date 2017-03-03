@@ -268,6 +268,49 @@ struct TestArrayApi
       // verify inverse properties ||A * inv(A) - I||_2 == 0
       TESTER_ASSERT(norm2(sub_2x2 * sub_2x2_inv - identity<float>(2)) < 1e-4f);
    }
+
+   template <class T, class Config, size_t N>
+   void Test1(Array<T, N, Config>& lhs)
+   {
+   }
+
+   void api_enumerate_rows()
+   {
+      array_type array(2, 3);
+      array = { 1, 2,
+                3, 4,
+                5, 6 };
+
+      for (auto it : enumerate(rows(array)))
+      {
+         auto ref_array = *it;
+         ref_array += 1;
+      }
+
+      TESTER_ASSERT(array(0, 0) == 2);
+      TESTER_ASSERT(array(0, 1) == 4);
+      TESTER_ASSERT(array(0, 2) == 6);
+      TESTER_ASSERT(array(1, 0) == 3);
+      TESTER_ASSERT(array(1, 1) == 5);
+      TESTER_ASSERT(array(1, 2) == 7);
+   }
+
+   void api_enumerate_vectors()
+   {
+      std::vector<int> v = { 1, 2, 3, 4 };
+      size_t index = 0;
+      for (auto it : enumerate(v))
+      {
+         *it *= 2;
+         ++index;
+      }
+
+      TESTER_ASSERT(index == 4);
+      TESTER_ASSERT(v[0] == 2);
+      TESTER_ASSERT(v[1] == 4);
+      TESTER_ASSERT(v[2] == 6);
+      TESTER_ASSERT(v[3] == 8);
+   }
 };
 
 //
@@ -276,6 +319,8 @@ struct TestArrayApi
 
 
 TESTER_TEST_SUITE(TestArrayApi);
+TESTER_TEST(api_enumerate_vectors);
+TESTER_TEST(api_enumerate_rows);
 TESTER_TEST(api_array_init);
 TESTER_TEST(api_access);
 TESTER_TEST(api_value_based_semantic);

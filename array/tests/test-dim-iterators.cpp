@@ -6,69 +6,10 @@ using namespace NAMESPACE_NLL;
 
 DECLARE_NAMESPACE_NLL
 
-
 DECLARE_NAMESPACE_NLL_END
 
 struct TestArrayDimIterator
 {
-   void test_rows()
-   {
-      test_rows_impl<Array_row_major<float, 2>>();
-      test_rows_impl<Array_column_major<float, 2>>();
-      test_rows_impl<Array_row_major_multislice<float, 2>>();
-   }
-
-   template <class array_type>
-   void test_rows_impl()
-   {
-      array_type a( 3, 2 );
-      a = { 1, 2, 3,
-         4, 5, 6 };
-
-      int r = 0;
-      for ( auto row : rows( a ) )
-      {
-         TESTER_ASSERT( row.shape() == vector2ui( 3, 1 ) );
-         TESTER_ASSERT( row( 0, 0 ) == a( 0, r ) );
-         TESTER_ASSERT( row( 1, 0 ) == a( 1, r ) );
-         TESTER_ASSERT( row( 2, 0 ) == a( 2, r ) );
-         ++r;
-      }
-      TESTER_ASSERT( r == 2 );
-   }
-   
-   void test_const_rows()
-   {
-      test_const_rows_impl<Array_row_major<float, 2>>();
-      test_const_rows_impl<Array_column_major<float, 2>>();
-      test_const_rows_impl<Array_row_major_multislice<float, 2>>();
-   }
-
-   template <class array_type>
-   void test_const_rows_impl()
-   {
-      array_type a( 3, 2 );
-      a = { 1, 2, 3,
-         4, 5, 6 };
-
-      const auto& a_const = a;
-
-      int r = 0;
-
-      auto row_it = rows( a_const );
-
-      
-      for ( auto row : rows( a_const ) )
-      {
-         TESTER_ASSERT( row.shape() == vector2ui( 3, 1 ) );
-         TESTER_ASSERT( row( 0, 0 ) == a( 0, r ) );
-         TESTER_ASSERT( row( 1, 0 ) == a( 1, r ) );
-         TESTER_ASSERT( row( 2, 0 ) == a( 2, r ) );
-         ++r;
-      }
-      TESTER_ASSERT( r == 2 );
-   }
-
    void test_columns()
    {
       test_columns_impl<Array_row_major<float, 2>>();
@@ -79,80 +20,188 @@ struct TestArrayDimIterator
    template <class array_type>
    void test_columns_impl()
    {
-      array_type a( 3, 2 );
+      array_type a(3, 2);
+      a = { 1, 2, 3,
+            4, 5, 6 };
+
+      int c = 0;
+      for (auto col : columns(a))
+      {
+         TESTER_ASSERT(col.shape() == vector2ui(1, 2));
+         TESTER_ASSERT(col(0, 0) == a(c, 0));
+         TESTER_ASSERT(col(0, 1) == a(c, 1));
+         ++c;
+      }
+      TESTER_ASSERT(c == 3);
+   }
+
+   void test_columns_const()
+   {
+      test_columns_const_impl<Array_row_major<float, 2>>();
+      test_columns_const_impl<Array_column_major<float, 2>>();
+      test_columns_const_impl<Array_row_major_multislice<float, 2>>();
+   }
+
+   template <class array_type>
+   void test_columns_const_impl()
+   {
+      array_type a(3, 2);
+      a = { 1, 2, 3,
+         4, 5, 6 };
+
+      int c = 0;
+      for (auto col : columns(a))
+      {
+         TESTER_ASSERT(col.shape() == vector2ui(1, 2));
+         TESTER_ASSERT(col(0, 0) == a(c, 0));
+         TESTER_ASSERT(col(0, 1) == a(c, 1));
+         ++c;
+      }
+      TESTER_ASSERT(c == 3);
+   }
+
+   void test_rows()
+   {
+      test_rows_impl<Array_row_major<float, 2>>();
+      test_rows_impl<Array_column_major<float, 2>>();
+      test_rows_impl<Array_row_major_multislice<float, 2>>();
+   }
+
+   template <class array_type>
+   void test_rows_impl()
+   {
+      array_type a(3, 2);
       a = { 1, 2, 3,
          4, 5, 6 };
 
       int r = 0;
-      for ( auto col : columns( a ) )
+      for (auto row : rows(a))
       {
-         TESTER_ASSERT( col.shape() == vector2ui( 1, 2 ) );
-         TESTER_ASSERT( col( 0, 0 ) == a( r, 0 ) );
-         TESTER_ASSERT( col( 0, 1 ) == a( r, 1 ) );
+         TESTER_ASSERT(row.shape() == vector2ui(3, 1));
+         TESTER_ASSERT(row(0, 0) == a(0, r));
+         TESTER_ASSERT(row(1, 0) == a(1, r));
+         TESTER_ASSERT(row(2, 0) == a(2, r));
          ++r;
       }
-      TESTER_ASSERT( r == 3 );
+      TESTER_ASSERT(r == 2);
    }
 
-   void test_const_columns()
+   void test_rows_const()
    {
-      test_const_columns_impl<Array_row_major<float, 2>>();
-      test_const_columns_impl<Array_column_major<float, 2>>();
-      test_const_columns_impl<Array_row_major_multislice<float, 2>>();
+      test_rows_const_impl<Array_row_major<float, 2>>();
+      test_rows_const_impl<Array_column_major<float, 2>>();
+      test_rows_const_impl<Array_row_major_multislice<float, 2>>();
    }
 
    template <class array_type>
-   void test_const_columns_impl()
+   void test_rows_const_impl()
    {
-      array_type a( 3, 2 );
+      array_type a(3, 2);
       a = { 1, 2, 3,
          4, 5, 6 };
 
       const array_type& a_const = a;
 
       int r = 0;
-      for ( auto col : columns( a_const ) )
+      for (auto row : rows(a_const))
       {
-         TESTER_ASSERT( col.shape() == vector2ui( 1, 2 ) );
-         TESTER_ASSERT( col( 0, 0 ) == a( r, 0 ) );
-         TESTER_ASSERT( col( 0, 1 ) == a( r, 1 ) );
+         TESTER_ASSERT(row.shape() == vector2ui(3, 1));
+         TESTER_ASSERT(row(0, 0) == a(0, r));
+         TESTER_ASSERT(row(1, 0) == a(1, r));
+         TESTER_ASSERT(row(2, 0) == a(2, r));
          ++r;
       }
-      TESTER_ASSERT( r == 3 );
+      TESTER_ASSERT(r == 2);
    }
 
-   void test_const_slices()
+   void test_matrix_rows()
    {
-      test_const_slices_impl<Array_row_major<float, 3>>();
-      test_const_slices_impl<Array_column_major<float, 3>>();
-      test_const_slices_impl<Array_row_major_multislice<float, 3>>();
-   }
+      using matrix_type = Matrix<float>;
 
-   template <class array_type>
-   void test_const_slices_impl()
-   {
-      array_type a( 3, 2, 2 );
-      a = { 1, 2, 3,
-         4, 5, 6,
-         11, 12, 13,
-         14, 15, 16 };
-
-      const array_type& a_const = a;
+      matrix_type a(3, 2);
+      a = {
+         1, 2,
+         3, 4,
+         5, 6
+      };
 
       int r = 0;
-      for ( auto s : slices( a_const ) )
+      for (auto row : rows(a))
       {
-         TESTER_ASSERT( s.shape() == vector3ui( 3, 2, 1 ) );
-         TESTER_ASSERT( s( 0, 0, 0 ) == a( 0, 0, r ) );
-         TESTER_ASSERT( s( 1, 0, 0 ) == a( 1, 0, r ) );
-         TESTER_ASSERT( s( 2, 0, 0 ) == a( 2, 0, r ) );
-
-         TESTER_ASSERT( s( 0, 1, 0 ) == a( 0, 1, r ) );
-         TESTER_ASSERT( s( 1, 1, 0 ) == a( 1, 1, r ) );
-         TESTER_ASSERT( s( 2, 1, 0 ) == a( 2, 1, r ) );
+         TESTER_ASSERT(row.shape() == vector2ui(1, 2));
+         TESTER_ASSERT(row(0, 0) == a(r, 0));
+         TESTER_ASSERT(row(0, 1) == a(r, 1));
          ++r;
       }
-      TESTER_ASSERT( r == 2 );
+   }
+
+   void test_matrix_rows_const()
+   {
+      using matrix_type = Matrix<float>;
+
+      matrix_type a(3, 2);
+      a = {
+         1, 2,
+         3, 4,
+         5, 6
+      };
+
+      const matrix_type& a_const = a;
+
+      int r = 0;
+      for (auto row : rows(a_const))
+      {
+         TESTER_ASSERT(row.shape() == vector2ui(1, 2));
+         TESTER_ASSERT(row(0, 0) == a(r, 0));
+         TESTER_ASSERT(row(0, 1) == a(r, 1));
+         ++r;
+      }
+   }
+
+   void test_matrix_columns()
+   {
+      using matrix_type = Matrix<float>;
+
+      matrix_type a(3, 2);
+      a = {
+         1, 2,
+         3, 4,
+         5, 6
+      };
+
+      int r = 0;
+      for (auto column : columns(a))
+      {
+         TESTER_ASSERT(column.shape() == vector2ui(3, 1));
+         TESTER_ASSERT(column(0, 0) == a(0, r));
+         TESTER_ASSERT(column(1, 0) == a(1, r));
+         TESTER_ASSERT(column(2, 0) == a(2, r));
+         ++r;
+      }
+   }
+
+   void test_matrix_columns_const()
+   {
+      using matrix_type = Matrix<float>;
+
+      matrix_type a(3, 2);
+      a = {
+         1, 2,
+         3, 4,
+         5, 6
+      };
+
+      const matrix_type& a_const = a;
+
+      int r = 0;
+      for (auto column : columns(a_const))
+      {
+         TESTER_ASSERT(column.shape() == vector2ui(3, 1));
+         TESTER_ASSERT(column(0, 0) == a(0, r));
+         TESTER_ASSERT(column(1, 0) == a(1, r));
+         TESTER_ASSERT(column(2, 0) == a(2, r));
+         ++r;
+      }
    }
 
    void test_slices()
@@ -165,34 +214,74 @@ struct TestArrayDimIterator
    template <class array_type>
    void test_slices_impl()
    {
-      array_type a( 3, 2, 2 );
-      a = { 1, 2, 3,
-         4, 5, 6,
-         11, 12, 13,
-         14, 15, 16 };
+      array_type a(2, 2, 3);
+      a = { 1, 2,
+            3, 4,
+            
+            5, 6,
+            7, 8,
+      
+            9, 10,
+            11, 12
+      };
 
-      int r = 0;
-      for ( auto s : slices( a ) )
+      int s = 0;
+      for (auto slice : slices(a))
       {
-         TESTER_ASSERT( s.shape() == vector3ui( 3, 2, 1 ) );
-         TESTER_ASSERT( s( 0, 0, 0 ) == a( 0, 0, r ) );
-         TESTER_ASSERT( s( 1, 0, 0 ) == a( 1, 0, r ) );
-         TESTER_ASSERT( s( 2, 0, 0 ) == a( 2, 0, r ) );
-
-         TESTER_ASSERT( s( 0, 1, 0 ) == a( 0, 1, r ) );
-         TESTER_ASSERT( s( 1, 1, 0 ) == a( 1, 1, r ) );
-         TESTER_ASSERT( s( 2, 1, 0 ) == a( 2, 1, r ) );
-         ++r;
+         TESTER_ASSERT(slice.shape() == vector3ui(2, 2, 1));
+         TESTER_ASSERT(slice(0, 0, 0) == a(0, 0, s));
+         TESTER_ASSERT(slice(0, 1, 0) == a(0, 1, s));
+         TESTER_ASSERT(slice(1, 0, 0) == a(1, 0, s));
+         TESTER_ASSERT(slice(1, 1, 0) == a(1, 1, s));
+         ++s;
       }
-      TESTER_ASSERT( r == 2 );
+      TESTER_ASSERT(s == 3);
+   }
+
+   void test_slices_const()
+   {
+      test_slices_const_impl<Array_row_major<float, 3>>();
+      test_slices_const_impl<Array_column_major<float, 3>>();
+      test_slices_const_impl<Array_row_major_multislice<float, 3>>();
+   }
+
+   template <class array_type>
+   void test_slices_const_impl()
+   {
+      array_type a(2, 2, 3);
+      a = { 1, 2,
+         3, 4,
+
+         5, 6,
+         7, 8,
+
+         9, 10,
+         11, 12
+      };
+
+      int s = 0;
+      for (auto slice : slices(a))
+      {
+         TESTER_ASSERT(slice.shape() == vector3ui(2, 2, 1));
+         TESTER_ASSERT(slice(0, 0, 0) == a(0, 0, s));
+         TESTER_ASSERT(slice(0, 1, 0) == a(0, 1, s));
+         TESTER_ASSERT(slice(1, 0, 0) == a(1, 0, s));
+         TESTER_ASSERT(slice(1, 1, 0) == a(1, 1, s));
+         ++s;
+      }
+      TESTER_ASSERT(s == 3);
    }
 };
 
 TESTER_TEST_SUITE(TestArrayDimIterator);
+TESTER_TEST(test_columns);
+TESTER_TEST(test_columns_const);
 TESTER_TEST(test_rows);
-TESTER_TEST( test_const_rows );
-TESTER_TEST( test_columns );
-TESTER_TEST( test_const_columns );
-TESTER_TEST( test_const_slices );
-TESTER_TEST( test_slices );
+TESTER_TEST(test_rows_const);
+TESTER_TEST(test_matrix_rows);
+TESTER_TEST(test_matrix_rows_const);
+TESTER_TEST(test_matrix_columns);
+TESTER_TEST(test_matrix_columns_const);
+TESTER_TEST(test_slices);
+TESTER_TEST(test_slices_const);
 TESTER_TEST_SUITE_END();

@@ -4,18 +4,18 @@ DECLARE_NAMESPACE_NLL
 
 namespace details
 {
-   template <class iterator>
+   template <class Iterator>
    struct Enumeration
    {
+      using iterator_type = Iterator;
+
+      Enumeration(ui32 index_value, iterator_type iterator_value) : index(index_value), iterator(iterator_value)
+      {}
+
       ui32      index;
-      iterator  iterator;
+      iterator_type  iterator;
 
-      typename iterator::reference operator*( )
-      {
-         return *iterator;
-      }
-
-      const typename iterator::reference operator*( ) const
+      typename iterator_type::reference operator*()
       {
          return *iterator;
       }
