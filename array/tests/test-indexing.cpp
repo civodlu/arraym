@@ -6,7 +6,6 @@ using namespace NAMESPACE_NLL;
 
 DECLARE_NAMESPACE_NLL
 
-
 DECLARE_NAMESPACE_NLL_END
 
 struct TestIndexing
@@ -17,11 +16,10 @@ struct TestIndexing
 
       array_type a(3, 2);
 
-      a = { 1, 2, 3,
-            4, 5, 6 };
+      a = {1, 2, 3, 4, 5, 6};
 
-      std::vector<vector2ui> indexes = { { 0, 0 }, { 2, 0 }, { 2, 1 } };
-      auto r = loopkup(a, indexes);
+      std::vector<vector2ui> indexes = {{0, 0}, {2, 0}, {2, 1}};
+      auto r                         = loopkup(a, indexes);
       TESTER_ASSERT(r.shape() == vector1ui(3));
       TESTER_ASSERT(r(0) == 1);
       TESTER_ASSERT(r(1) == 3);
@@ -34,13 +32,12 @@ struct TestIndexing
 
       array_type a(3, 2);
 
-      a = { 1, 2, 3,
-         4, 5, 6 };
+      a = {1, 2, 3, 4, 5, 6};
 
       Vector<vector2ui> indexes(3);
-      
-      indexes = { { 0, 0 }, { 2, 0 }, { 2, 1 } };
-      auto r = loopkup(a, indexes);
+
+      indexes = {{0, 0}, {2, 0}, {2, 1}};
+      auto r  = loopkup(a, indexes);
       TESTER_ASSERT(r.shape() == vector1ui(3));
       TESTER_ASSERT(r(0) == 1);
       TESTER_ASSERT(r(1) == 3);

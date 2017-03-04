@@ -31,10 +31,8 @@ struct TestArrayOp
          static_assert(std::is_same<A, Matrix_BlasEnabled<A::value_type, 2, A::Config>>::value, "BLAS should be enabled for this type");
       }
 #endif
-
    }
 
-   
    void test_is_fully_contiguous()
    {
       static_assert(IsArrayLayoutContiguous<Array_row_major<int, 2>>::value, "row major is contiguous layout!");
@@ -76,7 +74,7 @@ struct TestArrayOp
       TESTER_ASSERT(!is_array_fully_contiguous(a1(vector3ui(1, 1, 1), vector3ui(3, 3, 3))));
       TESTER_ASSERT(is_array_fully_contiguous(a1(vector3ui(0, 0, 5), vector3ui(9, 10, 8))));
    }
-   
+
    void test_same_data_ordering()
    {
       TESTER_ASSERT(same_data_ordering(Array<int, 2>(2, 2), Array<int, 2>(2, 2)));
@@ -94,8 +92,6 @@ struct TestArrayOp
       test_matrixAdd_impl<NAMESPACE_NLL::Array<float, 2>>();                      // BLAS, contiguous
       test_matrixAdd_impl<NAMESPACE_NLL::Array_row_major_multislice<int, 2>>();   // naive, non fully contiguous
       test_matrixAdd_impl<NAMESPACE_NLL::Array_row_major_multislice<float, 2>>(); // BLAS, non fully contiguous
-      
-      
 
 #ifdef WITH_CUDA
       test_matrixAddOp_impl<NAMESPACE_NLL::Array_cuda_column_major<float, 2>>(); // CUBLAS, fully contiguous
@@ -126,7 +122,7 @@ struct TestArrayOp
 
       Array result = a1;
       NAMESPACE_NLL::details::array_add(result, a2);
-      
+
       TESTER_ASSERT(result(0, 0) == a1(0, 0) + a2(0, 0));
       TESTER_ASSERT(result(1, 0) == a1(1, 0) + a2(1, 0));
 
@@ -391,10 +387,10 @@ struct TestArrayOp
 #ifdef WITH_CUDA
       testArray_mul_array<NAMESPACE_NLL::Matrix_cuda_column_major<float>>(); // CUBLAS, fully contiguous
 #endif
-      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<float>>(); // BLAS, contiguous
-      testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<int>>();      // naive, contiguous
-      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<int>>();   // naive, contiguous
-      testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<float>>();    // BLAS, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<float>>();  // BLAS, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<int>>();       // naive, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<int>>();    // naive, contiguous
+      testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<float>>();     // BLAS, contiguous
       testArray_mul_array<NAMESPACE_NLL::Matrix_row_major<double>>();    // BLAS, contiguous
       testArray_mul_array<NAMESPACE_NLL::Matrix_column_major<double>>(); // BLAS, contiguous
    }
@@ -466,7 +462,7 @@ struct TestArrayOp
    void testMatrix_transpose_impl()
    {
       Array m1t(2, 3);
-      m1t             = {1, 2, 3, 4, 5, 6};
+      m1t = {1, 2, 3, 4, 5, 6};
       //const auto m1t = transpose(m1);
 
       TESTER_ASSERT(m1t.shape() == vector2ui(2, 3));
@@ -485,8 +481,8 @@ struct TestArrayOp
       testMatrix_vector_impl<NAMESPACE_NLL::Matrix_cuda_column_major<float>, Vector_cuda<float>>(); // CUBLAS, fully contiguous
 #endif
       testMatrix_vector_impl<NAMESPACE_NLL::Matrix_column_major<float>, Vector<float>>(); // BLAS, contiguous
-      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_row_major<int>, Vector<int>>();      // naive, contiguous
-      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_column_major<int>, Vector<int>>();   // naive, contiguous
+      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_row_major<int>, Vector<int>>();        // naive, contiguous
+      testMatrix_vector_impl<NAMESPACE_NLL::Matrix_column_major<int>, Vector<int>>();     // naive, contiguous
       testMatrix_vector_impl<NAMESPACE_NLL::Matrix_row_major<float>, Vector<float>>();    // BLAS, contiguous
    }
 
@@ -494,12 +490,10 @@ struct TestArrayOp
    void testMatrix_vector_impl()
    {
       Array m1(3, 3);
-      m1 = { 1, 0, 0,
-             0, 2, 0,
-             0, 0, 3 };
+      m1 = {1, 0, 0, 0, 2, 0, 0, 0, 3};
 
       Vector v1(3);
-      v1 = { 2, 3, 4 };
+      v1 = {2, 3, 4};
 
       auto r1 = m1 * v1;
       TESTER_ASSERT(r1.shape() == vector2ui(3, 1));

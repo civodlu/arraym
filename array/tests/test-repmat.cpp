@@ -20,7 +20,7 @@ struct TestArrayRepmat
    void testRepmat_simple_impl()
    {
       Array vec(3);
-      vec = { 1, 2, 3};
+      vec = {1, 2, 3};
 
       auto vec32 = repmat(vec, vector2ui(1, 2));
       TESTER_ASSERT(vec32.shape() == vector2ui(3, 2));
@@ -35,7 +35,7 @@ struct TestArrayRepmat
    void testRepmat_simple2()
    {
       Array<int, 1> vec(3);
-      vec = { 1, 2, 3 };
+      vec = {1, 2, 3};
 
       auto vec32 = repmat(vec, vector2ui(2, 2));
       TESTER_ASSERT(vec32.shape() == vector2ui(6, 2));
@@ -57,7 +57,7 @@ struct TestArrayRepmat
    void testRepmat_simple3()
    {
       Array<int, 1> vec(3);
-      vec = { 1, 2, 3 };
+      vec = {1, 2, 3};
 
       auto vec32 = repmat(vec, vector3ui(1, 2, 2));
       TESTER_ASSERT(vec32.shape() == vector3ui(3, 2, 2));
@@ -78,15 +78,12 @@ struct TestArrayRepmat
 
    void testRepmat_strided()
    {
-      int values[] =
-      {
-         1, 0, 2, 0, 3, 0
-      };
+      int values[] = {1, 0, 2, 0, 3, 0};
 
       using array_type = Array<int, 1>;
       array_type vec(array_type::Memory(vector1ui(3), values, vector1ui(2)));
       TESTER_ASSERT(vec(0) == 1);
-      TESTER_ASSERT( vec( 1 ) == 2 );
+      TESTER_ASSERT(vec(1) == 2);
       TESTER_ASSERT(vec(2) == 3);
 
       auto vec32 = repmat(vec, vector2ui(1, 2));

@@ -18,8 +18,8 @@ template <class T, size_t StaticNumberOfT, class FallbackAllocator = std::alloca
 class AllocatorSingleStaticMemory : public memory_not_moveable
 {
 public:
-   using value_type = T;
-   using pointer = T*;
+   using value_type         = T;
+   using pointer            = T*;
    using fallback_allocator = FallbackAllocator;
 
    template <class U>
@@ -34,33 +34,34 @@ public:
    }
 
    template <class U>
-   AllocatorSingleStaticMemory( const AllocatorSingleStaticMemory<U, StaticNumberOfT, typename FallbackAllocator::template rebind<U>::other>& )
+   AllocatorSingleStaticMemory(const AllocatorSingleStaticMemory<U, StaticNumberOfT, typename FallbackAllocator::template rebind<U>::other>&)
    {
       // do not copy state
    }
 
-   T* allocate( std::size_t n )
+   T* allocate(std::size_t n)
    {
-      if ( n > StaticNumberOfT )
+      if (n > StaticNumberOfT)
       {
          fallback_allocator a;
-         _allocated = std::allocator_traits<fallback_allocator>::allocate( a, n );
+         _allocated = std::allocator_traits<fallback_allocator>::allocate(a, n);
          return _allocated;
-      } else
+      }
+      else
       {
          return _staticMemory;
       }
    }
 
-   void deallocate( T* p, std::size_t n )
+   void deallocate(T* p, std::size_t n)
    {
-      if ( n > StaticNumberOfT )
+      if (n > StaticNumberOfT)
       {
          fallback_allocator a;
-         std::allocator_traits<fallback_allocator>::deallocate( a, p, n );
+         std::allocator_traits<fallback_allocator>::deallocate(a, p, n);
       }
    }
-   
+
    /**
     @brief return if a pointer can be shared with a different allocator.
 
@@ -72,7 +73,7 @@ public:
    }
 
 private:
-   T  _staticMemory[ StaticNumberOfT ];
+   T _staticMemory[StaticNumberOfT];
    T* _allocated = nullptr;
 };
 

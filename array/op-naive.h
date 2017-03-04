@@ -88,7 +88,7 @@ void static_cast_naive(T* v1, size_t stride_v1, const T2* v2, size_t stride_v2, 
    const T* end = v1 + size * stride_v1;
    for (; v1 != end; v1 += stride_v1, v2 += stride_v2)
    {
-      *v1 = static_cast<T>( *v2 );
+      *v1 = static_cast<T>(*v2);
    }
 }
 
@@ -96,7 +96,7 @@ void static_cast_naive(T* v1, size_t stride_v1, const T2* v2, size_t stride_v2, 
 @brief compute sum(v1^2)
 */
 template <class T, class Accum = T>
-Accum norm2_naive_sqr( const T* v1, size_t stride_v1, size_t nb_elements )
+Accum norm2_naive_sqr(const T* v1, size_t stride_v1, size_t nb_elements)
 {
    const T* end = v1 + nb_elements * stride_v1;
    Accum accum  = 0;
@@ -192,8 +192,8 @@ void set_naive(T* y_pointer, ui32 y_stride, ui32 nb_elements, T value)
 template <class T>
 std::pair<ui32, T> argmax(const T* ptr_start, ui32 stride, ui32 nb_elements)
 {
-   ui32 index = 0;
-   T max_value = ptr_start[0];
+   ui32 index       = 0;
+   T max_value      = ptr_start[0];
    const T* end_ptr = ptr_start + nb_elements * stride;
    for (const T* ptr = ptr_start; ptr != end_ptr; ptr += stride)
    {
@@ -201,7 +201,7 @@ std::pair<ui32, T> argmax(const T* ptr_start, ui32 stride, ui32 nb_elements)
       if (max_value < value)
       {
          max_value = value;
-         index = static_cast<ui32>((ptr - ptr_start) / stride);
+         index     = static_cast<ui32>((ptr - ptr_start) / stride);
       }
    }
    return std::make_pair(index, max_value);
@@ -213,8 +213,8 @@ std::pair<ui32, T> argmax(const T* ptr_start, ui32 stride, ui32 nb_elements)
 template <class T>
 std::pair<ui32, T> argmin(const T* ptr_start, ui32 stride, ui32 nb_elements)
 {
-   ui32 index = 0;
-   T min_value = ptr_start[0];
+   ui32 index       = 0;
+   T min_value      = ptr_start[0];
    const T* end_ptr = ptr_start + nb_elements * stride;
    for (const T* ptr = ptr_start; ptr != end_ptr; ptr += stride)
    {
@@ -222,7 +222,7 @@ std::pair<ui32, T> argmin(const T* ptr_start, ui32 stride, ui32 nb_elements)
       if (min_value > value)
       {
          min_value = value;
-         index = static_cast<ui32>((ptr - ptr_start) / stride);
+         index     = static_cast<ui32>((ptr - ptr_start) / stride);
       }
    }
    return std::make_pair(index, min_value);
@@ -260,7 +260,7 @@ bool equal(const T val1, const T val2, const T tolerance = 2 * std::numeric_limi
 }
 
 template <class T, typename = int, typename = typename std::enable_if<std::is_integral<T>::value>::type>
-bool equal( const T val1, const T val2, const T UNUSED(tolerance) = 0 )
+bool equal(const T val1, const T val2, const T UNUSED(tolerance) = 0)
 {
    return val1 == val2;
 }

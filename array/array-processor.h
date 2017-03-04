@@ -37,7 +37,7 @@ namespace details
 template <class Array>
 class ArrayProcessor_contiguous_base : public ArrayChunking_contiguous_base<Array>
 {
-   using Base = ArrayChunking_contiguous_base<Array>;
+   using Base      = ArrayChunking_contiguous_base<Array>;
    using diterator = typename Array::diterator;
    static_assert(std::is_base_of<memory_layout_linear, typename Array::Memory>::value, "must be a linear index mapper!");
 
@@ -46,8 +46,10 @@ public:
    using pointer_type = typename Array::pointer_type;
 
    template <class FunctorGetDimensionOrder>
-   ArrayProcessor_contiguous_base(Array& array, const FunctorGetDimensionOrder& functor, ui32 nbElementsToAccessPerIter) : Base(array.shape(), functor(array), nbElementsToAccessPerIter), _array(array)
-   {}
+   ArrayProcessor_contiguous_base(Array& array, const FunctorGetDimensionOrder& functor, ui32 nbElementsToAccessPerIter)
+       : Base(array.shape(), functor(array), nbElementsToAccessPerIter), _array(array)
+   {
+   }
 
    // TODO deprecate
    bool accessSingleElement(pointer_type& ptrToValue)
@@ -58,9 +60,9 @@ public:
    bool _accessElements(pointer_type& ptrToValue)
    {
       const bool more_elements = this->Base::_accessElements();
-      if ( this->_pointer_invalid )
+      if (this->_pointer_invalid)
       {
-         _iterator = this->_array.beginDim( this->_indexesOrder[ 0 ], this->getArrayIndex() );
+         _iterator              = this->_array.beginDim(this->_indexesOrder[0], this->getArrayIndex());
          this->_pointer_invalid = false;
       }
       else
@@ -72,14 +74,12 @@ public:
    }
 
 protected:
-   
 public:
    // TODO fix the access as protected
    Array& _array;
-   
+
 protected:
    diterator _iterator;
-   
 };
 
 /**
@@ -91,19 +91,20 @@ template <class Array>
 class ConstArrayProcessor_contiguous_base
 {
 public:
-   using index_type   = typename Array::index_type;
-   using pointer_type = typename Array::pointer_type;
+   using index_type         = typename Array::index_type;
+   using pointer_type       = typename Array::pointer_type;
    using const_pointer_type = typename Array::const_pointer_type;
-   using value_type   = typename Array::value_type;
+   using value_type         = typename Array::value_type;
 
    template <class FunctorGetDimensionOrder>
-   ConstArrayProcessor_contiguous_base(const Array& array, const FunctorGetDimensionOrder& functor, ui32 nbElementsToAccessPerIter) : _processor(const_cast<Array&>(array), functor, nbElementsToAccessPerIter)
+   ConstArrayProcessor_contiguous_base(const Array& array, const FunctorGetDimensionOrder& functor, ui32 nbElementsToAccessPerIter)
+       : _processor(const_cast<Array&>(array), functor, nbElementsToAccessPerIter)
    {
    }
 
-   bool accessSingleElement( const_pointer_type& ptrToValue )
+   bool accessSingleElement(const_pointer_type& ptrToValue)
    {
-      return _processor.accessSingleElement( (pointer_type&)( ptrToValue ) );
+      return _processor.accessSingleElement((pointer_type&)(ptrToValue));
    }
 
    // this is the specific view index reordered by <functor>
@@ -201,7 +202,7 @@ public:
    using pointer_type = typename base::pointer_type;
 
    ArrayProcessor_contiguous_byMemoryLocality(Array& array, ui32 nbElementsToAccessPerIter)
-      : base(array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config>, nbElementsToAccessPerIter)
+       : base(array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config>, nbElementsToAccessPerIter)
    {
    }
 
@@ -239,7 +240,8 @@ public:
    using base         = details::ArrayProcessor_contiguous_base<Memory>;
    using pointer_type = typename base::pointer_type;
 
-   MemoryProcessor_contiguous_byMemoryLocality(Memory& array, ui32 nbElementsToAccessPerIter) : base(array, &details::getFastestVaryingIndexesMemory<Memory>, nbElementsToAccessPerIter)
+   MemoryProcessor_contiguous_byMemoryLocality(Memory& array, ui32 nbElementsToAccessPerIter)
+       : base(array, &details::getFastestVaryingIndexesMemory<Memory>, nbElementsToAccessPerIter)
    {
    }
 
@@ -276,12 +278,13 @@ template <class Memory>
 class ConstMemoryProcessor_contiguous_byMemoryLocality : public details::ConstArrayProcessor_contiguous_base<Memory>
 {
 public:
-   using base         = details::ConstArrayProcessor_contiguous_base<Memory>;
-   using pointer_type = typename Memory::pointer_type;
+   using base               = details::ConstArrayProcessor_contiguous_base<Memory>;
+   using pointer_type       = typename Memory::pointer_type;
    using const_pointer_type = typename Memory::const_pointer_type;
-   using value_type   = typename Memory::value_type;
-   
-   ConstMemoryProcessor_contiguous_byMemoryLocality(const Memory& array, ui32 nbElementsToAccessPerIter) : base(array, &details::getFastestVaryingIndexesMemory<Memory>, nbElementsToAccessPerIter)
+   using value_type         = typename Memory::value_type;
+
+   ConstMemoryProcessor_contiguous_byMemoryLocality(const Memory& array, ui32 nbElementsToAccessPerIter)
+       : base(array, &details::getFastestVaryingIndexesMemory<Memory>, nbElementsToAccessPerIter)
    {
    }
 
@@ -317,13 +320,13 @@ template <class Array>
 class ConstArrayProcessor_contiguous_byMemoryLocality : public details::ConstArrayProcessor_contiguous_base<Array>
 {
 public:
-   using base         = details::ConstArrayProcessor_contiguous_base<Array>;
-   using pointer_type = typename Array::pointer_type;
+   using base               = details::ConstArrayProcessor_contiguous_base<Array>;
+   using pointer_type       = typename Array::pointer_type;
    using const_pointer_type = typename Array::const_pointer_type;
-   using value_type   = typename Array::value_type;
+   using value_type         = typename Array::value_type;
 
    ConstArrayProcessor_contiguous_byMemoryLocality(const Array& array, ui32 nbElementsToAccessPerIter)
-      : base(array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config>, nbElementsToAccessPerIter)
+       : base(array, &details::getFastestVaryingIndexes<typename Array::value_type, Array::RANK, typename Array::Config>, nbElementsToAccessPerIter)
    {
    }
 
@@ -370,7 +373,8 @@ public:
    }
 
 public:
-   ArrayProcessor_contiguous_byDimension(Array& array, ui32 nbElementsToAccessPerIter) : details::ArrayProcessor_contiguous_base<Array>(array, &getIndexes, nbElementsToAccessPerIter)
+   ArrayProcessor_contiguous_byDimension(Array& array, ui32 nbElementsToAccessPerIter)
+       : details::ArrayProcessor_contiguous_base<Array>(array, &getIndexes, nbElementsToAccessPerIter)
    {
    }
 };
@@ -408,72 +412,70 @@ struct CompileError
 };
 namespace impl
 {
-   template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
-   void _iterate_memory_constmemory_same_ordering(Memory1& a1, const Memory2& a2, const Op& op)
+template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
+void _iterate_memory_constmemory_same_ordering(Memory1& a1, const Memory2& a2, const Op& op)
+{
+   using pointer_T        = typename Memory1::pointer_type;
+   using pointer_T2       = typename Memory2::pointer_type;
+   using pointer_const_T2 = typename array_add_const<pointer_T2>::type;
+   static const size_t N  = Memory1::RANK;
+
+   static_assert(is_callable_with<Op, pointer_T, ui32, pointer_const_T2, ui32, ui32>::value, "Op is not callable!");
+   ensure(Memory1::RANK == Memory2::RANK, "must have the same rank!");
+   ensure(a1.shape() == a2.shape(), "must have the same shape!");
+   ensure(same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
+
+   // we MUST use processors: data may not be contiguous or with stride...
+   ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2, 0);
+   MemoryProcessor_contiguous_byMemoryLocality<Memory1> processor_a1(a1, 0);
+
+   bool hasMoreElements = true;
+   while (hasMoreElements)
    {
-      using pointer_T = typename Memory1::pointer_type;
-      using pointer_T2 = typename Memory2::pointer_type;
-      using pointer_const_T2 = typename array_add_const<pointer_T2>::type;
-      static const size_t N = Memory1::RANK;
+      pointer_T ptr_a1        = pointer_T(nullptr);
+      pointer_const_T2 ptr_a2 = pointer_const_T2(nullptr);
+      static_assert(std::is_same<pointer_const_T2, typename ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2>::const_pointer_type>::value,
+                    "must be the same!");
 
-      static_assert(is_callable_with<Op, pointer_T, ui32, pointer_const_T2, ui32, ui32>::value, "Op is not callable!");
-      ensure(Memory1::RANK == Memory2::RANK, "must have the same rank!");
-      ensure(a1.shape() == a2.shape(), "must have the same shape!");
-      ensure(same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
+      hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
+      hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
+      NLL_FAST_ASSERT(processor_a1.getNbElementsPerAccess() == processor_a2.getNbElementsPerAccess(), "memory line must have the same size");
 
-      // we MUST use processors: data may not be contiguous or with stride...
-      ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2, 0);
-      MemoryProcessor_contiguous_byMemoryLocality<Memory1> processor_a1(a1, 0);
-
-      bool hasMoreElements = true;
-      while (hasMoreElements)
-      {
-         pointer_T ptr_a1 = pointer_T(nullptr);
-         pointer_const_T2 ptr_a2 = pointer_const_T2(nullptr);
-         static_assert(std::is_same<pointer_const_T2, typename ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2>::const_pointer_type>::value, "must be the same!");
-
-         hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
-         hasMoreElements = processor_a2.accessMaxElements(ptr_a2);
-         NLL_FAST_ASSERT(processor_a1.getNbElementsPerAccess() == processor_a2.getNbElementsPerAccess(), "memory line must have the same size");
-
-         op(ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getNbElementsPerAccess());
-      }
+      op(ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), processor_a1.getNbElementsPerAccess());
    }
+}
 
-   template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
-   void _iterate_memory_constmemory_different_ordering(Memory1& a1, const Memory2& a2, const Op& op)
+template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
+void _iterate_memory_constmemory_different_ordering(Memory1& a1, const Memory2& a2, const Op& op)
+{
+   using pointer_T        = typename Memory1::pointer_type;
+   using pointer_T2       = typename Memory2::pointer_type;
+   using pointer_const_T2 = typename array_add_const<pointer_T2>::type;
+   static const size_t N  = Memory1::RANK;
+
+   static_assert(is_callable_with<Op, pointer_T, ui32, pointer_const_T2, ui32, ui32>::value, "Op is not callable!");
+
+   ensure(Memory1::RANK == Memory2::RANK, "must have the same rank!");
+   ensure(a1.shape() == a2.shape(), "must have the same shape!");
+   ensure(!same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
+
+   // we MUST use processors: data may not be contiguous or with stride...
+   // additionally the order of dimensions are different, so map the a2 order
+   ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2, 1);
+   auto functor_order = [&](const Memory1&) { return processor_a2.getVaryingIndexOrder(); };
+
+   details::ArrayProcessor_contiguous_base<Memory1> processor_a1(a1, functor_order, 1);
+
+   bool hasMoreElements = true;
+   while (hasMoreElements)
    {
-      using pointer_T = typename Memory1::pointer_type;
-      using pointer_T2 = typename Memory2::pointer_type;
-      using pointer_const_T2 = typename array_add_const<pointer_T2>::type;
-      static const size_t N = Memory1::RANK;
-
-      static_assert( is_callable_with<Op, pointer_T, ui32, pointer_const_T2, ui32, ui32>::value, "Op is not callable!" );
-
-      ensure(Memory1::RANK == Memory2::RANK, "must have the same rank!");
-      ensure(a1.shape() == a2.shape(), "must have the same shape!");
-      ensure(!same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
-
-      // we MUST use processors: data may not be contiguous or with stride...
-      // additionally the order of dimensions are different, so map the a2 order
-      ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2, 1);
-      auto functor_order = [&](const Memory1&)
-      {
-         return processor_a2.getVaryingIndexOrder();
-      };
-      
-      details::ArrayProcessor_contiguous_base<Memory1> processor_a1(a1, functor_order, 1);
-      
-      bool hasMoreElements = true;
-      while (hasMoreElements)
-      {
-         pointer_T ptr_a1 = pointer_T(nullptr);
-         pointer_const_T2 ptr_a2 = pointer_const_T2(nullptr);
-         hasMoreElements = processor_a1.accessSingleElement(ptr_a1);
-         hasMoreElements = processor_a2.accessSingleElement(ptr_a2);
-         op(ptr_a1, 1, ptr_a2, 1, 1); // only single element, so actual stride value is not important, it just can't be 0
-      }
+      pointer_T ptr_a1        = pointer_T(nullptr);
+      pointer_const_T2 ptr_a2 = pointer_const_T2(nullptr);
+      hasMoreElements         = processor_a1.accessSingleElement(ptr_a1);
+      hasMoreElements         = processor_a2.accessSingleElement(ptr_a2);
+      op(ptr_a1, 1, ptr_a2, 1, 1); // only single element, so actual stride value is not important, it just can't be 0
    }
+}
 }
 
 /**
@@ -488,7 +490,8 @@ void iterate_memory_constmemory(Memory1& a1, const Memory2& a2, const Op& op)
    {
       impl::_iterate_memory_constmemory_same_ordering(a1, a2, op);
    }
-   else {
+   else
+   {
       impl::_iterate_memory_constmemory_different_ordering(a1, a2, op);
    }
 }
@@ -507,11 +510,11 @@ void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config
 
 namespace details
 {
-   template <class T, class T2, size_t N, class Config, class Config2, class Op>
-   void _iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op)
-   {
-      iterate_memory_constmemory(a1.getMemory(), a2.getMemory(), op);
-   }
+template <class T, class T2, size_t N, class Config, class Config2, class Op>
+void _iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op)
+{
+   iterate_memory_constmemory(a1.getMemory(), a2.getMemory(), op);
+}
 }
 
 /**
@@ -522,7 +525,7 @@ namespace details
 template <class T, size_t N, class Config, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
 void iterate_array(Array<T, N, Config>& a1, Op& op)
 {
-   using array_type = Array<T, N, Config>;
+   using array_type   = Array<T, N, Config>;
    using pointer_type = typename array_type::pointer_type;
    ArrayProcessor_contiguous_byMemoryLocality<array_type> processor_a1(a1, 0);
 
@@ -545,7 +548,7 @@ void iterate_array(Array<T, N, Config>& a1, Op& op)
 template <class T, size_t N, class Config, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
 void iterate_constarray(const Array<T, N, Config>& a1, Op& op)
 {
-   using array_type = Array<T, N, Config>;
+   using array_type         = Array<T, N, Config>;
    using const_pointer_type = typename array_type::const_pointer_type;
    ConstArrayProcessor_contiguous_byMemoryLocality<array_type> processor_a1(a1, 0);
 
@@ -563,40 +566,42 @@ void iterate_constarray(const Array<T, N, Config>& a1, Op& op)
 /**
 @tparam Op must be callable with (pointer_type1 a1, ui32 stride_a1, const_pointer_type2 a2, ui32 stride_a2, const_pointer_type3 a3, ui32 stride_a3, ui32 nb_elements)
 */
-template <class T1, class T2, class T3, size_t N, class Config1, class Config2, class Config3, class Op, typename = typename std::enable_if<IsArrayLayoutLinear<Array<T1, N, Config1>>::value>::type>
-void iterate_array_constarray_constarray( Array<T1, N, Config1>& a1, const Array<T2, N, Config2>& a2, const Array<T3, N, Config3>& a3, Op& op )
+template <class T1, class T2, class T3, size_t N, class Config1, class Config2, class Config3, class Op,
+          typename = typename std::enable_if<IsArrayLayoutLinear<Array<T1, N, Config1>>::value>::type>
+void iterate_array_constarray_constarray(Array<T1, N, Config1>& a1, const Array<T2, N, Config2>& a2, const Array<T3, N, Config3>& a3, Op& op)
 {
-   ensure( a1.shape() == a2.shape(), "must have the same shape!" );
-   ensure( a1.shape() == a3.shape(), "must have the same shape!" );
-   ensure( same_data_ordering( a1, a2 ), "must have the same ordering!" );
-   ensure( same_data_ordering( a1, a3 ), "must have the same ordering!" );
+   ensure(a1.shape() == a2.shape(), "must have the same shape!");
+   ensure(a1.shape() == a3.shape(), "must have the same shape!");
+   ensure(same_data_ordering(a1, a2), "must have the same ordering!");
+   ensure(same_data_ordering(a1, a3), "must have the same ordering!");
 
    using array_type1 = Array<T1, N, Config1>;
    using array_type2 = Array<T2, N, Config2>;
    using array_type3 = Array<T3, N, Config3>;
 
-   using pointer_type1 = typename array_type1::pointer_type;
+   using pointer_type1       = typename array_type1::pointer_type;
    using const_pointer_type2 = typename array_type2::const_pointer_type;
    using const_pointer_type3 = typename array_type3::const_pointer_type;
-   ArrayProcessor_contiguous_byMemoryLocality<array_type1>      processor_a1( a1, 0 );
-   ConstArrayProcessor_contiguous_byMemoryLocality<array_type2> processor_a2( a2, 0 );
-   ConstArrayProcessor_contiguous_byMemoryLocality<array_type3> processor_a3( a3, 0 );
+   ArrayProcessor_contiguous_byMemoryLocality<array_type1> processor_a1(a1, 0);
+   ConstArrayProcessor_contiguous_byMemoryLocality<array_type2> processor_a2(a2, 0);
+   ConstArrayProcessor_contiguous_byMemoryLocality<array_type3> processor_a3(a3, 0);
 
-   static_assert( is_callable_with<Op, pointer_type1, ui32, const_pointer_type2, ui32, const_pointer_type3, ui32, ui32>::value, "Op is not callable with the correct arguments!" );
+   static_assert(is_callable_with<Op, pointer_type1, ui32, const_pointer_type2, ui32, const_pointer_type3, ui32, ui32>::value,
+                 "Op is not callable with the correct arguments!");
 
    bool hasMoreElements = true;
-   while ( hasMoreElements )
+   while (hasMoreElements)
    {
-      pointer_type1 ptr_a1( nullptr );
-      hasMoreElements = processor_a1.accessMaxElements( ptr_a1 );
+      pointer_type1 ptr_a1(nullptr);
+      hasMoreElements = processor_a1.accessMaxElements(ptr_a1);
 
-      const_pointer_type2 ptr_a2( nullptr );
-      processor_a2.accessMaxElements( ptr_a2 );
+      const_pointer_type2 ptr_a2(nullptr);
+      processor_a2.accessMaxElements(ptr_a2);
 
-      const_pointer_type2 ptr_a3( nullptr );
-      processor_a3.accessMaxElements( ptr_a3 );
+      const_pointer_type2 ptr_a3(nullptr);
+      processor_a3.accessMaxElements(ptr_a3);
 
-      op( ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), ptr_a3, processor_a3.stride(), processor_a1.getNbElementsPerAccess() );
+      op(ptr_a1, processor_a1.stride(), ptr_a2, processor_a2.stride(), ptr_a3, processor_a3.stride(), processor_a1.getNbElementsPerAccess());
    }
 }
 DECLARE_NAMESPACE_NLL_END

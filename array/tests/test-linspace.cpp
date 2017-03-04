@@ -57,15 +57,15 @@ struct TestArrayLinspace
       TESTER_ASSERT(a1.shape() == vector1ui(9));
       std::cout << a1 << std::endl;
 
-      TESTER_ASSERT(a1(0) == 1);  // 1.0
-      TESTER_ASSERT(a1(1) == 1);  // 1.5
-      TESTER_ASSERT(a1(2) == 2);  // 2.0
-      TESTER_ASSERT(a1(3) == 2);  // 2.5
-      TESTER_ASSERT(a1(4) == 3);  // 3.0 
-      TESTER_ASSERT(a1(5) == 3);  // 3.5
-      TESTER_ASSERT(a1(6) == 4);  // 4.0
-      TESTER_ASSERT(a1(7) == 4);  // 4.5
-      TESTER_ASSERT(a1(8) == 5);  // 5.0
+      TESTER_ASSERT(a1(0) == 1); // 1.0
+      TESTER_ASSERT(a1(1) == 1); // 1.5
+      TESTER_ASSERT(a1(2) == 2); // 2.0
+      TESTER_ASSERT(a1(3) == 2); // 2.5
+      TESTER_ASSERT(a1(4) == 3); // 3.0
+      TESTER_ASSERT(a1(5) == 3); // 3.5
+      TESTER_ASSERT(a1(6) == 4); // 4.0
+      TESTER_ASSERT(a1(7) == 4); // 4.5
+      TESTER_ASSERT(a1(8) == 5); // 5.0
    }
 };
 

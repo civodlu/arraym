@@ -28,7 +28,7 @@ struct TestArrayOpApply
    void test_array_apply_function_impl()
    {
       Array a1(2, 3);
-      a1 = { 1, 2, 3, 4, 5, 6 };
+      a1 = {1, 2, 3, 4, 5, 6};
 
       const auto a1_fun = constarray_apply_function(a1, f2x<typename Array::value_type>);
       for (size_t y = 0; y < a1.shape()[1]; ++y)
@@ -36,7 +36,7 @@ struct TestArrayOpApply
          for (size_t x = 0; x < a1.shape()[0]; ++x)
          {
             const auto expected = static_cast<typename Array::value_type>(a1(x, y) * 2);
-            const auto found = a1_fun(x, y);
+            const auto found    = a1_fun(x, y);
             TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
          }
       }
@@ -110,14 +110,14 @@ struct TestArrayOpApply
    void test_array_apply_functions_cos_impl()
    {
       Array a1(2, 3);
-      a1 = { 1, 2, 3, 4, 5, 6 };
+      a1                = {1, 2, 3, 4, 5, 6};
       const auto a1_fun = cos(a1);
       for (size_t y = 0; y < a1.shape()[1]; ++y)
       {
          for (size_t x = 0; x < a1.shape()[0]; ++x)
          {
             const auto expected = std::cos(a1(x, y));
-            const auto found = a1_fun(x, y);
+            const auto found    = a1_fun(x, y);
             TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
          }
       }
@@ -127,14 +127,14 @@ struct TestArrayOpApply
    void test_array_apply_functions_sin_impl()
    {
       Array a1(2, 3);
-      a1 = { 1, 2, 3, 4, 5, 6 };
+      a1                = {1, 2, 3, 4, 5, 6};
       const auto a1_fun = sin(a1);
       for (size_t y = 0; y < a1.shape()[1]; ++y)
       {
          for (size_t x = 0; x < a1.shape()[0]; ++x)
          {
             const auto expected = std::sin(a1(x, y));
-            const auto found = a1_fun(x, y);
+            const auto found    = a1_fun(x, y);
             TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
          }
       }
@@ -144,14 +144,14 @@ struct TestArrayOpApply
    void test_array_apply_functions_sqrt_impl()
    {
       Array a1(2, 3);
-      a1 = { 1, 2, 3, 4, 5, 6 };
+      a1                = {1, 2, 3, 4, 5, 6};
       const auto a1_fun = sqrt(a1);
       for (size_t y = 0; y < a1.shape()[1]; ++y)
       {
          for (size_t x = 0; x < a1.shape()[0]; ++x)
          {
             const auto expected = std::sqrt(a1(x, y));
-            const auto found = a1_fun(x, y);
+            const auto found    = a1_fun(x, y);
             TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
          }
       }
@@ -161,14 +161,14 @@ struct TestArrayOpApply
    void test_array_apply_functions_abs_impl()
    {
       Array a1(2, 3);
-      a1 = { 1, 2, 3, 4, 5, 6 };
+      a1                = {1, 2, 3, 4, 5, 6};
       const auto a1_fun = abs(a1);
       for (size_t y = 0; y < a1.shape()[1]; ++y)
       {
          for (size_t x = 0; x < a1.shape()[0]; ++x)
          {
             const auto expected = std::abs(a1(x, y));
-            const auto found = a1_fun(x, y);
+            const auto found    = a1_fun(x, y);
             TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
          }
       }
@@ -177,16 +177,16 @@ struct TestArrayOpApply
    template <class Array>
    void test_array_apply_functions_sqr_impl()
    {
-      Array a1( 2, 3 );
-      a1 = { 1, 2, 3, 4, 5, 6 };
-      const auto a1_fun = sqr( a1 );
-      for ( size_t y = 0; y < a1.shape()[ 1 ]; ++y )
+      Array a1(2, 3);
+      a1                = {1, 2, 3, 4, 5, 6};
+      const auto a1_fun = sqr(a1);
+      for (size_t y = 0; y < a1.shape()[1]; ++y)
       {
-         for ( size_t x = 0; x < a1.shape()[ 0 ]; ++x )
+         for (size_t x = 0; x < a1.shape()[0]; ++x)
          {
-            const auto expected = a1( x, y ) * a1( x, y );
-            const auto found = a1_fun( x, y );
-            TESTER_ASSERT( std::abs( expected - found ) < 1e-4f );
+            const auto expected = a1(x, y) * a1(x, y);
+            const auto found    = a1_fun(x, y);
+            TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
          }
       }
    }
@@ -194,16 +194,16 @@ struct TestArrayOpApply
    template <class Array>
    void test_array_apply_functions_log_impl()
    {
-      Array a1( 2, 3 );
-      a1 = { 1, 2, 3, 4, 5, 6 };
-      const auto a1_fun = log( a1 );
-      for ( size_t y = 0; y < a1.shape()[ 1 ]; ++y )
+      Array a1(2, 3);
+      a1                = {1, 2, 3, 4, 5, 6};
+      const auto a1_fun = log(a1);
+      for (size_t y = 0; y < a1.shape()[1]; ++y)
       {
-         for ( size_t x = 0; x < a1.shape()[ 0 ]; ++x )
+         for (size_t x = 0; x < a1.shape()[0]; ++x)
          {
-            const auto expected = std::log( a1( x, y ) );
-            const auto found = a1_fun( x, y );
-            TESTER_ASSERT( std::abs( expected - found ) < 1e-4f );
+            const auto expected = std::log(a1(x, y));
+            const auto found    = a1_fun(x, y);
+            TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
          }
       }
    }
@@ -211,16 +211,16 @@ struct TestArrayOpApply
    template <class Array>
    void test_array_apply_functions_mean_impl()
    {
-      Array a1( 2, 3 );
-      a1 = { 1, 2, 3, 4, 5, 6 };
-      const auto a1_fun = mean( a1 );
-      for ( size_t y = 0; y < a1.shape()[ 1 ]; ++y )
+      Array a1(2, 3);
+      a1                = {1, 2, 3, 4, 5, 6};
+      const auto a1_fun = mean(a1);
+      for (size_t y = 0; y < a1.shape()[1]; ++y)
       {
-         for ( size_t x = 0; x < a1.shape()[ 0 ]; ++x )
+         for (size_t x = 0; x < a1.shape()[0]; ++x)
          {
-            const auto expected = (1+2+3+4+5+6) / (typename Array::value_type)(6);
-            const auto found = a1_fun;
-            TESTER_ASSERT( std::abs( expected - found ) < 1e-4f );
+            const auto expected = (1 + 2 + 3 + 4 + 5 + 6) / (typename Array::value_type)(6);
+            const auto found    = a1_fun;
+            TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
          }
       }
    }
@@ -228,16 +228,16 @@ struct TestArrayOpApply
    template <class Array>
    void test_array_apply_functions_exp_impl()
    {
-      Array a1( 2, 3 );
-      a1 = { 1, 2, 3, 4, 5, 6 };
-      const auto a1_fun = exp( a1 );
-      for ( size_t y = 0; y < a1.shape()[ 1 ]; ++y )
+      Array a1(2, 3);
+      a1                = {1, 2, 3, 4, 5, 6};
+      const auto a1_fun = exp(a1);
+      for (size_t y = 0; y < a1.shape()[1]; ++y)
       {
-         for ( size_t x = 0; x < a1.shape()[ 0 ]; ++x )
+         for (size_t x = 0; x < a1.shape()[0]; ++x)
          {
-            const auto expected = std::exp( a1( x, y ) );
-            const auto found = a1_fun( x, y );
-            TESTER_ASSERT( std::abs( expected - found ) < 1e-4f );
+            const auto expected = std::exp(a1(x, y));
+            const auto found    = a1_fun(x, y);
+            TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
          }
       }
    }
@@ -246,7 +246,7 @@ struct TestArrayOpApply
    void test_array_apply_functions_min_impl()
    {
       Array a1(2, 3);
-      a1 = { 2, 1, 3, 4, 5, 6 };
+      a1                                      = {2, 1, 3, 4, 5, 6};
       const typename Array::value_type a1_fun = min(a1);
       TESTER_ASSERT(a1_fun == 1);
    }
@@ -255,7 +255,7 @@ struct TestArrayOpApply
    void test_array_apply_functions_max_impl()
    {
       Array a1(2, 3);
-      a1 = { 2, 1, 3, 4, 5, 6 };
+      a1                                      = {2, 1, 3, 4, 5, 6};
       const typename Array::value_type a1_fun = max(a1);
       TESTER_ASSERT(a1_fun == 6);
    }
@@ -265,15 +265,13 @@ struct TestArrayOpApply
       test_array_argmax_impl<Array<float, 2>>();
    }
 
-
    template <class T, size_t N, class Config>
    size_t argmax(const Array<T, N, Config>& array)
    {
-      size_t index = 0;
-      T max_value = std::numeric_limits<T>::lowest();
+      size_t index     = 0;
+      T max_value      = std::numeric_limits<T>::lowest();
       size_t max_index = 0;
-      auto f = [&](T value)
-      {
+      auto f           = [&](T value) {
          if (value > max_value)
          {
             max_value = value;
@@ -290,7 +288,7 @@ struct TestArrayOpApply
    void test_array_argmax_impl()
    {
       Array array(3, 2);
-      array = { 4, 2, 1, 5, 6, 3 };
+      array = {4, 2, 1, 5, 6, 3};
 
       auto index = argmax(array);
       TESTER_ASSERT(index == 4);

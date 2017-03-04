@@ -26,7 +26,9 @@ struct is_same<T> : public std::true_type
 
 namespace details
 {
-   struct TypelistEmpty{};
+struct TypelistEmpty
+{
+};
 }
 
 template <class... args>
@@ -179,8 +181,6 @@ struct PromoteFloating<double>
    using type = double;
 };
 
-
-
 /**
 @brief check the types provided are all identical
 */
@@ -190,8 +190,8 @@ struct is_same_nocvr;
 template <class x1, class x2, class... args>
 struct is_same_nocvr<x1, x2, args...>
 {
-   static const bool value = std::is_same<typename remove_cvr<x1>::type, typename remove_cvr<x2>::type>::value &&
-      is_same_nocvr<typename remove_cvr<x2>::type, args...>::value;
+   static const bool value =
+       std::is_same<typename remove_cvr<x1>::type, typename remove_cvr<x2>::type>::value && is_same_nocvr<typename remove_cvr<x2>::type, args...>::value;
 };
 
 template <>
@@ -203,7 +203,5 @@ template <class T>
 struct is_same_nocvr<T> : public std::true_type
 {
 };
-
-
 
 DECLARE_NAMESPACE_NLL_END

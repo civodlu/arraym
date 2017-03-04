@@ -14,11 +14,11 @@ DECLARE_NAMESPACE_NLL
 template <class T, class Config, size_t N, class Config2>
 void as_array(const Array<T, 1, Config>& v, const StaticVector<ui32, N>& shape, Array<T, N, Config2>& output_empty)
 {
-   using vector_type = Array<T, 1, Config>;
-   using matrix_type = Array<T, N, Config2>;
+   using vector_type       = Array<T, 1, Config>;
+   using matrix_type       = Array<T, N, Config2>;
    using index_mapper_type = typename matrix_type::Memory::index_mapper;
-   using mapper_type = typename index_mapper_type::mapper_type;
-   using index_type = typename matrix_type::index_type;
+   using mapper_type       = typename index_mapper_type::mapper_type;
+   using index_type        = typename matrix_type::index_type;
    static_assert(IsArrayLayoutContiguous<vector_type>::value, "must be a linear array");
    static_assert(std::is_same<typename Config::allocator_type, typename Config2::allocator_type>::value, "must have the same allocator!");
 
@@ -33,7 +33,7 @@ void as_array(const Array<T, 1, Config>& v, const StaticVector<ui32, N>& shape, 
    //index_type physical_stride(v.getMemory().getIndexMapper()._getPhysicalStrides()[0], 0);
    //mapper_type().extend_stride(physical_stride, shape, 1, 0);
 
-   auto memory = typename matrix_type::Memory(shape, const_cast<T*>(&v(0)), physical_stride, v.getMemory().getAllocator());
+   auto memory  = typename matrix_type::Memory(shape, const_cast<T*>(&v(0)), physical_stride, v.getMemory().getAllocator());
    output_empty = matrix_type(std::move(memory));
 }
 
@@ -43,7 +43,7 @@ void as_array(const Array<T, 1, Config>& v, const StaticVector<ui32, N>& shape, 
 template <class T, class Config>
 Matrix_row_major<T, typename Config::allocator_type> as_matrix_row_major(const Array<T, 1, Config>& v, const typename Matrix_row_major<T>::index_type& shape)
 {
-   using Allocator = typename Config::allocator_type;
+   using Allocator   = typename Config::allocator_type;
    using matrix_type = Matrix_row_major<T, Allocator>;
 
    matrix_type result(v.getMemory().getAllocator());
@@ -55,9 +55,10 @@ Matrix_row_major<T, typename Config::allocator_type> as_matrix_row_major(const A
 @brief View the 1D vector as a matrix column major. The data is shared between the two
 */
 template <class T, class Config>
-Matrix_column_major<T, typename Config::allocator_type> as_matrix_column_major(const Array<T, 1, Config>& v, const typename Matrix_column_major<T>::index_type& shape)
+Matrix_column_major<T, typename Config::allocator_type> as_matrix_column_major(const Array<T, 1, Config>& v,
+                                                                               const typename Matrix_column_major<T>::index_type& shape)
 {
-   using Allocator = typename Config::allocator_type;
+   using Allocator   = typename Config::allocator_type;
    using matrix_type = Matrix_column_major<T, Allocator>;
 
    matrix_type result(v.getMemory().getAllocator());
@@ -75,13 +76,10 @@ Vector<T, typename Config::allocator_type> as_vector(const Array<T, N, Config>& 
    // there is no gap between dimensions. For now, don't do it as rare usecase
    ensure(is_array_fully_contiguous(a), "can't fit a strided array into a single vector with different stride or gap between dimensions");
 
-   using vector_type = Vector<T, typename Config::allocator_type>;
-   using array_index_type = typename Array<T, N, Config>::index_type;
+   using vector_type       = Vector<T, typename Config::allocator_type>;
+   using array_index_type  = typename Array<T, N, Config>::index_type;
    using vector_index_type = typename vector_type::index_type;
-   vector_type v(typename vector_type::Memory(
-      vector_index_type(a.size()),
-      const_cast<T*>(&a(array_index_type())),
-      a.getMemory().getAllocator()));
+   vector_type v(typename vector_type::Memory(vector_index_type(a.size()), const_cast<T*>(&a(array_index_type())), a.getMemory().getAllocator()));
    return v;
 }
 
@@ -89,9 +87,10 @@ Vector<T, typename Config::allocator_type> as_vector(const Array<T, N, Config>& 
 @brief View the 1D vector as a N-array. The data is shared between the two
 */
 template <class T, class Config, size_t N>
-Array<T, N, ArrayTraitsConfig<T, N, typename Config::allocator_type, Memory_contiguous_row_major<T, N, typename Config::allocator_type>>> as_array_row_major(const Array<T, 1, Config>& v, const StaticVector<ui32, N>& shape)
+Array<T, N, ArrayTraitsConfig<T, N, typename Config::allocator_type, Memory_contiguous_row_major<T, N, typename Config::allocator_type>>>
+as_array_row_major(const Array<T, 1, Config>& v, const StaticVector<ui32, N>& shape)
 {
-   using Allocator = typename Config::allocator_type;
+   using Allocator  = typename Config::allocator_type;
    using array_type = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous_row_major<T, N, Allocator>>>;
    array_type result(v.getMemory().getAllocator());
    as_array(v, shape, result);
@@ -102,9 +101,10 @@ Array<T, N, ArrayTraitsConfig<T, N, typename Config::allocator_type, Memory_cont
 @brief View the 1D vector as a N-array. The data is shared between the two
 */
 template <class T, class Config, size_t N>
-Array<T, N, ArrayTraitsConfig<T, N, typename Config::allocator_type, Memory_contiguous_column_major<T, N, typename Config::allocator_type>>> as_array_column_major(const Array<T, 1, Config>& v, const StaticVector<ui32, N>& shape)
+Array<T, N, ArrayTraitsConfig<T, N, typename Config::allocator_type, Memory_contiguous_column_major<T, N, typename Config::allocator_type>>>
+as_array_column_major(const Array<T, 1, Config>& v, const StaticVector<ui32, N>& shape)
 {
-   using Allocator = typename Config::allocator_type;
+   using Allocator  = typename Config::allocator_type;
    using array_type = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous_column_major<T, N, Allocator>>>;
    array_type result(v.getMemory().getAllocator());
    as_array(v, shape, result);
@@ -120,32 +120,32 @@ template <class T, size_t N, class Config, size_t N2>
 Array<T, N2, typename Config::template rebind_dim<N2>::other> as_array(const Array<T, N, Config>& v, const StaticVector<ui32, N2>& shape)
 {
    using array_type = Array<T, N, Config>;
-   static_assert( IsArrayLayoutLinear<array_type>::value, "the array must have a linear layout!" );
+   static_assert(IsArrayLayoutLinear<array_type>::value, "the array must have a linear layout!");
    static_assert(N2 >= N, "N2 must be higher!");
    for (size_t n = 0; n < N; ++n)
    {
       ensure(v.shape()[n] == shape[n], "can't change the shape of the original array");
    }
 
-   using other_array_type = Array<T, N2, typename Config::template rebind_dim<N2>::other>;
+   using other_array_type  = Array<T, N2, typename Config::template rebind_dim<N2>::other>;
    using other_mapper_type = typename other_array_type::Memory::index_mapper::mapper_type;
-   
+
    // extend the original stride
    typename other_array_type::index_type physical_stride;
    const auto& original_physical_stride = v.getMemory().getIndexMapper()._getPhysicalStrides();
-   for ( size_t n = 0; n < N; ++n )
+   for (size_t n = 0; n < N; ++n)
    {
-      physical_stride[ n ] = original_physical_stride[ n ];
+      physical_stride[n] = original_physical_stride[n];
    }
 
    // the last index of stride is the element with the highest value
-   auto max_index = std::max_element( original_physical_stride.begin(), original_physical_stride.end() );
+   auto max_index          = std::max_element(original_physical_stride.begin(), original_physical_stride.end());
    const auto last_element = max_index - original_physical_stride.begin();
-   other_mapper_type().extend_stride( physical_stride, shape, N, int(last_element) );
+   other_mapper_type().extend_stride(physical_stride, shape, N, int(last_element));
 
-   auto ptr = array_base_memory(v);
+   auto ptr           = array_base_memory(v);
    using pointer_type = typename other_array_type::pointer_type;
-   other_array_type array( typename other_array_type::Memory( shape, ptr, physical_stride, v.getMemory().getAllocator() ) );
+   other_array_type array(typename other_array_type::Memory(shape, ptr, physical_stride, v.getMemory().getAllocator()));
    ensure(array.size() == v.size(), "must have the same size!");
    return array;
 }

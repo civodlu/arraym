@@ -15,14 +15,14 @@ template <class T, size_t N, class IndexMapper = IndexMapper_multislice<N, N - 1
 class Memory_multislice : public memory_layout_multislice_z
 {
 public:
-   using index_type      = StaticVector<ui32, N>;
-   using allocator_type  = Allocator;
-   using allocator_trait = std::allocator_traits<allocator_type>;
-   using index_mapper    = IndexMapper;
-   using pointer_type    = T*;
+   using index_type         = StaticVector<ui32, N>;
+   using allocator_type     = Allocator;
+   using allocator_trait    = std::allocator_traits<allocator_type>;
+   using index_mapper       = IndexMapper;
+   using pointer_type       = T*;
    using const_pointer_type = const T*;
-   using value_type      = T;
-   using Memory          = Memory_multislice<T, N, IndexMapper, Allocator>;
+   using value_type         = T;
+   using Memory             = Memory_multislice<T, N, IndexMapper, Allocator>;
 
    static const size_t Z_INDEX = index_mapper::Z_INDEX; /// this is the index where the slices will be created (i.e., all others will be in contiguous memory)
    static const size_t RANK    = N;
@@ -45,7 +45,7 @@ public:
    template <size_t N2>
    struct rebind_dim
    {
-      using other = Memory_multislice<T, N2, typename IndexMapper::template rebind<N2, N2-1>::other, Allocator>;
+      using other = Memory_multislice<T, N2, typename IndexMapper::template rebind<N2, N2 - 1>::other, Allocator>;
    };
 
    using ConstMemory = typename Memory::template rebind<const T>::other;
@@ -293,7 +293,7 @@ private:
    struct SliceImpl_z
    {
       using index_mapper = IndexMapper_contiguous<N - 1, details::Mapper_stride_row_major<N - 1>>;
-      using other        = Memory_contiguous<T, N - 1, index_mapper, allocator_type>;  // no need for pointer type, only support GPU to contiguous data!
+      using other        = Memory_contiguous<T, N - 1, index_mapper, allocator_type>; // no need for pointer type, only support GPU to contiguous data!
 
       template <size_t slice_dim>
       static other slice(const Memory_multislice& array, const index_type& index)
@@ -329,7 +329,6 @@ public:
    {
       using type = typename SliceImpl<dimension>::type::other;
    };
-   
 
    /**
    @brief Slice the memory such that we keep only the slice along dimension @p dimension passing through @p point
@@ -409,8 +408,7 @@ private:
 
       const auto size_per_slice_bytes = sizeof(T) * this_inSliceSize;
       _allocateSlices(T(), this_inSliceSize);
-      if (this_inSliceSize == other_inSliceSize &&
-          same_data_ordering_memory( other, *this ) &&
+      if (this_inSliceSize == other_inSliceSize && same_data_ordering_memory(other, *this) &&
           details::IsMemoryFullyContiguous<Memory>::value(
               other, std::integral_constant<bool, true>())) // we want fully contiguous slice! Else if the stride is not (1, ..., 1) the memcpy would be invalid
       {

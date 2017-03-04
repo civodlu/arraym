@@ -27,13 +27,13 @@ void svd(const Matrix_BlasEnabled<T, 2, Config>& a, Array<T, 2, Config>& u, Vect
    vt = matrix_type({n, n});
    s  = vector_type(s_size);
 
-   const blas::BlasInt lda  = leading_dimension<T, Config>(a_cpy);
-   blas::BlasInt ldu = leading_dimension<T, Config>(u);
-   blas::BlasInt ldvt = leading_dimension<T, Config>(vt);
-   const auto success = core::blas::gesdd<T>(matrixOrder, 'A', m, n, &a_cpy(0, 0), lda, &s(0), &u(0, 0), ldu, &vt(0, 0), ldvt);
+   const blas::BlasInt lda = leading_dimension<T, Config>(a_cpy);
+   blas::BlasInt ldu       = leading_dimension<T, Config>(u);
+   blas::BlasInt ldvt      = leading_dimension<T, Config>(vt);
+   const auto success      = core::blas::gesdd<T>(matrixOrder, 'A', m, n, &a_cpy(0, 0), lda, &s(0), &u(0, 0), ldu, &vt(0, 0), ldvt);
    ensure(success == 0, "gesdd failed!");
 
-   // cusolverDnSgesvd 
+   // cusolverDnSgesvd
 }
 
 /**

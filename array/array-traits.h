@@ -30,7 +30,7 @@ struct ArrayTraitsConfig
    struct rebind_dim
    {
       using Memory = typename MemoryT::template rebind_dim<N2>::other;
-      using other = ArrayTraitsConfig<T, N2, typename Memory::allocator_type, Memory>;
+      using other  = ArrayTraitsConfig<T, N2, typename Memory::allocator_type, Memory>;
    };
 };
 
@@ -59,18 +59,22 @@ class is_matrix : public std::false_type
 };
 
 template <class T, class Allocator>
-class is_matrix<Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous<T, 2, IndexMapper_contiguous_matrix_column_major, Allocator>>>> : public std::true_type
+class is_matrix<Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous<T, 2, IndexMapper_contiguous_matrix_column_major, Allocator>>>>
+    : public std::true_type
 {
 };
 
 template <class T, class Allocator>
-class is_matrix<Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous<T, 2, IndexMapper_contiguous_matrix_row_major, Allocator>>>> : public std::true_type
+class is_matrix<Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous<T, 2, IndexMapper_contiguous_matrix_row_major, Allocator>>>>
+    : public std::true_type
 {
 };
 
 #ifdef WITH_CUDA
 template <class T, class Allocator>
-class is_matrix<Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_cuda_contiguous_column_major<T, 2, Allocator, IndexMapper_contiguous_matrix_column_major>>>> : public std::true_type
+class is_matrix<
+    Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_cuda_contiguous_column_major<T, 2, Allocator, IndexMapper_contiguous_matrix_column_major>>>>
+    : public std::true_type
 {
 };
 #endif

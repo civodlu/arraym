@@ -4,7 +4,6 @@
 
 using namespace NAMESPACE_NLL;
 
-
 struct TestArrayAxis
 {
    struct dummy_op
@@ -41,14 +40,12 @@ struct TestArrayAxis
 
          dummy_op dummy;
          auto result = constarray_axis_apply_function(Array(), 1, dummy);
-         using R2 = typename decltype(result)::value_type;
+         using R2    = typename decltype(result)::value_type;
          static_assert(std::is_same<double, R2>::value, "array type should be defined by summarizing function's return type");
       }
 
       Array a(2, 3);
-      a = { 1, 2,
-            3, 4,
-            5, 6 };
+      a = {1, 2, 3, 4, 5, 6};
 
       details::adaptor_mean f;
       auto result = constarray_axis_apply_function(a, 1, f);
@@ -82,9 +79,7 @@ struct TestArrayAxis
    void test_axis_function_impl2()
    {
       Array a(2, 3);
-      a = { 1, 2,
-         3, 4,
-         5, 6 };
+      a = {1, 2, 3, 4, 5, 6};
 
       details::adaptor_mean f;
       auto result = constarray_axis_apply_function(a, 0, f);
@@ -93,7 +88,7 @@ struct TestArrayAxis
       TESTER_ASSERT(result(0) == (a(0, 0) + a(1, 0)) / 2);
       TESTER_ASSERT(result(1) == (a(0, 1) + a(1, 1)) / 2);
       TESTER_ASSERT(result(2) == (a(0, 2) + a(1, 2)) / 2);
-      
+
       auto result2 = mean(a, 0);
       TESTER_ASSERT(result2.shape() == result.shape());
       TESTER_ASSERT(result2(0) == result(0));
@@ -124,7 +119,6 @@ struct TestArrayAxis
          TESTER_ASSERT(sum_result(2) == 5 + 6);
       }
    }
-   
 
    void test_rebind_dim()
    {

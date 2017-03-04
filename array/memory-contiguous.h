@@ -21,7 +21,7 @@ class MemoryMoveable
 {
 public:
    // general case: yes we can!
-   static bool can_move(typename Memory::value_type*, size_t) 
+   static bool can_move(typename Memory::value_type*, size_t)
    {
       return true;
    }
@@ -34,23 +34,23 @@ public:
    using Memory = Memory_contiguous<T, N, IndexMapper, Allocator, PointerType>;
 
    // Memory_contiguous is known for "stack based memory", so check the allocator
-   static bool _can_move(std::true_type UNUSED(base_not_moveable), typename Memory::value_type* ptr, size_t size) 
+   static bool _can_move(std::true_type UNUSED(base_not_moveable), typename Memory::value_type* ptr, size_t size)
    {
       return Allocator::can_move(ptr, size);
    }
 
-   static bool _can_move(std::false_type UNUSED(moveable), typename Memory::value_type*, size_t) 
+   static bool _can_move(std::false_type UNUSED(moveable), typename Memory::value_type*, size_t)
    {
       return true;
    }
+
 public:
-   static bool can_move(typename Memory::value_type* ptr, size_t size) 
+   static bool can_move(typename Memory::value_type* ptr, size_t size)
    {
       return _can_move(std::is_base_of<memory_not_moveable, typename Memory::allocator_type>(), ptr, size);
    }
 };
 }
-
 
 /**
 @brief Returns true if an array is based on a single slice of contiguous memory
@@ -150,8 +150,8 @@ template <class Allocator>
 struct allocator_traits_gpu_extended : public std::allocator_traits<Allocator>
 {
 public:
-   using value_type = typename Allocator::value_type;
-   using pointer_type = typename Allocator::pointer;
+   using value_type     = typename Allocator::value_type;
+   using pointer_type   = typename Allocator::pointer;
    using allocator_type = Allocator;
 
    static void construct_n(size_t linear_size, allocator_type alloc, pointer_type p, value_type default_value)
@@ -210,14 +210,14 @@ class Memory_contiguous : public memory_layout_contiguous
    friend class Memory_contiguous;
 
 public:
-   using index_type      = StaticVector<ui32, N>;
-   using allocator_type  = Allocator;
-   using allocator_traits= allocator_traits_gpu_extended<allocator_type>;
-   using index_mapper    = IndexMapper;
-   using pointer_type    = PointerType;
+   using index_type         = StaticVector<ui32, N>;
+   using allocator_type     = Allocator;
+   using allocator_traits   = allocator_traits_gpu_extended<allocator_type>;
+   using index_mapper       = IndexMapper;
+   using pointer_type       = PointerType;
    using const_pointer_type = typename array_add_const<pointer_type>::type;
-   using value_type      = T;
-   using Memory          = Memory_contiguous<T, N, IndexMapper, Allocator, PointerType>;
+   using value_type         = T;
+   using Memory             = Memory_contiguous<T, N, IndexMapper, Allocator, PointerType>;
 
    static const size_t RANK = N;
 
@@ -231,13 +231,8 @@ public:
       using unconst_type = typename std::remove_const<T2>::type;
 
       // do NOT use the const in the allocator: this is underfined and won't compile for GCC/Clang
-      using other = Memory_contiguous<
-         T2,
-         N2,
-         typename IndexMapper::template rebind<N2>::other,
-         typename Allocator::template rebind<unconst_type>::other,
-         typename RebindPointer<PointerType, T2>::type
-      >;
+      using other = Memory_contiguous<T2, N2, typename IndexMapper::template rebind<N2>::other, typename Allocator::template rebind<unconst_type>::other,
+                                      typename RebindPointer<PointerType, T2>::type>;
    };
 
    /**
@@ -336,7 +331,8 @@ public:
    }
 
    /// New memory block
-   Memory_contiguous(const index_type& shape, value_type default_value = value_type(), const allocator_type& allocator = allocator_type()) : _shape(shape), _allocator(allocator)
+   Memory_contiguous(const index_type& shape, value_type default_value = value_type(), const allocator_type& allocator = allocator_type())
+       : _shape(shape), _allocator(allocator)
    {
       _indexMapper.init(0, shape);
       _allocateSlices(default_value, _linearSize());
@@ -374,7 +370,6 @@ public:
    {
       using type = typename rebind_type_dim<T, N - 1>::other;
    };
-   
 
    /**
    @brief Slice the memory such that we keep only the slice along dimension @p dimension passing through @p index
@@ -387,7 +382,7 @@ public:
       // we start at the beginning of the slice
       index_type index_slice;
       index_slice[dimension] = index[dimension];
-      pointer_type ptr = pointer_type(this->at(index_slice));
+      pointer_type ptr       = pointer_type(this->at(index_slice));
 
       using Other = typename slice_type<dimension>::type;
       Other memory;
@@ -493,7 +488,7 @@ private:
 
          // handle the const pointer_type case for const arrays
          using unconst_value = typename std::remove_cv<T>::type;
-         
+
          auto ptr = typename allocator_type::pointer(_data);
          allocator_traits::destroy_n(linear_size, _allocator, ptr);
          allocator_traits::deallocate(_allocator, ptr, linear_size);
@@ -531,7 +526,7 @@ private:
       _dataAllocated = true;
 
       // now deep copy...
-      const ui32 this_linearSize = _linearSize();
+      const ui32 this_linearSize  = _linearSize();
       const ui32 other_linearSize = other._sharedView ? other._sharedView->_linearSize() : other._linearSize();
 
       using unconst_pointer = typename array_remove_const<pointer_type>::type;
@@ -539,21 +534,22 @@ private:
       _allocateSlices(value_type(), this_linearSize);
       // TODO need to improve the detection mechanism! This is currently too restrictive.W e want to allow multidimentional
       // array with same stride (i.e., no gap between dimensions)
-      if (this_linearSize == other_linearSize && is_memory_fully_contiguous(other) && same_data_ordering_memory(other, *this)) // if we have a non stride (1,...,1) stride, use iterator
+      if (this_linearSize == other_linearSize && is_memory_fully_contiguous(other) &&
+          same_data_ordering_memory(other, *this)) // if we have a non stride (1,...,1) stride, use iterator
       {
          // this means the deep copy is the FULL buffer
          static_assert(std::is_standard_layout<value_type>::value, "must have standard layout!");
          const auto src = other._data;
          const auto dst = _data;
-         NLL_FAST_ASSERT(!std::is_const<value_type>::value, "type is CONST!");  // _deepCopy can be compiled with a const array, but it should actually never run it...
+         NLL_FAST_ASSERT(!std::is_const<value_type>::value,
+                         "type is CONST!"); // _deepCopy can be compiled with a const array, but it should actually never run it...
          details::copy_naive(unconst_pointer(dst), 1, src, 1, this_linearSize);
       }
       else
       {
          // we have a subarray, potentially with stride so we need to use a processor
          using const_pointer_type = typename array_add_const<PointerType2>::type;
-         auto op_cpy = [&](pointer_type y_pointer, ui32 y_stride, const_pointer_type x_pointer, ui32 x_stride, ui32 nb_elements)
-         {
+         auto op_cpy              = [&](pointer_type y_pointer, ui32 y_stride, const_pointer_type x_pointer, ui32 x_stride, ui32 nb_elements) {
             // @TODO add the BLAS copy
             NLL_FAST_ASSERT(!std::is_const<value_type>::value, "type is CONST!");
             details::copy_naive(unconst_pointer(y_pointer), y_stride, x_pointer, x_stride, nb_elements);
@@ -562,12 +558,11 @@ private:
       }
    }
 
-
    template <class PointerType2>
    void _deepCopy(const Memory_contiguous<value_type, N, index_mapper, allocator_type, PointerType2>& other)
    {
       _deepCopy_notallocator(other);
-      _allocator     = other._allocator;
+      _allocator = other._allocator;
    }
 
 public:
@@ -615,7 +610,8 @@ public:
       {
          _moveCopy(std::forward<Memory_contiguous>(other));
       }
-      else {
+      else
+      {
          _deepCopy(other);
       }
    }
@@ -627,7 +623,8 @@ public:
       {
          _moveCopy(std::forward<Memory_contiguous>(other));
       }
-      else {
+      else
+      {
          _deepCopy(other);
       }
       return *this;
@@ -667,12 +664,12 @@ public:
 
 private:
    // arrange py decreasing size order to help with the structure packing
-   IndexMapper        _indexMapper;
-   pointer_type       _data = nullptr;       /// BEWARE *_data may not be equal to at(index_type()) as there may be an offset in the index mapper
+   IndexMapper _indexMapper;
+   pointer_type _data             = nullptr; /// BEWARE *_data may not be equal to at(index_type()) as there may be an offset in the index mapper
    Memory_contiguous* _sharedView = nullptr; /// the original array
-   index_type         _shape;
-   allocator_type     _allocator;
-   bool               _dataAllocated = true;
+   index_type _shape;
+   allocator_type _allocator;
+   bool _dataAllocated = true;
 };
 
 template <class T, size_t N, class Allocator = std::allocator<T>>

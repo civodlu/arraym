@@ -60,16 +60,16 @@ BlasInt daxpy_cblas(BlasInt N, BlasDoubleReal alpha, const BlasDoubleReal* x, Bl
 }
 
 BlasInt sgemm_cblas(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M, const BlasInt N,
-                 const BlasInt K, const BlasReal alpha, const BlasReal* A, const BlasInt lda, const BlasReal* B, const BlasInt ldb, const BlasReal beta,
-                 BlasReal* C, const BlasInt ldc)
+                    const BlasInt K, const BlasReal alpha, const BlasReal* A, const BlasInt lda, const BlasReal* B, const BlasInt ldb, const BlasReal beta,
+                    BlasReal* C, const BlasInt ldc)
 {
    cblas_sgemm(order(matrixOrder), transp(TransA), transp(TransB), M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
    return 0;
 }
 
 BlasInt dgemm_cblas(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M, const BlasInt N,
-                 const BlasInt K, const BlasDoubleReal alpha, const BlasDoubleReal* A, const BlasInt lda, const BlasDoubleReal* B, const BlasInt ldb,
-                 const BlasDoubleReal beta, BlasDoubleReal* C, const BlasInt ldc)
+                    const BlasInt K, const BlasDoubleReal alpha, const BlasDoubleReal* A, const BlasInt lda, const BlasDoubleReal* B, const BlasInt ldb,
+                    const BlasDoubleReal beta, BlasDoubleReal* C, const BlasInt ldc)
 {
    cblas_dgemm(order(matrixOrder), transp(TransA), transp(TransB), M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
    return 0;
@@ -98,29 +98,29 @@ BlasDoubleReal ddot_cblas(const BlasInt N, const BlasDoubleReal* x, const BlasIn
 }
 
 BlasInt sger_cblas(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const BlasReal alpha, const BlasReal* x, const BlasInt incX, const BlasReal* y,
-                const BlasInt incY, BlasReal* A, const BlasInt lda)
+                   const BlasInt incY, BlasReal* A, const BlasInt lda)
 {
    ::cblas_sger(order(matrixOrder), M, N, alpha, x, incX, y, incY, A, lda);
    return 0;
 }
 
 BlasInt dger_cblas(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const BlasDoubleReal alpha, const BlasDoubleReal* x, const BlasInt incX,
-                const BlasDoubleReal* y, const BlasInt incY, BlasDoubleReal* A, const BlasInt lda)
+                   const BlasDoubleReal* y, const BlasInt incY, BlasDoubleReal* A, const BlasInt lda)
 {
    ::cblas_dger(order(matrixOrder), M, N, alpha, x, incX, y, incY, A, lda);
    return 0;
 }
 
 BlasInt sgemv_cblas(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const BlasReal alpha, const BlasReal* A,
-                 const BlasInt lda, const BlasReal* x, const BlasInt incX, const BlasReal beta, BlasReal* y, const BlasInt incY)
+                    const BlasInt lda, const BlasReal* x, const BlasInt incX, const BlasReal beta, BlasReal* y, const BlasInt incY)
 {
    ::cblas_sgemv(order(matrixOrder), transp(TransA), M, N, alpha, A, lda, x, incX, beta, y, incY);
    return 0;
 }
 
 BlasInt dgemv_cblas(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const BlasDoubleReal alpha,
-                 const BlasDoubleReal* A, const BlasInt lda, const BlasDoubleReal* x, const BlasInt incX, const BlasDoubleReal beta, BlasDoubleReal* y,
-                 const BlasInt incY)
+                    const BlasDoubleReal* A, const BlasInt lda, const BlasDoubleReal* x, const BlasInt incX, const BlasDoubleReal beta, BlasDoubleReal* y,
+                    const BlasInt incY)
 {
    ::cblas_dgemv(order(matrixOrder), transp(TransA), M, N, alpha, A, lda, x, incX, beta, y, incY);
    return 0;

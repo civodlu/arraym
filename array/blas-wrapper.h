@@ -98,15 +98,15 @@ inline BlasInt axpy<BlasDoubleReal>(BlasInt N, BlasDoubleReal alpha, const BlasD
 
 template <class T>
 BlasInt gemm(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M, const BlasInt N, const BlasInt K,
-          const T alpha, const T* A, const BlasInt lda, const T* B, const BlasInt ldb, const T beta, T* C, const BlasInt ldc)
+             const T alpha, const T* A, const BlasInt lda, const T* B, const BlasInt ldb, const T beta, T* C, const BlasInt ldc)
 {
    ensure(0, "BlasInterface not implemented for this type!");
 }
 
 template <>
 inline BlasInt gemm<BlasReal>(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M, const BlasInt N,
-                           const BlasInt K, const BlasReal alpha, const BlasReal* A, const BlasInt lda, const BlasReal* B, const BlasInt ldb,
-                           const BlasReal beta, BlasReal* C, const BlasInt ldc)
+                              const BlasInt K, const BlasReal alpha, const BlasReal* A, const BlasInt lda, const BlasReal* B, const BlasInt ldb,
+                              const BlasReal beta, BlasReal* C, const BlasInt ldc)
 {
 #ifdef INSTRUMENT_BLAS_CALLS
    INSTRUMENT_BLAS("gemm<BlasReal>");
@@ -116,8 +116,8 @@ inline BlasInt gemm<BlasReal>(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOS
 
 template <>
 inline BlasInt gemm<BlasDoubleReal>(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_TRANSPOSE TransB, const BlasInt M,
-                                 const BlasInt N, const BlasInt K, const BlasDoubleReal alpha, const BlasDoubleReal* A, const BlasInt lda,
-                                 const BlasDoubleReal* B, const BlasInt ldb, const BlasDoubleReal beta, BlasDoubleReal* C, const BlasInt ldc)
+                                    const BlasInt N, const BlasInt K, const BlasDoubleReal alpha, const BlasDoubleReal* A, const BlasInt lda,
+                                    const BlasDoubleReal* B, const BlasInt ldb, const BlasDoubleReal beta, BlasDoubleReal* C, const BlasInt ldc)
 {
 #ifdef INSTRUMENT_BLAS_CALLS
    INSTRUMENT_BLAS("gemm<BlasDoubleReal>");
@@ -175,14 +175,14 @@ inline BlasDoubleReal dot<BlasDoubleReal>(const BlasInt N, const BlasDoubleReal*
 
 template <class T>
 BlasInt ger(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const T alpha, const T* x, const BlasInt incX, const T* y, const BlasInt incY, T* A,
-         const BlasInt lda)
+            const BlasInt lda)
 {
    ensure(0, "BlasInterface not implemented for this type!");
 }
 
 template <>
 inline BlasInt ger<BlasReal>(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const BlasReal alpha, const BlasReal* x, const BlasInt incX,
-                          const BlasReal* y, const BlasInt incY, BlasReal* A, const BlasInt lda)
+                             const BlasReal* y, const BlasInt incY, BlasReal* A, const BlasInt lda)
 {
 #ifdef INSTRUMENT_BLAS_CALLS
    INSTRUMENT_BLAS("ger<BlasReal>");
@@ -192,7 +192,7 @@ inline BlasInt ger<BlasReal>(CBLAS_ORDER matrixOrder, const BlasInt M, const Bla
 
 template <>
 inline BlasInt ger<BlasDoubleReal>(CBLAS_ORDER matrixOrder, const BlasInt M, const BlasInt N, const BlasDoubleReal alpha, const BlasDoubleReal* x,
-                                const BlasInt incX, const BlasDoubleReal* y, const BlasInt incY, BlasDoubleReal* A, const BlasInt lda)
+                                   const BlasInt incX, const BlasDoubleReal* y, const BlasInt incY, BlasDoubleReal* A, const BlasInt lda)
 {
 #ifdef INSTRUMENT_BLAS_CALLS
    INSTRUMENT_BLAS("ger<BlasDoubleReal>");
@@ -202,14 +202,14 @@ inline BlasInt ger<BlasDoubleReal>(CBLAS_ORDER matrixOrder, const BlasInt M, con
 
 template <class T>
 BlasInt gemv(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const T alpha, const T* A, const BlasInt lda,
-          const T* x, const BlasInt incX, const T beta, T* y, const BlasInt incY)
+             const T* x, const BlasInt incX, const T beta, T* y, const BlasInt incY)
 {
    ensure(0, "BlasInterface not implemented for this type!");
 }
 
 template <>
 inline BlasInt gemv<BlasReal>(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const BlasReal alpha,
-                           const BlasReal* A, const BlasInt lda, const BlasReal* x, const BlasInt incX, const BlasReal beta, BlasReal* y, const BlasInt incY)
+                              const BlasReal* A, const BlasInt lda, const BlasReal* x, const BlasInt incX, const BlasReal beta, BlasReal* y, const BlasInt incY)
 
 {
 #ifdef INSTRUMENT_BLAS_CALLS
@@ -220,8 +220,8 @@ inline BlasInt gemv<BlasReal>(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOS
 
 template <>
 inline BlasInt gemv<BlasDoubleReal>(CBLAS_ORDER matrixOrder, const enum CBLAS_TRANSPOSE TransA, const BlasInt M, const BlasInt N, const BlasDoubleReal alpha,
-                                 const BlasDoubleReal* A, const BlasInt lda, const BlasDoubleReal* x, const BlasInt incX, const BlasDoubleReal beta,
-                                 BlasDoubleReal* y, const BlasInt incY)
+                                    const BlasDoubleReal* A, const BlasInt lda, const BlasDoubleReal* x, const BlasInt incX, const BlasDoubleReal beta,
+                                    BlasDoubleReal* y, const BlasInt incY)
 {
 #ifdef INSTRUMENT_BLAS_CALLS
    INSTRUMENT_BLAS("gemv<BlasDoubleReal>");
@@ -288,7 +288,7 @@ BlasInt gesdd(CBLAS_ORDER matrixOrder, char jobz, BlasInt m, BlasInt n, T* a, Bl
 
 template <>
 inline BlasInt gesdd<BlasReal>(CBLAS_ORDER matrixOrder, char jobz, BlasInt m, BlasInt n, BlasReal* a, BlasInt lda, BlasReal* s, BlasReal* u, BlasInt ldu,
-                           BlasReal* vt, BlasInt ldvt)
+                               BlasReal* vt, BlasInt ldvt)
 {
 #ifdef INSTRUMENT_BLAS_CALLS
    INSTRUMENT_BLAS("gesdd<BlasReal>");
@@ -297,8 +297,8 @@ inline BlasInt gesdd<BlasReal>(CBLAS_ORDER matrixOrder, char jobz, BlasInt m, Bl
 }
 
 template <>
-inline BlasInt gesdd<BlasDoubleReal>(CBLAS_ORDER matrixOrder, char jobz, BlasInt m, BlasInt n, BlasDoubleReal* a, BlasInt lda, BlasDoubleReal* s, BlasDoubleReal* u,
-                                 BlasInt ldu, BlasDoubleReal* vt, BlasInt ldvt)
+inline BlasInt gesdd<BlasDoubleReal>(CBLAS_ORDER matrixOrder, char jobz, BlasInt m, BlasInt n, BlasDoubleReal* a, BlasInt lda, BlasDoubleReal* s,
+                                     BlasDoubleReal* u, BlasInt ldu, BlasDoubleReal* vt, BlasInt ldvt)
 {
 #ifdef INSTRUMENT_BLAS_CALLS
    INSTRUMENT_BLAS("gesdd<BlasDoubleReal>");
@@ -322,7 +322,8 @@ inline BlasInt laswp<BlasReal>(CBLAS_ORDER matrixOrder, BlasInt n, BlasReal* a, 
 }
 
 template <>
-inline BlasInt laswp<BlasDoubleReal>(CBLAS_ORDER matrixOrder, BlasInt n, BlasDoubleReal* a, BlasInt lda, BlasInt k1, BlasInt k2, const BlasInt* ipiv, BlasInt incx)
+inline BlasInt laswp<BlasDoubleReal>(CBLAS_ORDER matrixOrder, BlasInt n, BlasDoubleReal* a, BlasInt lda, BlasInt k1, BlasInt k2, const BlasInt* ipiv,
+                                     BlasInt incx)
 {
 #ifdef INSTRUMENT_BLAS_CALLS
    INSTRUMENT_BLAS("laswp<BlasDoubleReal>");
@@ -338,14 +339,14 @@ BlasInt getrs(CBLAS_ORDER matrix_order, char trans, BlasInt n, BlasInt nrhs, con
 
 template <>
 inline BlasInt getrs<BlasReal>(CBLAS_ORDER matrix_order, char trans, BlasInt n, BlasInt nrhs, const BlasReal* a, BlasInt lda, const BlasInt* ipiv, BlasReal* b,
-                           BlasInt ldb)
+                               BlasInt ldb)
 {
    return BlasDispatcher::instance().call<details::BlasFunction::sgetrs>(matrix_order, trans, n, nrhs, a, lda, ipiv, b, ldb);
 }
 
 template <>
 inline BlasInt getrs<BlasDoubleReal>(CBLAS_ORDER matrix_order, char trans, BlasInt n, BlasInt nrhs, const BlasDoubleReal* a, BlasInt lda, const BlasInt* ipiv,
-                                 BlasDoubleReal* b, BlasInt ldb)
+                                     BlasDoubleReal* b, BlasInt ldb)
 {
    return BlasDispatcher::instance().call<details::BlasFunction::dgetrs>(matrix_order, trans, n, nrhs, a, lda, ipiv, b, ldb);
 }
@@ -363,8 +364,8 @@ inline BlasInt gels<BlasReal>(CBLAS_ORDER matrix_layout, char trans, BlasInt m, 
 }
 
 template <>
-inline BlasInt gels<BlasDoubleReal>(CBLAS_ORDER matrix_layout, char trans, BlasInt m, BlasInt n, BlasInt nrhs, BlasDoubleReal* a, BlasInt lda, BlasDoubleReal* b,
-                                BlasInt ldb)
+inline BlasInt gels<BlasDoubleReal>(CBLAS_ORDER matrix_layout, char trans, BlasInt m, BlasInt n, BlasInt nrhs, BlasDoubleReal* a, BlasInt lda,
+                                    BlasDoubleReal* b, BlasInt ldb)
 {
    return BlasDispatcher::instance().call<details::BlasFunction::dgels>(matrix_layout, trans, m, n, nrhs, a, lda, b, ldb);
 }

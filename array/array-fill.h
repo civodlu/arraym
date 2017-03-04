@@ -19,15 +19,15 @@ void fill_index(Array<T, N, Config>& array, Functor functor)
       return;
    }
 
-   using array_type = Array<T, N, Config>;
+   using array_type     = Array<T, N, Config>;
    bool hasMoreElements = true;
-   using pointer_type = typename array_type::pointer_type;
+   using pointer_type   = typename array_type::pointer_type;
 
    ArrayProcessor_contiguous_byMemoryLocality<array_type> iterator(array, 1);
    while (hasMoreElements)
    {
       pointer_type ptr(nullptr);
-      hasMoreElements = iterator.accessSingleElement(ptr);
+      hasMoreElements         = iterator.accessSingleElement(ptr);
       const auto currentIndex = iterator.getArrayIndex();
 
       const auto value = functor(currentIndex);
@@ -37,20 +37,20 @@ void fill_index(Array<T, N, Config>& array, Functor functor)
 
 namespace details
 {
-   /**
+/**
     @brief For each element of a strided array, apply a functor and copy the result to output
     */
-   template <class T1, class T2, class F>
-   void apply_fun_array_strided(T1* output, ui32 output_stride, const T2* input, ui32 input_stride, ui32 nb_elements, F f)
-   {
-      static_assert(is_callable_with<F, T2>::value, "Op is not callable with the correct arguments!");
+template <class T1, class T2, class F>
+void apply_fun_array_strided(T1* output, ui32 output_stride, const T2* input, ui32 input_stride, ui32 nb_elements, F f)
+{
+   static_assert(is_callable_with<F, T2>::value, "Op is not callable with the correct arguments!");
 
-      const T2* input_end = input + input_stride * nb_elements;
-      for (; input != input_end; input += input_stride, output += output_stride)
-      {
-         *output = f(*input);
-      }
-   };
+   const T2* input_end = input + input_stride * nb_elements;
+   for (; input != input_end; input += input_stride, output += output_stride)
+   {
+      *output = f(*input);
+   }
+};
 }
 
 /**
@@ -60,9 +60,9 @@ namespace details
 template <class T, size_t N, class Config, class Functor>
 void fill_value(Array<T, N, Config>& array, Functor functor)
 {
-   using array_type = Array<T, N, Config>;
-   using functor_return = typename function_traits<Functor>::return_type;
-   using pointer_type = typename array_type::pointer_type;
+   using array_type         = Array<T, N, Config>;
+   using functor_return     = typename function_traits<Functor>::return_type;
+   using pointer_type       = typename array_type::pointer_type;
    using const_pointer_type = typename array_type::const_pointer_type;
    static_assert(std::is_same<functor_return, T>::value, "functor return type must be the same as array type");
 
@@ -73,8 +73,7 @@ void fill_value(Array<T, N, Config>& array, Functor functor)
 
    // each iteration, access max elements. This way we remove most of the overhead. Then
    // for each value, apply the functor
-   auto f = [&](pointer_type a1_pointer, ui32 a1_stride, ui32 nb_elements)
-   {
+   auto f = [&](pointer_type a1_pointer, ui32 a1_stride, ui32 nb_elements) {
       details::apply_fun_array_strided(a1_pointer, a1_stride, a1_pointer, a1_stride, nb_elements, functor);
    };
 

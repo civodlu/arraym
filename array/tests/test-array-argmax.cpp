@@ -3,7 +3,6 @@
 
 using namespace NAMESPACE_NLL;
 
-
 struct TestArrayArg
 {
    void test_simple_argmax()
@@ -11,7 +10,7 @@ struct TestArrayArg
       using array_type = Array<float, 2>;
 
       array_type array(3, 2);
-      array = { 1, 2, 3, 6, 5, 4 };
+      array            = {1, 2, 3, 6, 5, 4};
       const auto index = argmax(array);
 
       TESTER_ASSERT(array(index) == 6);
@@ -37,7 +36,7 @@ struct TestArrayArg
       using array_type = Array<float, 2>;
 
       array_type array(3, 2);
-      array = { 2, 6, 3, 5, 1, 4 };
+      array            = {2, 6, 3, 5, 1, 4};
       const auto index = argmin(array);
       TESTER_ASSERT(array(index) == 1);
 
@@ -68,8 +67,7 @@ struct TestArrayArg
    void test_simple_argmin_axis_impl()
    {
       array_type array(3, 2);
-      array = { 2, 6, 3,
-                5, -1, 4 };
+      array                = {2, 6, 3, 5, -1, 4};
       const auto array_min = argmin(array, 1);
 
       TESTER_ASSERT(array_min.shape() == vector1ui(3));
@@ -77,7 +75,7 @@ struct TestArrayArg
       TESTER_ASSERT(array(array_min(1)) == -1);
       TESTER_ASSERT(array(array_min(2)) == 3);
 
-      auto sub = array(rangeAll, R(1, 1));
+      auto sub    = array(rangeAll, R(1, 1));
       auto result = argmin(sub, 0) + vector2ui(0, 1);
       TESTER_ASSERT(array(result(0)) == -1);
    }
@@ -93,8 +91,7 @@ struct TestArrayArg
    void test_simple_argmax_axis_impl()
    {
       array_type array(3, 2);
-      array = { 2, 6, 3,
-         5, -1, 4 };
+      array                = {2, 6, 3, 5, -1, 4};
       const auto array_max = argmax(array, 1);
 
       TESTER_ASSERT(array_max.shape() == vector1ui(3));
@@ -102,7 +99,7 @@ struct TestArrayArg
       TESTER_ASSERT(array(array_max(1)) == 6);
       TESTER_ASSERT(array(array_max(2)) == 4);
 
-      auto sub = array(rangeAll, R(1, 1));
+      auto sub    = array(rangeAll, R(1, 1));
       auto result = argmax(sub, 0) + vector2ui(0, 1);
       TESTER_ASSERT(array(result(0)) == 5);
    }

@@ -48,7 +48,7 @@ inline StaticVector<T, N> operator-(const StaticVector<T, N>& lhs)
 {
    StaticVector<T, N> res;
    for (size_t n = 0; n < N; ++n)
-      res[n]  = -lhs[n];
+      res[n]     = -lhs[n];
    return res;
 }
 

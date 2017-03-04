@@ -12,8 +12,7 @@ struct TestStack
    {
       auto f = [](typename Array::value_type) { return generateUniformDistribution<float>(-5, 5); };
 
-      auto op = [&](typename Array::pointer_type y_pointer, ui32 y_stride, ui32 nb_elements)
-      {
+      auto op = [&](typename Array::pointer_type y_pointer, ui32 y_stride, ui32 nb_elements) {
          auto y_end = y_pointer + y_stride * nb_elements;
          for (; y_pointer != y_end; y_pointer += y_stride)
          {
@@ -78,9 +77,9 @@ struct TestStack
    void test_norm2_impl()
    {
       Array a(2, 3);
-      a = { 1, 2, 3, 4, 5, 6 };
+      a                     = {1, 2, 3, 4, 5, 6};
       const double expected = std::sqrt(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4 + 5 * 5 + 6 * 6);
-      const double found = norm2(a);
+      const double found    = norm2(a);
       TESTER_ASSERT(fabs(expected - found) < 1e-4);
    }
 };

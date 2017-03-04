@@ -4,80 +4,83 @@ DECLARE_NAMESPACE_NLL
 
 namespace details
 {
-   template <class Iterator>
-   struct Enumeration
+template <class Iterator>
+struct Enumeration
+{
+   using iterator_type = Iterator;
+
+   Enumeration(ui32 index_value, iterator_type iterator_value) : index(index_value), iterator(iterator_value)
    {
-      using iterator_type = Iterator;
+   }
 
-      Enumeration(ui32 index_value, iterator_type iterator_value) : index(index_value), iterator(iterator_value)
-      {}
+   ui32 index;
+   iterator_type iterator;
 
-      ui32      index;
-      iterator_type  iterator;
-
-      typename iterator_type::reference operator*()
-      {
-         return *iterator;
-      }
-   };
-
-   template <class iterator>
-   struct EnumerateIterator
+   typename iterator_type::reference operator*()
    {
-      EnumerateIterator( iterator current ) : _enumeration( { 0, current } )
-      {}
+      return *iterator;
+   }
+};
 
-      EnumerateIterator& operator++( )
-      {
-         ++_enumeration.iterator;
-         ++_enumeration.index;
-         return *this;
-      }
-
-      bool operator==( const EnumerateIterator& it ) const
-      {
-         return it._enumeration.iterator == _enumeration.iterator;
-      }
-
-      bool operator!=( const EnumerateIterator& it ) const
-      {
-         return !operator==( it );
-      }
-
-      Enumeration<iterator>& operator*( )
-      {
-         return _enumeration;
-      }
-
-      const Enumeration<iterator>& operator*( ) const
-      {
-         return _enumeration;
-      }
-
-   private:
-      Enumeration<iterator> _enumeration;
-   };
-
-   template <class iterator>
-   struct EnumerateIteratorProxy
+template <class iterator>
+struct EnumerateIterator
+{
+   EnumerateIterator(iterator current) : _enumeration({0, current})
    {
-      EnumerateIteratorProxy( EnumerateIterator<iterator> begin, EnumerateIterator<iterator> end ) : _begin( begin ), _end( end )
-      {}
+   }
 
-      EnumerateIterator<iterator> begin()
-      {
-         return _begin;
-      }
+   EnumerateIterator& operator++()
+   {
+      ++_enumeration.iterator;
+      ++_enumeration.index;
+      return *this;
+   }
 
-      EnumerateIterator<iterator> end()
-      {
-         return _end;
-      }
+   bool operator==(const EnumerateIterator& it) const
+   {
+      return it._enumeration.iterator == _enumeration.iterator;
+   }
 
-   private:
-      EnumerateIterator<iterator> _begin;
-      EnumerateIterator<iterator> _end;
-   };
+   bool operator!=(const EnumerateIterator& it) const
+   {
+      return !operator==(it);
+   }
+
+   Enumeration<iterator>& operator*()
+   {
+      return _enumeration;
+   }
+
+   const Enumeration<iterator>& operator*() const
+   {
+      return _enumeration;
+   }
+
+private:
+   Enumeration<iterator> _enumeration;
+};
+
+template <class iterator>
+struct EnumerateIteratorProxy
+{
+   EnumerateIteratorProxy(EnumerateIterator<iterator> begin, EnumerateIterator<iterator> end) : _begin(begin), _end(end)
+   {
+   }
+
+   EnumerateIterator<iterator> begin()
+   {
+      return _begin;
+   }
+
+   EnumerateIterator<iterator> end()
+   {
+      return _end;
+   }
+
+private:
+   EnumerateIterator<iterator> _begin;
+   EnumerateIterator<iterator> _end;
+};
 }
 
 /**
@@ -91,9 +94,9 @@ namespace details
  }
  */
 template <class Sequence>
-details::EnumerateIteratorProxy<typename Sequence::iterator> enumerate( Sequence& sequence )
+details::EnumerateIteratorProxy<typename Sequence::iterator> enumerate(Sequence& sequence)
 {
-   return details::EnumerateIteratorProxy<typename Sequence::iterator>( std::begin( sequence ), std::end( sequence ) );
+   return details::EnumerateIteratorProxy<typename Sequence::iterator>(std::begin(sequence), std::end(sequence));
 }
 
 /**
@@ -107,9 +110,9 @@ assert(*e == v[e.index]);
 }
 */
 template <class Sequence>
-details::EnumerateIteratorProxy<typename Sequence::const_iterator> enumerate( const Sequence& sequence )
+details::EnumerateIteratorProxy<typename Sequence::const_iterator> enumerate(const Sequence& sequence)
 {
-   return details::EnumerateIteratorProxy<typename Sequence::const_iterator>( std::begin( sequence ), std::end( sequence ) );
+   return details::EnumerateIteratorProxy<typename Sequence::const_iterator>(std::begin(sequence), std::end(sequence));
 }
 
 DECLARE_NAMESPACE_NLL_END

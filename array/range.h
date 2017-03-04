@@ -31,44 +31,56 @@ Additional operators were also added for ease of use.
 
 namespace detail
 {
-   template <typename T>
-   struct range_iter_base : std::iterator<std::input_iterator_tag, T>
+template <typename T>
+struct range_iter_base : std::iterator<std::input_iterator_tag, T>
+{
+   DEVICE_CALLABLE
+   range_iter_base(T current) : current(current)
    {
-      DEVICE_CALLABLE
-         range_iter_base(T current) : current(current) { }
+   }
 
-      DEVICE_CALLABLE
-         T operator *() const { return current; }
+   DEVICE_CALLABLE
+   T operator*() const
+   {
+      return current;
+   }
 
-      DEVICE_CALLABLE
-         T const* operator ->() const { return &current; }
+   DEVICE_CALLABLE
+   T const* operator->() const
+   {
+      return &current;
+   }
 
-      DEVICE_CALLABLE
-         range_iter_base& operator ++() {
-         ++current;
-         return *this;
-      }
+   DEVICE_CALLABLE
+   range_iter_base& operator++()
+   {
+      ++current;
+      return *this;
+   }
 
-      DEVICE_CALLABLE
-         range_iter_base operator ++(int) {
-         auto copy = *this;
-         ++*this;
-         return copy;
-      }
+   DEVICE_CALLABLE
+   range_iter_base operator++(int)
+   {
+      auto copy = *this;
+      ++*this;
+      return copy;
+   }
 
-      DEVICE_CALLABLE
-         bool operator ==(range_iter_base const& other) const {
-         return current == other.current;
-      }
+   DEVICE_CALLABLE
+   bool operator==(range_iter_base const& other) const
+   {
+      return current == other.current;
+   }
 
-      DEVICE_CALLABLE
-         bool operator !=(range_iter_base const& other) const {
-         return !(*this == other);
-      }
+   DEVICE_CALLABLE
+   bool operator!=(range_iter_base const& other) const
+   {
+      return !(*this == other);
+   }
 
-   protected:
-      T current;
-   };
+protected:
+   T current;
+};
 
 } // namespace detail
 
@@ -78,7 +90,9 @@ struct range_proxy
    struct iter : detail::range_iter_base<T>
    {
       DEVICE_CALLABLE
-         iter(T current) : detail::range_iter_base<T>(current) { }
+      iter(T current) : detail::range_iter_base<T>(current)
+      {
+      }
    };
 
    struct step_range_proxy
@@ -86,19 +100,22 @@ struct range_proxy
       struct iter : detail::range_iter_base<T>
       {
          DEVICE_CALLABLE
-            iter(T current, T step)
-            : detail::range_iter_base<T>(current), step(step) { }
+         iter(T current, T step) : detail::range_iter_base<T>(current), step(step)
+         {
+         }
 
          using detail::range_iter_base<T>::current;
 
          DEVICE_CALLABLE
-            iter& operator ++() {
+         iter& operator++()
+         {
             current += step;
             return *this;
          }
 
          DEVICE_CALLABLE
-            iter operator ++(int) {
+         iter operator++(int)
+         {
             auto copy = *this;
             ++*this;
             return copy;
@@ -106,13 +123,14 @@ struct range_proxy
 
          // Loses commutativity. Iterator-based ranges are simply broken. :-(
          DEVICE_CALLABLE
-            bool operator ==(iter const& other) const {
-            return step > 0 ? current >= other.current
-               : current < other.current;
+         bool operator==(iter const& other) const
+         {
+            return step > 0 ? current >= other.current : current < other.current;
          }
 
          DEVICE_CALLABLE
-            bool operator !=(iter const& other) const {
+         bool operator!=(iter const& other) const
+         {
             return !(*this == other);
          }
 
@@ -120,14 +138,21 @@ struct range_proxy
       };
 
       DEVICE_CALLABLE
-         step_range_proxy(T begin, T end, T step)
-         : begin_(begin, step), end_(end, step) { }
+      step_range_proxy(T begin, T end, T step) : begin_(begin, step), end_(end, step)
+      {
+      }
 
       DEVICE_CALLABLE
-         iter begin() const { return begin_; }
+      iter begin() const
+      {
+         return begin_;
+      }
 
       DEVICE_CALLABLE
-         iter end() const { return end_; }
+      iter end() const
+      {
+         return end_;
+      }
 
    private:
       iter begin_;
@@ -135,25 +160,34 @@ struct range_proxy
    };
 
    DEVICE_CALLABLE
-      range_proxy(T begin, T end) : begin_(begin), end_(end) { }
-
-   DEVICE_CALLABLE
-      step_range_proxy step(T step) {
-      return{ *begin_, *end_, step };
+   range_proxy(T begin, T end) : begin_(begin), end_(end)
+   {
    }
 
    DEVICE_CALLABLE
-      iter begin() const { return begin_; }
+   step_range_proxy step(T step)
+   {
+      return {*begin_, *end_, step};
+   }
 
    DEVICE_CALLABLE
-      iter end() const { return end_; }
+   iter begin() const
+   {
+      return begin_;
+   }
 
-   bool operator==( range_proxy other ) const
+   DEVICE_CALLABLE
+   iter end() const
+   {
+      return end_;
+   }
+
+   bool operator==(range_proxy other) const
    {
       return begin_ == other.begin_ && end_ == other.end_;
    }
 
-   bool operator!=( range_proxy other ) const
+   bool operator!=(range_proxy other) const
    {
       return !operator==(other);
    }
@@ -165,32 +199,30 @@ private:
 
 namespace traits
 {
-   template <typename C>
-   struct has_size
-   {
-      template <typename T>
-      static auto check( T* ) ->
-         typename std::is_integral<
-         decltype( std::declval<T const>().size() )>::type;
+template <typename C>
+struct has_size
+{
+   template <typename T>
+   static auto check(T*) -> typename std::is_integral<decltype(std::declval<T const>().size())>::type;
 
-      template <typename>
-      static auto check( ... )->std::false_type;
+   template <typename>
+   static auto check(...) -> std::false_type;
 
-      using type = decltype( check<C>( 0 ) );
-      static const bool value = type::value;
-   };
+   using type              = decltype(check<C>(0));
+   static const bool value = type::value;
+};
 }
 
 template <typename T>
-DEVICE_CALLABLE
-range_proxy<T> range(T begin, T end) {
-   return{ begin, end };
+DEVICE_CALLABLE range_proxy<T> range(T begin, T end)
+{
+   return {begin, end};
 }
 
 template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
-DEVICE_CALLABLE
-range_proxy<T> range(T end) {
-   return{ 0, end };
+DEVICE_CALLABLE range_proxy<T> range(T end)
+{
+   return {0, end};
 }
 
 template <class T>
@@ -224,33 +256,34 @@ inline range_proxy<T> operator|(const range_proxy<T>& range1, const range_proxy<
 }
 
 template <typename C, typename = typename std::enable_if<traits::has_size<C>::value>::type>
-DEVICE_CALLABLE
-auto range(C const& cont) -> range_proxy<decltype(cont.size())> {
-   return{ 0, cont.size() };
+DEVICE_CALLABLE auto range(C const& cont) -> range_proxy<decltype(cont.size())>
+{
+   return {0, cont.size()};
 }
 
 template <typename T, std::size_t N>
-DEVICE_CALLABLE
-range_proxy<std::size_t> range(T(&)[N]) {
-   return{ 0, N };
+DEVICE_CALLABLE range_proxy<std::size_t> range(T (&)[N])
+{
+   return {0, N};
 }
 
 template <typename T>
-range_proxy<typename std::initializer_list<T>::size_type>
-DEVICE_CALLABLE
-range(std::initializer_list<T>&& cont) {
-   return{ 0, cont.size() };
+range_proxy<typename std::initializer_list<T>::size_type> DEVICE_CALLABLE range(std::initializer_list<T>&& cont)
+{
+   return {0, cont.size()};
 }
 
 template <class T>
 struct is_range : public std::false_type
-{};
+{
+};
 
 template <class T>
 struct is_range<range_proxy<T>> : public std::true_type
-{};
+{
+};
 
-template <typename ...Args>
+template <typename... Args>
 struct is_range_n;
 
 template <>
@@ -258,14 +291,13 @@ struct is_range_n<> : public std::true_type
 {
 };
 
-template <class Arg, typename ...Args>
+template <class Arg, typename... Args>
 struct is_range_n<Arg, Args...>
 {
    static const bool value = is_range<typename remove_cvr<Arg>::type>::value && is_range_n<Args...>::value;
 };
 
-static const range_proxy<int> rangeAll = range_proxy<int>( std::numeric_limits<int>::lowest(), std::numeric_limits<int>::max() );
-using R = range_proxy<int>; /// short name for range
-
+static const range_proxy<int> rangeAll = range_proxy<int>(std::numeric_limits<int>::lowest(), std::numeric_limits<int>::max());
+using R                                = range_proxy<int>; /// short name for range
 
 DECLARE_NAMESPACE_NLL_END

@@ -38,8 +38,8 @@ struct TestMatrixLu
 
          lu(a, l, u);
          const auto a_reconstructed = l * u;
-         const auto diff = a_reconstructed - a;
-         const auto error = norm2(diff);
+         const auto diff            = a_reconstructed - a;
+         const auto error           = norm2(diff);
          TESTER_ASSERT(error < 1e-3);
       }
    }

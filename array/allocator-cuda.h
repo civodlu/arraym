@@ -9,8 +9,8 @@ class AllocatorCuda
 {
 public:
    using value_type = T;
-   using pointer = cuda_ptr<T>;
-   
+   using pointer    = cuda_ptr<T>;
+
    template <class U>
    struct rebind
    {
@@ -66,12 +66,14 @@ private:
 
 template <class Allocator>
 struct is_allocator_gpu : public std::false_type
-{};
+{
+};
 
 #ifdef WITH_CUDA
 template <class T>
 struct is_allocator_gpu<AllocatorCuda<T>> : public std::true_type
-{};
+{
+};
 #endif
 
 template <class array_type>
@@ -116,7 +118,7 @@ template <class array_type>
 struct array_add_const
 {
    using value_type = typename value_type_inf<array_type>::type;
-   using type = const value_type*;
+   using type       = const value_type*;
 };
 
 #ifdef WITH_CUDA

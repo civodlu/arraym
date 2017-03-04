@@ -65,7 +65,6 @@ struct MatrixMemoryOrder_<Matrix_cuda_column_major<T, Allocator>>
    }
 };
 #endif
-
 }
 
 template <class Array>
@@ -81,19 +80,20 @@ This only make sense for contiguous memory array. This specifies the offset of t
 on the memory order)
 */
 template <class T, class Config>
-blas::BlasInt leading_dimension( const Matrix_Enabled<T, 2, Config>& a )
+blas::BlasInt leading_dimension(const Matrix_Enabled<T, 2, Config>& a)
 {
-   blas::BlasInt lda = 0;
-   const auto memory_order_a = getMatrixMemoryOrder( a );
-   const auto& stride_a = a.getMemory().getIndexMapper()._getPhysicalStrides();
-   if ( memory_order_a == CBLAS_ORDER::CblasColMajor )
+   blas::BlasInt lda         = 0;
+   const auto memory_order_a = getMatrixMemoryOrder(a);
+   const auto& stride_a      = a.getMemory().getIndexMapper()._getPhysicalStrides();
+   if (memory_order_a == CBLAS_ORDER::CblasColMajor)
    {
-      lda = stride_a[ 1 ];
-      ensure( stride_a[ 0 ] == 1, "can't have stride != 1  for BLAS" );
-   } else
+      lda = stride_a[1];
+      ensure(stride_a[0] == 1, "can't have stride != 1  for BLAS");
+   }
+   else
    {
-      lda = stride_a[ 0 ];
-      ensure( stride_a[ 1 ] == 1, "can't have stride != 1  for BLAS " );
+      lda = stride_a[0];
+      ensure(stride_a[1] == 1, "can't have stride != 1  for BLAS ");
    }
    return lda;
 }
@@ -112,22 +112,21 @@ void gemm(bool trans_a, bool trans_b, T alpha, const Array<T, 2, Config>& opa, c
    const auto memory_order_b = getMatrixMemoryOrder(opb);
    const auto memory_order_c = getMatrixMemoryOrder(opc);
 
-
    ensure(memory_order_a == memory_order_b, "matrix must have the same memory order");
    ensure(memory_order_a == memory_order_c, "matrix must have the same memory order");
    ensure(memory_order_a != CBLAS_ORDER::UnkwownMajor, "unkown memory order!");
    const auto order = memory_order_a == CBLAS_ORDER::CblasRowMajor ? CBLAS_ORDER::CblasRowMajor : CBLAS_ORDER::CblasColMajor;
-   
-   const blas::BlasInt lda = leading_dimension<T, Config>( opa );
-   const blas::BlasInt ldb = leading_dimension<T, Config2>( opb );
-   const blas::BlasInt ldc = leading_dimension<T, Config3>( opc );
+
+   const blas::BlasInt lda = leading_dimension<T, Config>(opa);
+   const blas::BlasInt ldb = leading_dimension<T, Config2>(opb);
+   const blas::BlasInt ldc = leading_dimension<T, Config3>(opc);
 
    const auto trans_a_blas = trans_a ? blas::CblasTrans : blas::CblasNoTrans;
    const auto trans_b_blas = trans_b ? blas::CblasTrans : blas::CblasNoTrans;
 
    const auto m = rows_nb(opa, trans_a);
-   const auto n = columns_nb( opb, trans_b );
-   const auto k = columns_nb( opa, trans_a );
+   const auto n = columns_nb(opb, trans_b);
+   const auto k = columns_nb(opa, trans_a);
 
    // op(A) is an m - by - k matrix,
    // op(B) is a k - by - n matrix,
@@ -135,18 +134,17 @@ void gemm(bool trans_a, bool trans_b, T alpha, const Array<T, 2, Config>& opa, c
    ensure(rows_nb(opb, trans_b) == k, "op(B) is a k - by - n matrix");
    ensure(opc.rows() == m, "must be a opa.rows() * opb.columns()");
    ensure(opc.columns() == n, "must be a opa.rows() * opb.columns()");
-   using pointer_type = typename Array<T, 2, Config3>::pointer_type;
+   using pointer_type       = typename Array<T, 2, Config3>::pointer_type;
    using const_pointer_type = typename Array<T, 2, Config3>::const_pointer_type;
 
-   core::blas::gemm<T>(order, trans_a_blas, trans_b_blas,
-                       m, n, k,
-                       alpha, array_base_memory(opa), lda, array_base_memory(opb), ldb, beta, array_base_memory(opc), ldc);
+   core::blas::gemm<T>(order, trans_a_blas, trans_b_blas, m, n, k, alpha, array_base_memory(opa), lda, array_base_memory(opb), ldb, beta,
+                       array_base_memory(opc), ldc);
 }
 
 template <class T, class Config, class Config2, class Config3>
-void gemm( T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& opb, T beta, Array<T, 2, Config3>& opc )
+void gemm(T alpha, const Array<T, 2, Config>& opa, const Array<T, 2, Config2>& opb, T beta, Array<T, 2, Config3>& opc)
 {
-   gemm( false, false, alpha, opa, opb, beta, opc );
+   gemm(false, false, alpha, opa, opb, beta, opc);
 }
 
 template <class T, class Config, class Config2>
@@ -159,26 +157,28 @@ Matrix_BlasEnabled<T, 2, Config> array_mul_array(const Array<T, 2, Config>& opa,
 }
 
 template <class T, class Config>
-blas::BlasInt rows_nb( const Array<T, 2, Config>& a, bool a_transposed = false )
+blas::BlasInt rows_nb(const Array<T, 2, Config>& a, bool a_transposed = false)
 {
-   if ( !a_transposed )
+   if (!a_transposed)
    {
       return static_cast<blas::BlasInt>(a.rows());
-   } else
+   }
+   else
    {
-      return static_cast<blas::BlasInt>( a.columns() );
+      return static_cast<blas::BlasInt>(a.columns());
    }
 }
 
 template <class T, class Config>
-blas::BlasInt columns_nb( const Array<T, 2, Config>& a, bool a_transposed = false )
+blas::BlasInt columns_nb(const Array<T, 2, Config>& a, bool a_transposed = false)
 {
-   if ( !a_transposed )
+   if (!a_transposed)
    {
-      return static_cast<blas::BlasInt>( a.columns() );
-   } else
+      return static_cast<blas::BlasInt>(a.columns());
+   }
+   else
    {
-      return static_cast<blas::BlasInt>( a.rows() );
+      return static_cast<blas::BlasInt>(a.rows());
    }
 }
 

@@ -19,11 +19,11 @@ class ArrayProcessor_contiguous_byDimension;
 
 namespace details
 {
-   template <class T, class T2, size_t N, class Config, class Config2, class Op>
-   void _iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op);
+template <class T, class T2, size_t N, class Config, class Config2, class Op>
+void _iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op);
 
-   template <class Array>
-   class ArrayProcessor_contiguous_base;
+template <class Array>
+class ArrayProcessor_contiguous_base;
 }
 
 /**
@@ -144,14 +144,13 @@ public:
     Each element will be static_cast to the array type
     */
    template <class T2, class Config2>
-   explicit Array( const Array<T2, N, Config2>& array ) : Array( array.shape() )
+   explicit Array(const Array<T2, N, Config2>& array) : Array(array.shape())
    {
-      auto op = [&](pointer_type a1_pointer, ui32 a1_stride, typename Array<T2, N, Config2>::const_pointer_type a2_pointer, ui32 a2_stride, ui32 nb_elements)
-      {
-         details::static_cast_naive( a1_pointer, a1_stride, a2_pointer, a2_stride, nb_elements );
+      auto op = [&](pointer_type a1_pointer, ui32 a1_stride, typename Array<T2, N, Config2>::const_pointer_type a2_pointer, ui32 a2_stride, ui32 nb_elements) {
+         details::static_cast_naive(a1_pointer, a1_stride, a2_pointer, a2_stride, nb_elements);
       };
 
-      _iterate_array_constarray( *this, array, op );
+      _iterate_array_constarray(*this, array, op);
    }
 
    /**
@@ -218,8 +217,7 @@ public:
 
       bool hasMoreElements = true;
 
-      auto getIndexes_matrix = [](const Array&)
-      {
+      auto getIndexes_matrix = [](const Array&) {
          index_type index;
          for (ui32 n = 0; n < RANK; ++n)
          {
@@ -235,7 +233,7 @@ public:
       while (hasMoreElements)
       {
          pointer_type ptr_array(nullptr);
-         hasMoreElements        = iterator.accessSingleElement(ptr_array);
+         hasMoreElements = iterator.accessSingleElement(ptr_array);
          details::copy_naive(ptr_array, 1, &(*(ptr_initializer++)), 1, 1);
       }
 
@@ -377,8 +375,8 @@ public:
     */
    ConstArray asConst() const
    {
-      auto m = this->getMemory().asConst();
-      auto array    = ConstArray(std::move(m));
+      auto m     = this->getMemory().asConst();
+      auto array = ConstArray(std::move(m));
       return array;
    }
 
@@ -392,7 +390,7 @@ public:
       // here we create a new array type which embed the const in the data type so that we really can't modify the array
       return asConst().subarray(min_index_inclusive, max_index_inclusive, stride);
    }
-   
+
    /**
    @brief reference a sub-array defined by two indexes (min inclusive, max inclusive)
 
@@ -416,17 +414,17 @@ public:
     @tparam Args a list of range[N](min_inclusive, max_inclusive), one for each dimension of the array
     */
    template <typename... Args, typename = typename std::enable_if<is_range_list<Args...>::value>::type>
-   array_type_ref operator()(Args&&...args)
+   array_type_ref operator()(Args&&... args)
    {
-      using range_type = typename std::remove_reference<typename first<Args...>::type>::type;
-      const range_type ranges[ N ] = { args... };
+      using range_type           = typename std::remove_reference<typename first<Args...>::type>::type;
+      const range_type ranges[N] = {args...};
       index_type min_index_inclusive;
       index_type max_index_inclusive;
 
       for (size_t n = 0; n < N; ++n)
       {
          auto min_value = *ranges[n].begin();
-         auto max_value = *ranges[n].end(); // inclusive 
+         auto max_value = *ranges[n].end(); // inclusive
          if (ranges[n] != rangeAll)
          {
             if (min_value < 0)
@@ -452,7 +450,7 @@ public:
    }
 
    template <typename... Args, typename = typename std::enable_if<is_range_list<Args...>::value>::type>
-   const_array_type_ref operator()(Args&&...args) const
+   const_array_type_ref operator()(Args&&... args) const
    {
       return asConst()(std::forward<Args>(args)...);
    }
@@ -531,7 +529,7 @@ public:
    typename rebind<T2>::other staticCastTo() const
    {
       using other = typename rebind<T2>::other;
-      return other( *this );
+      return other(*this);
    }
 
    template <size_t slicing_dimension>
@@ -546,8 +544,8 @@ public:
    template <size_t slicing_dimension>
    SlicingArrayRef<slicing_dimension> slice(const index_type& index) const
    {
-      auto slice = SlicingArray<slicing_dimension>( _memory.template slice<slicing_dimension>( index ) );
-      return SlicingArrayRef<slicing_dimension>( slice );
+      auto slice = SlicingArray<slicing_dimension>(_memory.template slice<slicing_dimension>(index));
+      return SlicingArrayRef<slicing_dimension>(slice);
    }
 
 private:
@@ -568,7 +566,7 @@ private:
 
 public:
    // TODO friend template class
-//protected:
+   //protected:
    Memory _memory;
 };
 
@@ -597,15 +595,16 @@ using Array_column_major = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory
 
 namespace details
 {
-   template <class T, size_t N, class Allocator>
-   using ArrayTraitsConfigCuda = ArrayTraitsConfig<T, N, Allocator, Memory_cuda_contiguous_column_major<T, N, Allocator>>;
+template <class T, size_t N, class Allocator>
+using ArrayTraitsConfigCuda = ArrayTraitsConfig<T, N, Allocator, Memory_cuda_contiguous_column_major<T, N, Allocator>>;
 }
 
 template <class T, size_t N, class Allocator = AllocatorCuda<T>>
 using Array_cuda_column_major = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_cuda_contiguous_column_major<T, N, Allocator>>>;
 
 template <class T, class Allocator = AllocatorCuda<T>>
-using Matrix_cuda_column_major = Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_cuda_contiguous_column_major<T, 2, Allocator, IndexMapper_contiguous_matrix_column_major>>>;
+using Matrix_cuda_column_major =
+    Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_cuda_contiguous_column_major<T, 2, Allocator, IndexMapper_contiguous_matrix_column_major>>>;
 
 template <class T, class Allocator = AllocatorCuda<T>>
 using Vector_cuda = Array_cuda_column_major<T, 1, Allocator>;
@@ -647,9 +646,9 @@ template <class T, size_t N, class Config>
 class ArrayRef : public Array<T, N, Config>
 {
 public:
-   using array_type = Array<T, N, Config>;
-   using index_type = typename array_type::index_type;
-   using pointer_type = typename array_type::pointer_type;
+   using array_type         = Array<T, N, Config>;
+   using index_type         = typename array_type::index_type;
+   using pointer_type       = typename array_type::pointer_type;
    using const_pointer_type = typename array_type::const_pointer_type;
 
    /**
@@ -669,8 +668,7 @@ public:
    ArrayRef& operator=(const array_type& array)
    {
       ensure(array.shape() == this->shape(), "must have the same shape!");
-      auto op = [&](pointer_type y_pointer, ui32 y_stride, const_pointer_type x_pointer, ui32 x_stride, ui32 nb_elements)
-      {
+      auto op = [&](pointer_type y_pointer, ui32 y_stride, const_pointer_type x_pointer, ui32 x_stride, ui32 nb_elements) {
          details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
       };
       iterate_array_constarray(*this, array, op);
@@ -679,10 +677,7 @@ public:
 
    ArrayRef& operator=(T value)
    {
-      auto op = [&](pointer_type y_pointer, ui32 y_stride, ui32 nb_elements)
-      {
-         details::set_naive(y_pointer, y_stride, nb_elements, value);
-      };
+      auto op = [&](pointer_type y_pointer, ui32 y_stride, ui32 nb_elements) { details::set_naive(y_pointer, y_stride, nb_elements, value); };
       iterate_array(*this, op);
       return *this;
    }
@@ -750,14 +745,13 @@ struct array_use_naive_operator : public std::true_type
 };
 #endif
 
-
 namespace details
 {
-   template <class T, size_t N, class ConfigT>
-   StaticVector<ui32, N> getFastestVaryingIndexes( const Array<T, N, ConfigT>& array );
+template <class T, size_t N, class ConfigT>
+StaticVector<ui32, N> getFastestVaryingIndexes(const Array<T, N, ConfigT>& array);
 
-   template <class Memory>
-   StaticVector<ui32, Memory::RANK> getFastestVaryingIndexesMemory( const Memory& memory );
+template <class Memory>
+StaticVector<ui32, Memory::RANK> getFastestVaryingIndexesMemory(const Memory& memory);
 }
 
 /**
@@ -775,7 +769,7 @@ bool same_data_ordering(const Array<T, N, Config>& a1, const Array<T2, N, Config
       return true;
    }
    const auto i1 = details::getFastestVaryingIndexes<T, N, Config>(a1);
-   const auto i2 = details::getFastestVaryingIndexes<T2, N, Config2>( a2 );
+   const auto i2 = details::getFastestVaryingIndexes<T2, N, Config2>(a2);
    return i1 == i2;
 }
 
@@ -819,33 +813,33 @@ bool is_array_fully_contiguous(const Array<T, N, Config>& a1)
 
 namespace details
 {
-   template <class Array>
-   struct GetBaseMemory
+template <class Array>
+struct GetBaseMemory
+{
+   using pointer_type = typename Array::pointer_type;
+
+   pointer_type operator()(const Array& UNUSED(array))
    {
-      using pointer_type = typename Array::pointer_type;
+      ensure(0, "<Array> doesn't define a base memory! Invalid call");
+   }
+};
 
-      pointer_type operator()(const Array& UNUSED(array))
-      {
-         ensure(0, "<Array> doesn't define a base memory! Invalid call");
-      }
-   };
+template <class T, size_t N, class Allocator, class Mapper, class PointerType>
+struct GetBaseMemory<Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, Mapper, Allocator, PointerType>>>>
+{
+   using array_type   = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, Mapper, Allocator, PointerType>>>;
+   using pointer_type = typename array_type::pointer_type;
+   using index_type   = typename array_type::index_type;
 
-   template <class T, size_t N, class Allocator, class Mapper, class PointerType>
-   struct GetBaseMemory<Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, Mapper, Allocator, PointerType>>>>
+   pointer_type operator()(const array_type& array)
    {
-      using array_type = Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, Mapper, Allocator, PointerType>>>;
-      using pointer_type = typename array_type::pointer_type;
-      using index_type = typename array_type::index_type;
+      return array.getMemory().at(index_type());
+   }
+};
 
-      pointer_type operator()(const array_type& array)
-      {
-         return array.getMemory().at(index_type());
-      }
-   };
-
-   //
-   // TODO extend your custom types here
-   //
+//
+// TODO extend your custom types here
+//
 }
 
 /**

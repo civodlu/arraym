@@ -19,10 +19,7 @@ Array<T, 1> linspace(T start, T stop, ui32 nb_steps)
    t_float scale = t_float(stop - start) / (nb_steps - 1);
 
    ui32 step = 0;
-   fill_value(result, [&](T)
-   {
-      return static_cast<T>((step++) * scale) + start;
-   });
+   fill_value(result, [&](T) { return static_cast<T>((step++) * scale) + start; });
    return result;
 }
 

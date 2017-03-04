@@ -31,8 +31,8 @@ public:
    {
       for (int n = index_start; n < N; ++n)
       {
-         const ui32 stride = physicalStrides[last_index] * shape[last_index];
-         last_index = n;
+         const ui32 stride  = physicalStrides[last_index] * shape[last_index];
+         last_index         = n;
          physicalStrides[n] = stride;
       }
    }
@@ -105,9 +105,9 @@ public:
    {
       for (int n = N - 1; n >= index_start; --n)
       {
-         const ui32 stride = shape[n] * physicalStrides[last_index];
+         const ui32 stride  = shape[n] * physicalStrides[last_index];
          physicalStrides[n] = stride;
-         last_index = n;
+         last_index         = n;
       }
    }
 
@@ -235,7 +235,7 @@ public:
 template <size_t N, class Mapper>
 struct IndexMapper_contiguous_matrix : public IndexMapper_contiguous<N, Mapper>
 {
-   using index_type = StaticVector<ui32, N>;
+   using index_type  = StaticVector<ui32, N>;
    using IndexMapper = IndexMapper_contiguous_matrix<N, Mapper>;
    using mapper_type = Mapper;
 

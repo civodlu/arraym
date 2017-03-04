@@ -6,20 +6,20 @@ using namespace NAMESPACE_NLL;
 
 struct TestArrayApi
 {
-   using vector_type = Array<float, 1>;
-   using array_type = Array<float, 2>;
+   using vector_type           = Array<float, 1>;
+   using array_type            = Array<float, 2>;
    using array_type_multislice = Array_row_major_multislice<float, 2>;
-   using array_type_small = MatrixSmall_column_major<float, 16>;
-   using matrix_type = Matrix<float>;
+   using array_type_small      = MatrixSmall_column_major<float, 16>;
+   using matrix_type           = Matrix<float>;
 
    void api_array_init()
    {
       array_type array(2, 3);
 
       // linearly initialize an array.
-      // The array is filled by following the dimension order (x-axis, y-axis and so on) 
+      // The array is filled by following the dimension order (x-axis, y-axis and so on)
       // whatever the memory ordering (e.g., row major or column major)
-      array = { 1, 2, 3, 4, 5, 6 };
+      array = {1, 2, 3, 4, 5, 6};
 
       TESTER_ASSERT(array(0, 0) == 1);
       TESTER_ASSERT(array(1, 0) == 2);
@@ -35,9 +35,9 @@ struct TestArrayApi
 
       // access the array by specifiying individual indexes
       array(0, 0) = 1;
-      
+
       // access the array by specifiying a tuple individual
-      array({ 1, 1 }) = 2;
+      array({1, 1}) = 2;
 
       TESTER_ASSERT(array(0, 0) == 1);
       TESTER_ASSERT(array(1, 1) == 2);
@@ -47,7 +47,7 @@ struct TestArrayApi
    {
       array_type array1(2, 3);
       array_type array2(1, 1);
-      
+
       // the array2 current memory is released and the content of array1 is copied
       array2 = array1;
 
@@ -56,11 +56,11 @@ struct TestArrayApi
 
    void api_array_ref_tuple()
    {
-      array_type array({ 10, 10 }, -1.0f);
+      array_type array({10, 10}, -1.0f);
       // create a reference of the subarray(2, 2) to (5, 5) inclusive
       // the coordinates are specified as a pair of points <min, max>
-      auto sub_array = array({ 2, 2 }, { 5, 5 });
-      sub_array = 42;  // the referenced array will be updated
+      auto sub_array = array({2, 2}, {5, 5});
+      sub_array      = 42; // the referenced array will be updated
 
       TESTER_ASSERT(array(0, 0) == -1.0f);
       TESTER_ASSERT(array(2, 2) == 42);
@@ -70,11 +70,11 @@ struct TestArrayApi
 
    void api_array_ref_range()
    {
-      array_type array({ 10, 10 }, -1.0f);
+      array_type array({10, 10}, -1.0f);
       // create a reference of the subarray(2, 2) to (5, 5) inclusive
       // the coordinates are specified as a range
       auto sub_array = array(R(2, 5), R(2, 5));
-      sub_array = 42;  // the referenced array will be updated
+      sub_array      = 42; // the referenced array will be updated
 
       TESTER_ASSERT(array(0, 0) == -1.0f);
       TESTER_ASSERT(array(2, 2) == 42);
@@ -84,13 +84,13 @@ struct TestArrayApi
 
    void api_array_ref_range_relative()
    {
-      array_type array({ 10, 10 }, -1.0f);
+      array_type array({10, 10}, -1.0f);
       // create a reference of the subarray(2, 2) to (9, 8) inclusive
       // the coordinates are specified as a range with negative indexes
       // -1 = end of the array in the current dimension
       // -2 = element before the end of the array in the current dimension
       auto sub_array = array(R(7, -1), R(2, -2));
-      sub_array = 42;  // the referenced array will be updated
+      sub_array      = 42; // the referenced array will be updated
 
       TESTER_ASSERT(array(7, 1) == -1.0f);
       TESTER_ASSERT(array(7, 2) == 42);
@@ -101,10 +101,10 @@ struct TestArrayApi
 
    void api_array_ref_range_all()
    {
-      array_type array({ 10, 10 }, -1.0f);
+      array_type array({10, 10}, -1.0f);
 
       // capture the entire array in a reference and update it
-      array(rangeAll, rangeAll) = 42;  
+      array(rangeAll, rangeAll) = 42;
 
       TESTER_ASSERT(array(0, 0) == 42);
       TESTER_ASSERT(array(9, 9) == 42);
@@ -113,7 +113,7 @@ struct TestArrayApi
    void api_small_array()
    {
       array_type_small array(4, 4);
-      array = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+      array = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
       // small array optimization with small buffer allocated on the stack
       // in this case, array_type_small has a buffer of 16 float allocated on
@@ -127,7 +127,7 @@ struct TestArrayApi
    {
       // initialize the memory on the CPU
       Array_column_major<float, 1> cpu_memory(4);
-      cpu_memory = { 1, 2, 3, 4 };
+      cpu_memory = {1, 2, 3, 4};
 
       // transfer to GPU and run calculations
       Array_cuda_column_major<float, 1> gpu_memory = cpu_memory;
@@ -146,17 +146,17 @@ struct TestArrayApi
    {
       // demonstrate basic linear algebra functions
       matrix_type array(2, 2);
-      array = { -1, 4, 5, -8 };
+      array = {-1, 4, 5, -8};
       TESTER_ASSERT(norm2(array * inv(array) - identity<float>(2)) < 1e-4f);
    }
 
    void api_stacking()
    {
       vector_type vector1(3);
-      vector1 = { 1, 2, 3 };
+      vector1 = {1, 2, 3};
 
       vector_type vector2(3);
-      vector2 = { 4, 5, 6 };
+      vector2 = {4, 5, 6};
 
       // create a higher dimensional array from a set of arrays
       auto vertical_stacking = stack(vector1, vector2);
@@ -169,11 +169,11 @@ struct TestArrayApi
    void api_slices()
    {
       array_type array(2, 3);
-      array = { 1, 2, 3, 4, 5, 6 };
-      
+      array = {1, 2, 3, 4, 5, 6};
+
       // slice an array following a given dimension (x) passing by coordinate (0, 0)
-      auto slice_x_01 = array.slice<0>({ 0, 1 });
-      slice_x_01 = 42;
+      auto slice_x_01 = array.slice<0>({0, 1});
+      slice_x_01      = 42;
 
       TESTER_ASSERT(slice_x_01.shape() == vector1ui(3));
       TESTER_ASSERT(slice_x_01(0) == 42);
@@ -184,12 +184,12 @@ struct TestArrayApi
    void api_op()
    {
       array_type array(2, 3);
-      array = { 1, 2, 3, 4, 5, 6 };
+      array = {1, 2, 3, 4, 5, 6};
 
       // example of basic functions on arrays
       const auto mean_value = mean(array);
-      const auto max_value = max(array);
-      const auto min_value = min(array);
+      const auto max_value  = max(array);
+      const auto min_value  = min(array);
       TESTER_ASSERT(mean_value == (1 + 2 + 3 + 4 + 5 + 6) / 6.0f);
       TESTER_ASSERT(max_value == 6);
       TESTER_ASSERT(min_value == 1);
@@ -198,11 +198,11 @@ struct TestArrayApi
    void api_op_axis()
    {
       array_type array(3, 2);
-      array = { 1, 2, 3, 4, 5, 6 };
+      array = {1, 2, 3, 4, 5, 6};
 
       // example of basic functions on arrays following an axis
       // e.g., axis = x, create a new array of dim N - 1, with axis x aggregated
-      // r = { 
+      // r = {
       //       f(array(rangeAll, 0)),
       //       f(array(rangeAll, 1)),
       //       ...
@@ -229,7 +229,7 @@ struct TestArrayApi
    void api_repmat()
    {
       array_type array(3, 2);
-      array = { 1, 2, 3, 4, 5, 6 };
+      array = {1, 2, 3, 4, 5, 6};
 
       // Replicate an array in multiple dimensions
       auto r = repmat(array, vector3ui(1, 1, 2));
@@ -260,11 +260,11 @@ struct TestArrayApi
       auto sub_2x2 = array(R(1, 2), R(2, 3));
 
       // initialize the sub-block in axis-order fashion
-      sub_2x2 = { -1, 4, 5, -8 };
+      sub_2x2 = {-1, 4, 5, -8};
 
       // compute its inverse
       auto sub_2x2_inv = inv(sub_2x2);
-      
+
       // verify inverse properties ||A * inv(A) - I||_2 == 0
       TESTER_ASSERT(norm2(sub_2x2 * sub_2x2_inv - identity<float>(2)) < 1e-4f);
    }
@@ -277,9 +277,7 @@ struct TestArrayApi
    void api_enumerate_rows()
    {
       array_type array(2, 3);
-      array = { 1, 2,
-                3, 4,
-                5, 6 };
+      array = {1, 2, 3, 4, 5, 6};
 
       for (auto it : enumerate(rows(array)))
       {
@@ -297,8 +295,8 @@ struct TestArrayApi
 
    void api_enumerate_vectors()
    {
-      std::vector<int> v = { 1, 2, 3, 4 };
-      size_t index = 0;
+      std::vector<int> v = {1, 2, 3, 4};
+      size_t index       = 0;
       for (auto it : enumerate(v))
       {
          *it *= 2;
@@ -316,7 +314,6 @@ struct TestArrayApi
 //
 // http://pages.cs.wisc.edu/~cs701-1/LectureNotes/trunk/cs701-lec-12-1-2015/cs701-lec-12-01-2015.pdf
 //
-
 
 TESTER_TEST_SUITE(TestArrayApi);
 TESTER_TEST(api_enumerate_vectors);

@@ -7,20 +7,20 @@ struct TestArrayRangeA
 {
    void test_range()
    {
-      static_assert( is_range<range_proxy<float>>::value, "RangeA" );
-      static_assert( !is_range<int>::value, "RangeA" );
+      static_assert(is_range<range_proxy<float>>::value, "RangeA");
+      static_assert(!is_range<int>::value, "RangeA");
 
-      static_assert( Array<float, 2>::is_range_list<range_proxy<int>, range_proxy<int>>::value, "<RangeA, RangeA>" );
-      static_assert( Array<float, 2>::is_range_list<const range_proxy<int>, range_proxy<int>>::value, "<RangeA, RangeA>" );
-      static_assert( Array<float, 2>::is_range_list<const range_proxy<int>, range_proxy<int>&>::value, "<RangeA, RangeA>" );
+      static_assert(Array<float, 2>::is_range_list<range_proxy<int>, range_proxy<int>>::value, "<RangeA, RangeA>");
+      static_assert(Array<float, 2>::is_range_list<const range_proxy<int>, range_proxy<int>>::value, "<RangeA, RangeA>");
+      static_assert(Array<float, 2>::is_range_list<const range_proxy<int>, range_proxy<int>&>::value, "<RangeA, RangeA>");
 
       // not the good number of parameters
-      static_assert( !Array<float, 2>::is_range_list<const range_proxy<int>>::value, "<RangeA>" );
-      static_assert( !Array<float, 2>::is_range_list<const range_proxy<int>, range_proxy<int>, range_proxy<int>>::value, "<RangeA, RangeA, RangeA>" );
+      static_assert(!Array<float, 2>::is_range_list<const range_proxy<int>>::value, "<RangeA>");
+      static_assert(!Array<float, 2>::is_range_list<const range_proxy<int>, range_proxy<int>, range_proxy<int>>::value, "<RangeA, RangeA, RangeA>");
 
       // not the good type
-      static_assert( !Array<float, 2>::is_range_list<const range_proxy<int>, int>::value, "<RangeA, int>" );
-      static_assert( !Array<float, 2>::is_range_list<int, const range_proxy<int>>::value, "<int, RangeA>" );
+      static_assert(!Array<float, 2>::is_range_list<const range_proxy<int>, int>::value, "<RangeA, int>");
+      static_assert(!Array<float, 2>::is_range_list<int, const range_proxy<int>>::value, "<int, RangeA>");
 
       TESTER_ASSERT(rangeAll == rangeAll);
    }
@@ -30,7 +30,7 @@ struct TestArrayRangeA
       using Array = Array<int, 2>;
 
       Array a1(2, 3);
-      a1 = { 1, 2, 3, 4, 5, 6 };
+      a1 = {1, 2, 3, 4, 5, 6};
 
       auto a2 = a1(R(0, 1), R(0, 0));
       TESTER_ASSERT(a2.shape() == vector2ui(2, 1));
@@ -48,9 +48,7 @@ struct TestArrayRangeA
       using Array = Array<int, 2>;
 
       Array a1(2, 3);
-      a1 = { 1, 2,
-             3, 4,
-             5, 6 };
+      a1 = {1, 2, 3, 4, 5, 6};
 
       {
          auto a2 = a1(R(-2, -1), R(0, 0));
@@ -72,9 +70,7 @@ struct TestArrayRangeA
       using Array = Array<int, 2>;
 
       Array a1(2, 3);
-      a1 = { 1, 2,
-         3, 4,
-         5, 6 };
+      a1 = {1, 2, 3, 4, 5, 6};
 
       {
          auto a2 = a1(rangeAll, R(0, 0));
@@ -97,14 +93,14 @@ struct TestArrayRangeA
       using Array = Array<int, 2>;
 
       Array ax(2, 3);
-      ax = { 1, 2, 3, 4, 5, 6 };
+      ax              = {1, 2, 3, 4, 5, 6};
       const Array& a1 = ax;
 
       auto a2 = a1(R(0, 1), R(0, 0));
       TESTER_ASSERT(a2.shape() == vector2ui(2, 1));
       TESTER_ASSERT(a2(0, 0) == a1(0, 0));
       TESTER_ASSERT(a2(1, 0) == a1(1, 0));
-      
+
       auto a3 = a1(R(1, 1), R(0, 1));
       TESTER_ASSERT(a3.shape() == vector2ui(1, 2));
       TESTER_ASSERT(a3(0, 0) == a1(1, 0));
@@ -116,7 +112,7 @@ struct TestArrayRangeA
       using Array = Array<int, 2>;
 
       Array ax(2, 3);
-      ax = { 1, 2, 3, 4, 5, 6 };
+      ax              = {1, 2, 3, 4, 5, 6};
       const Array& a1 = ax;
 
       auto sa1 = a1(vector2ui(0, 0), vector2ui(1, 2));
@@ -188,7 +184,7 @@ struct TestArrayRangeA
 
    void test_rangefor_indices_vector()
    {
-      std::vector<int> values = { 10, 11, 12, 13, 14, 15 };
+      std::vector<int> values = {10, 11, 12, 13, 14, 15};
 
       int expected_i = 0;
       for (auto i : range(values).step(2))
@@ -202,7 +198,7 @@ struct TestArrayRangeA
    void test_rangefor_indices_initializer()
    {
       int expected_i = 0;
-      for (auto i : range({ 10, 11, 12, 13, 14, 15 }).step(2))
+      for (auto i : range({10, 11, 12, 13, 14, 15}).step(2))
       {
          TESTER_ASSERT(expected_i == i);
          expected_i += 2;
@@ -212,7 +208,7 @@ struct TestArrayRangeA
 
    void test_rangefor_indices_staticarray()
    {
-      static const int values[] = { 10, 11, 12, 13, 14, 15 };
+      static const int values[] = {10, 11, 12, 13, 14, 15};
 
       int expected_i = 0;
       for (auto i : range(values).step(2))

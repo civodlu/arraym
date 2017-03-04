@@ -57,24 +57,16 @@ struct TestMatrixCov
    {
       // http://www.itl.nist.gov/div898/handbook/pmc/section5/pmc541.htm
       matrix_type points(5, 3);
-      points = 
-      {
-            4.0, 2.0, 0.6,
-            4.2, 2.1, 0.59,
-            3.9, 2.0, 0.58,
-            4.3, 2.1, 0.62,
-            4.1, 2.2, 0.63
-      };
+      points = {4.0, 2.0, 0.6, 4.2, 2.1, 0.59, 3.9, 2.0, 0.58, 4.3, 2.1, 0.62, 4.1, 2.2, 0.63};
 
-
-      using T = typename matrix_type::value_type;
+      using T        = typename matrix_type::value_type;
       const size_t N = 2;
-      using Config = typename matrix_type::Config;
-      
-      using T1 = typename  Array<T, N, Config>::template rebind_dim<N - 1>::other;
+      using Config   = typename matrix_type::Config;
+
+      using T1 = typename Array<T, N, Config>::template rebind_dim<N - 1>::other;
 
       const auto covariance = cov(points);
-      
+
       TESTER_ASSERT(covariance.shape() == vector2ui(3, 3));
       TESTER_ASSERT(equal<double>(covariance(0, 0), 0.025, 1e-5));
       TESTER_ASSERT(equal<double>(covariance(0, 1), 0.0075, 1e-5));
@@ -92,7 +84,7 @@ struct TestMatrixCov
    void test_vector_asMatrix_rowMajor()
    {
       Vector<int> vec(5);
-      vec = { 1, 2, 3, 4, 5 };
+      vec = {1, 2, 3, 4, 5};
 
       auto m = as_matrix_row_major(vec, vector2ui(5, 1));
       TESTER_ASSERT(&m(0, 0) == &vec(0)); // must share the same buffer!
@@ -110,7 +102,7 @@ struct TestMatrixCov
    void test_vector_asMatrix_colMajor()
    {
       Vector<int> vec(5);
-      vec = { 1, 2, 3, 4, 5 };
+      vec = {1, 2, 3, 4, 5};
 
       auto m = as_matrix_column_major(vec, vector2ui(5, 1));
       TESTER_ASSERT(&m(0, 0) == &vec(0)); // must share the same buffer!
@@ -128,7 +120,7 @@ struct TestMatrixCov
    void test_vector_asArrayRowMajor()
    {
       Vector<int> vec(6);
-      vec = { 1, 2, 3, 4, 5, 6 };
+      vec = {1, 2, 3, 4, 5, 6};
 
       auto m = as_array_row_major(vec, vector3ui(3, 2, 1));
       TESTER_ASSERT(m.shape() == vector3ui(3, 2, 1));
@@ -144,7 +136,7 @@ struct TestMatrixCov
    void test_vector_asArrayColumnMajor()
    {
       Vector<int> vec(6);
-      vec = { 1, 2, 3, 4, 5, 6 };
+      vec = {1, 2, 3, 4, 5, 6};
 
       auto m = as_array_column_major(vec, vector2ui(3, 2));
 
@@ -160,32 +152,26 @@ struct TestMatrixCov
 
    void test_vector_asArrayColumnMajor_stride()
    {
-      int values[] =
-      {
-         1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0
-      };
+      int values[] = {1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0};
 
       using vector_type = Vector<int>;
-      vector_type vec( vector_type::Memory( vector1ui( 6 ), values, vector1ui( 2 ) ) );
+      vector_type vec(vector_type::Memory(vector1ui(6), values, vector1ui(2)));
 
-      auto m = as_array_column_major( vec, vector2ui( 3, 2 ) );
+      auto m = as_array_column_major(vec, vector2ui(3, 2));
 
-      TESTER_ASSERT( m.shape() == vector2ui( 3, 2 ) );
-      TESTER_ASSERT( m( 0, 0 ) == 1 );
-      TESTER_ASSERT( m( 0, 1 ) == 2 );
-      TESTER_ASSERT( m( 1, 0 ) == 3 );
-      TESTER_ASSERT( m( 1, 1 ) == 4 );
-      TESTER_ASSERT( m( 2, 0 ) == 5 );
-      TESTER_ASSERT( m( 2, 1 ) == 6 );
-      TESTER_ASSERT( &m( 0, 0 ) == &vec( 0 ) ); // must share the same pointer
+      TESTER_ASSERT(m.shape() == vector2ui(3, 2));
+      TESTER_ASSERT(m(0, 0) == 1);
+      TESTER_ASSERT(m(0, 1) == 2);
+      TESTER_ASSERT(m(1, 0) == 3);
+      TESTER_ASSERT(m(1, 1) == 4);
+      TESTER_ASSERT(m(2, 0) == 5);
+      TESTER_ASSERT(m(2, 1) == 6);
+      TESTER_ASSERT(&m(0, 0) == &vec(0)); // must share the same pointer
    }
 
    void test_vector_asArrayRowMajor_stride()
    {
-      int values[] =
-      {
-         1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0
-      };
+      int values[] = {1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0};
 
       using vector_type = Vector<int>;
       vector_type vec(vector_type::Memory(vector1ui(6), values, vector1ui(2)));
@@ -205,7 +191,7 @@ struct TestMatrixCov
    void test_vector_asArray()
    {
       Array<int, 2> vec(3, 2);
-      vec = { 1, 2, 3, 4, 5, 6 };
+      vec = {1, 2, 3, 4, 5, 6};
 
       auto m = as_array(vec, vector3ui(3, 2, 1));
 
@@ -221,10 +207,7 @@ struct TestMatrixCov
 
    void test_vector_asMatrix_rowMajor_stride()
    {
-      int values[] = 
-      {
-         1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0
-      };
+      int values[] = {1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0};
 
       using vector_type = Vector<int>;
       vector_type vec(vector_type::Memory(vector1ui(5), values, vector1ui(2)));
@@ -240,10 +223,7 @@ struct TestMatrixCov
 
    void test_vector_asMatrix_colMajor_stride()
    {
-      int values[] =
-      {
-         1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0
-      };
+      int values[] = {1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0};
 
       using vector_type = Vector<int>;
       vector_type vec(vector_type::Memory(vector1ui(5), values, vector1ui(2)));
@@ -266,7 +246,7 @@ TESTER_TEST(test_vector_asArrayColumnMajor);
 TESTER_TEST(test_vector_asArray);
 TESTER_TEST(test_vector_asMatrix_rowMajor_stride);
 TESTER_TEST(test_vector_asMatrix_colMajor_stride);
-TESTER_TEST( test_vector_asArrayColumnMajor_stride );
+TESTER_TEST(test_vector_asArrayColumnMajor_stride);
 TESTER_TEST(test_vector_asArrayRowMajor_stride);
 //TESTER_TEST(test_random);
 TESTER_TEST(test_known);

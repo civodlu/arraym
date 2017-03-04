@@ -20,12 +20,10 @@ struct TestArrayLogicalOp
    void test_lessthan_impl()
    {
       array_type array1(3, 2);
-      array1 = { 2, 6, 3,
-                 5, -1, 4 };
+      array1 = {2, 6, 3, 5, -1, 4};
 
       array_type array2(3, 2);
-      array2 = { 1, 6, 8,
-                 50, -10, 9 };
+      array2 = {1, 6, 8, 50, -10, 9};
 
       auto r = array1 < array2;
       Array<int, 2> r2(r);
@@ -49,10 +47,9 @@ struct TestArrayLogicalOp
    void test_lessthan_value_impl()
    {
       array_type array1(3, 2);
-      array1 = { 2, 6, 3,
-         5, -1, 3 };
+      array1 = {2, 6, 3, 5, -1, 3};
 
-      auto r = array1 < 4;
+      auto r  = array1 < 4;
       auto r2 = 4 < array1;
 
       TESTER_ASSERT(r(0, 0) == 1);
@@ -74,20 +71,19 @@ struct TestArrayLogicalOp
    template <class array_type>
    void test_greaterthan_value_impl()
    {
-      array_type array1( 3, 2 );
-      array1 = { 2, 6, 3,
-         5, -1, 3 };
+      array_type array1(3, 2);
+      array1 = {2, 6, 3, 5, -1, 3};
 
-      auto r = array1 > 4;
+      auto r  = array1 > 4;
       auto r2 = 4 > array1;
 
-      TESTER_ASSERT( r( 0, 0 ) == 0 );
-      TESTER_ASSERT( r( 1, 0 ) == 1 );
-      TESTER_ASSERT( r( 2, 0 ) == 0 );
-      TESTER_ASSERT( r( 0, 1 ) == 1 );
-      TESTER_ASSERT( r( 1, 1 ) == 0 );
-      TESTER_ASSERT( r( 2, 1 ) == 0 );
-      TESTER_ASSERT( norm2( r2 - !r ) == 0 );
+      TESTER_ASSERT(r(0, 0) == 0);
+      TESTER_ASSERT(r(1, 0) == 1);
+      TESTER_ASSERT(r(2, 0) == 0);
+      TESTER_ASSERT(r(0, 1) == 1);
+      TESTER_ASSERT(r(1, 1) == 0);
+      TESTER_ASSERT(r(2, 1) == 0);
+      TESTER_ASSERT(norm2(r2 - !r) == 0);
    }
 
    void test_lessequalthan_value()
@@ -100,26 +96,25 @@ struct TestArrayLogicalOp
    template <class array_type>
    void test_lessequalthan_value_impl()
    {
-      array_type array1( 3, 2 );
-      array1 = { 2, 6, 3,
-                 5, -1, 4 };
+      array_type array1(3, 2);
+      array1 = {2, 6, 3, 5, -1, 4};
 
-      auto r = array1 <= 4;
+      auto r  = array1 <= 4;
       auto r2 = 4 <= array1;
 
-      TESTER_ASSERT( r( 0, 0 ) == 1 );
-      TESTER_ASSERT( r( 1, 0 ) == 0 );
-      TESTER_ASSERT( r( 2, 0 ) == 1 );
-      TESTER_ASSERT( r( 0, 1 ) == 0 );
-      TESTER_ASSERT( r( 1, 1 ) == 1 );
-      TESTER_ASSERT( r( 2, 1 ) == 1 );
-      
-      TESTER_ASSERT( r2( 0, 0 ) == 0 );
-      TESTER_ASSERT( r2( 1, 0 ) == 1 );
-      TESTER_ASSERT( r2( 2, 0 ) == 0 );
-      TESTER_ASSERT( r2( 0, 1 ) == 1 );
-      TESTER_ASSERT( r2( 1, 1 ) == 0 );
-      TESTER_ASSERT( r2( 2, 1 ) == 1 );
+      TESTER_ASSERT(r(0, 0) == 1);
+      TESTER_ASSERT(r(1, 0) == 0);
+      TESTER_ASSERT(r(2, 0) == 1);
+      TESTER_ASSERT(r(0, 1) == 0);
+      TESTER_ASSERT(r(1, 1) == 1);
+      TESTER_ASSERT(r(2, 1) == 1);
+
+      TESTER_ASSERT(r2(0, 0) == 0);
+      TESTER_ASSERT(r2(1, 0) == 1);
+      TESTER_ASSERT(r2(2, 0) == 0);
+      TESTER_ASSERT(r2(0, 1) == 1);
+      TESTER_ASSERT(r2(1, 1) == 0);
+      TESTER_ASSERT(r2(2, 1) == 1);
    }
 
    void test_greaterequalthan_value()
@@ -132,26 +127,25 @@ struct TestArrayLogicalOp
    template <class array_type>
    void test_greaterequalthan_value_impl()
    {
-      array_type array1( 3, 2 );
-      array1 = { 2, 6, 3,
-         5, -1, 4 };
+      array_type array1(3, 2);
+      array1 = {2, 6, 3, 5, -1, 4};
 
-      auto r = array1 >= 4;
+      auto r  = array1 >= 4;
       auto r2 = 4 >= array1;
 
-      TESTER_ASSERT( r( 0, 0 ) == 0 );
-      TESTER_ASSERT( r( 1, 0 ) == 1 );
-      TESTER_ASSERT( r( 2, 0 ) == 0 );
-      TESTER_ASSERT( r( 0, 1 ) == 1 );
-      TESTER_ASSERT( r( 1, 1 ) == 0 );
-      TESTER_ASSERT( r( 2, 1 ) == 1 );
+      TESTER_ASSERT(r(0, 0) == 0);
+      TESTER_ASSERT(r(1, 0) == 1);
+      TESTER_ASSERT(r(2, 0) == 0);
+      TESTER_ASSERT(r(0, 1) == 1);
+      TESTER_ASSERT(r(1, 1) == 0);
+      TESTER_ASSERT(r(2, 1) == 1);
 
-      TESTER_ASSERT( r2( 0, 0 ) == 1 );
-      TESTER_ASSERT( r2( 1, 0 ) == 0 );
-      TESTER_ASSERT( r2( 2, 0 ) == 1 );
-      TESTER_ASSERT( r2( 0, 1 ) == 0 );
-      TESTER_ASSERT( r2( 1, 1 ) == 1 );
-      TESTER_ASSERT( r2( 2, 1 ) == 1 );
+      TESTER_ASSERT(r2(0, 0) == 1);
+      TESTER_ASSERT(r2(1, 0) == 0);
+      TESTER_ASSERT(r2(2, 0) == 1);
+      TESTER_ASSERT(r2(0, 1) == 0);
+      TESTER_ASSERT(r2(1, 1) == 1);
+      TESTER_ASSERT(r2(2, 1) == 1);
    }
 
    void test_greaterthan()
@@ -165,12 +159,10 @@ struct TestArrayLogicalOp
    void test_greaterthan_impl()
    {
       array_type array1(3, 2);
-      array1 = { 2, 6, 3,
-         5, -1, 4 };
+      array1 = {2, 6, 3, 5, -1, 4};
 
       array_type array2(3, 2);
-      array2 = { 1, 6, 8,
-         50, -10, 9 };
+      array2 = {1, 6, 8, 50, -10, 9};
 
       auto r = array1 > array2;
       Array<int, 2> r2(r);
@@ -194,12 +186,10 @@ struct TestArrayLogicalOp
    void test_greaterequalthan_impl()
    {
       array_type array1(3, 2);
-      array1 = { 2, 6, 3,
-         5, -1, 4 };
+      array1 = {2, 6, 3, 5, -1, 4};
 
       array_type array2(3, 2);
-      array2 = { 1, 6, 8,
-         50, -10, 9 };
+      array2 = {1, 6, 8, 50, -10, 9};
 
       auto r = array1 >= array2;
       Array<int, 2> r2(r);
@@ -223,12 +213,10 @@ struct TestArrayLogicalOp
    void test_lessequalthan_impl()
    {
       array_type array1(3, 2);
-      array1 = { 2, 6, 3,
-         5, -1, 4 };
+      array1 = {2, 6, 3, 5, -1, 4};
 
       array_type array2(3, 2);
-      array2 = { 1, 6, 8,
-         50, -10, 9 };
+      array2 = {1, 6, 8, 50, -10, 9};
 
       auto r = array1 <= array2;
       Array<int, 2> r2(r);
@@ -252,12 +240,10 @@ struct TestArrayLogicalOp
    void test_and_impl()
    {
       array_type array1(3, 2);
-      array1 = { 0, 1, 1,
-                 1, 1, 0 };
+      array1 = {0, 1, 1, 1, 1, 0};
 
       array_type array2(3, 2);
-      array2 = { 1, 0, 1,
-                 0, 1, 0 };
+      array2 = {1, 0, 1, 0, 1, 0};
 
       auto r = array1 & array2;
       Array<int, 2> r2(r);
@@ -281,12 +267,10 @@ struct TestArrayLogicalOp
    void test_or_impl()
    {
       array_type array1(3, 2);
-      array1 = { 0, 1, 1,
-         1, 1, 0 };
+      array1 = {0, 1, 1, 1, 1, 0};
 
       array_type array2(3, 2);
-      array2 = { 1, 0, 1,
-         0, 1, 0 };
+      array2 = {1, 0, 1, 0, 1, 0};
 
       auto r = array1 | array2;
       Array<int, 2> r2(r);
@@ -310,11 +294,10 @@ struct TestArrayLogicalOp
    void test_not_impl()
    {
       array_type array1(3, 2);
-      array1 = { 0, 1, 1,
-                 1, 1, 0 };
+      array1 = {0, 1, 1, 1, 1, 0};
 
       auto r = !array1;
-      
+
       TESTER_ASSERT(r(0, 0) == 1);
       TESTER_ASSERT(r(1, 0) == 0);
       TESTER_ASSERT(r(2, 0) == 0);
@@ -334,15 +317,13 @@ struct TestArrayLogicalOp
    void test_equal_impl()
    {
       array_type array1(3, 2);
-      array1 = { 2, 6, 3,
-         5, -1, 4 };
+      array1 = {2, 6, 3, 5, -1, 4};
 
       array_type array2(3, 2);
-      array2 = { 1, 6, 8,
-         50, -10, 4 };
+      array2 = {1, 6, 8, 50, -10, 4};
 
       auto r = equal_elementwise(array1, array2);
-      
+
       TESTER_ASSERT(r(0, 1) == 0);
       TESTER_ASSERT(r(1, 1) == 0);
       TESTER_ASSERT(r(2, 1) == 1);
@@ -356,12 +337,10 @@ struct TestArrayLogicalOp
    void test_notequal_impl()
    {
       array_type array1(3, 2);
-      array1 = { 2, 6, 3,
-         5, -1, 4 };
+      array1 = {2, 6, 3, 5, -1, 4};
 
       array_type array2(3, 2);
-      array2 = { 1, 6, 8,
-         50, -10, 4 };
+      array2 = {1, 6, 8, 50, -10, 4};
 
       auto r = different_elementwise(array1, array2);
 
@@ -378,15 +357,11 @@ struct TestArrayLogicalOp
    {
       using array_type = Array_column_major<int, 2>;
 
-      array_type array1( 3, 2 );
-      array1 = { 2, 6, 3,
-                 5, -1, 4 };
-      auto r = count( array1, []( int v )
-      {
-         return v >= 4;
-      } );
+      array_type array1(3, 2);
+      array1 = {2, 6, 3, 5, -1, 4};
+      auto r = count(array1, [](int v) { return v >= 4; });
 
-      TESTER_ASSERT( r == 3 );
+      TESTER_ASSERT(r == 3);
    }
 
    void test_count_axis()
@@ -394,13 +369,9 @@ struct TestArrayLogicalOp
       using array_type = Array_column_major<int, 2>;
 
       array_type array1(3, 2);
-      array1 = { 2, 6, 3,
-         5, -1, 4 };
-      
-      auto r = count(array1, 0, [](int v)
-      {
-         return v >= 4;
-      });
+      array1 = {2, 6, 3, 5, -1, 4};
+
+      auto r = count(array1, 0, [](int v) { return v >= 4; });
 
       TESTER_ASSERT(r.shape() == vector1ui(2));
       TESTER_ASSERT(r(0) == 1);
@@ -411,12 +382,11 @@ struct TestArrayLogicalOp
    {
       using array_type = Array_row_major<int, 2>;
 
-      auto predicate_true = [](int value)->bool { return value > 4; };
-      auto predicate_false = [](int value)->bool { return value > 30; };
+      auto predicate_true  = [](int value) -> bool { return value > 4; };
+      auto predicate_false = [](int value) -> bool { return value > 30; };
       array_type array(3, 2);
 
-      array = { 1, 2, 3, 
-                4, 5, 6 };
+      array = {1, 2, 3, 4, 5, 6};
 
       std::vector<StaticVector<ui32, 2>> indexes;
       StaticVector<ui32, 2> index;
@@ -427,7 +397,6 @@ struct TestArrayLogicalOp
       TESTER_ASSERT(indexes[1] == vector2ui(2, 1));
       TESTER_ASSERT(!any(array, predicate_false));
 
-
       TESTER_ASSERT(any(array, predicate_true, &index));
       TESTER_ASSERT(index == vector2ui(1, 1));
    }
@@ -436,11 +405,11 @@ struct TestArrayLogicalOp
    {
       using array_type = Array_column_major<int, 2>;
 
-      auto predicate_true = [](int value)->bool { return value > 0; };
-      auto predicate_false = [](int value)->bool { return value < 6; };
+      auto predicate_true  = [](int value) -> bool { return value > 0; };
+      auto predicate_false = [](int value) -> bool { return value < 6; };
       array_type array(2, 3);
 
-      array = { 1, 2, 3, 4, 5, 6 };
+      array = {1, 2, 3, 4, 5, 6};
       TESTER_ASSERT(all(array, predicate_true));
       TESTER_ASSERT(!all(array, predicate_false));
    }
@@ -450,9 +419,7 @@ struct TestArrayLogicalOp
       using array_type = Array_column_major<int, 2>;
 
       array_type a(2, 3);
-      a = { 1, 2,
-         3, 4,
-         5, 6 };
+      a = {1, 2, 3, 4, 5, 6};
 
       auto r = where(a, [](int value) { return value >= 3; });
 

@@ -36,10 +36,7 @@ template <class T, size_t N, class Config>
 Array<T, N, Config>& array_add_cte(Array<T, N, Config>& a1, T a2)
 {
    using pointer_type = typename Array<T, N, Config>::pointer_type;
-   auto op = [&]( pointer_type ptr, ui32 stride, ui32 elements )
-   {
-      add_naive_cte<T>( ptr, stride, elements, a2 );
-   };
+   auto op            = [&](pointer_type ptr, ui32 stride, ui32 elements) { add_naive_cte<T>(ptr, stride, elements, a2); };
    iterate_array(a1, op);
    return a1;
 }
@@ -62,10 +59,7 @@ template <class T, size_t N, class Config>
 Array_NaiveEnabled<T, N, Config>& array_mul(Array<T, N, Config>& a1, T a2)
 {
    using pointer_type = typename Array<T, N, Config>::pointer_type;
-   auto op = [&]( pointer_type ptr, ui32 stride, ui32 elements )
-   {
-      mul_naive( ptr, stride, a2, elements );
-   };
+   auto op            = [&](pointer_type ptr, ui32 stride, ui32 elements) { mul_naive(ptr, stride, a2, elements); };
 
    iterate_array(a1, op);
    return a1;
@@ -79,10 +73,7 @@ template <class T, size_t N, class Config>
 Array_NaiveEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
 {
    using pointer_type = typename Array<T, N, Config>::pointer_type;
-   auto op = [&]( pointer_type ptr, ui32 stride, ui32 elements )
-   {
-      div_naive( ptr, stride, a2, elements );
-   };
+   auto op            = [&](pointer_type ptr, ui32 stride, ui32 elements) { div_naive(ptr, stride, a2, elements); };
 
    iterate_array(a1, op);
    return a1;
@@ -134,8 +125,8 @@ std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
    bool hasMoreElements = true;
    while (hasMoreElements)
    {
-      T const* ptr     = nullptr;
-      hasMoreElements  = processor.accessSingleElement(ptr);
+      T const* ptr    = nullptr;
+      hasMoreElements = processor.accessSingleElement(ptr);
       o << *ptr;
       auto index = processor.getArrayIndex();
       if (index[0] + 1 == array.shape()[0] && hasMoreElements)

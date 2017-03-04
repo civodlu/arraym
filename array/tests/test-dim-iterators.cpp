@@ -21,8 +21,7 @@ struct TestArrayDimIterator
    void test_columns_impl()
    {
       array_type a(3, 2);
-      a = { 1, 2, 3,
-            4, 5, 6 };
+      a = {1, 2, 3, 4, 5, 6};
 
       int c = 0;
       for (auto col : columns(a))
@@ -46,8 +45,7 @@ struct TestArrayDimIterator
    void test_columns_const_impl()
    {
       array_type a(3, 2);
-      a = { 1, 2, 3,
-         4, 5, 6 };
+      a = {1, 2, 3, 4, 5, 6};
 
       int c = 0;
       for (auto col : columns(a))
@@ -71,8 +69,7 @@ struct TestArrayDimIterator
    void test_rows_impl()
    {
       array_type a(3, 2);
-      a = { 1, 2, 3,
-         4, 5, 6 };
+      a = {1, 2, 3, 4, 5, 6};
 
       int r = 0;
       for (auto row : rows(a))
@@ -97,8 +94,7 @@ struct TestArrayDimIterator
    void test_rows_const_impl()
    {
       array_type a(3, 2);
-      a = { 1, 2, 3,
-         4, 5, 6 };
+      a = {1, 2, 3, 4, 5, 6};
 
       const array_type& a_const = a;
 
@@ -119,11 +115,7 @@ struct TestArrayDimIterator
       using matrix_type = Matrix<float>;
 
       matrix_type a(3, 2);
-      a = {
-         1, 2,
-         3, 4,
-         5, 6
-      };
+      a = {1, 2, 3, 4, 5, 6};
 
       int r = 0;
       for (auto row : rows(a))
@@ -140,11 +132,7 @@ struct TestArrayDimIterator
       using matrix_type = Matrix<float>;
 
       matrix_type a(3, 2);
-      a = {
-         1, 2,
-         3, 4,
-         5, 6
-      };
+      a = {1, 2, 3, 4, 5, 6};
 
       const matrix_type& a_const = a;
 
@@ -163,11 +151,7 @@ struct TestArrayDimIterator
       using matrix_type = Matrix<float>;
 
       matrix_type a(3, 2);
-      a = {
-         1, 2,
-         3, 4,
-         5, 6
-      };
+      a = {1, 2, 3, 4, 5, 6};
 
       int r = 0;
       for (auto column : columns(a))
@@ -185,11 +169,7 @@ struct TestArrayDimIterator
       using matrix_type = Matrix<float>;
 
       matrix_type a(3, 2);
-      a = {
-         1, 2,
-         3, 4,
-         5, 6
-      };
+      a = {1, 2, 3, 4, 5, 6};
 
       const matrix_type& a_const = a;
 
@@ -215,15 +195,11 @@ struct TestArrayDimIterator
    void test_slices_impl()
    {
       array_type a(2, 2, 3);
-      a = { 1, 2,
-            3, 4,
-            
-            5, 6,
-            7, 8,
-      
-            9, 10,
-            11, 12
-      };
+      a = {1, 2,  3,  4,
+
+           5, 6,  7,  8,
+
+           9, 10, 11, 12};
 
       int s = 0;
       for (auto slice : slices(a))
@@ -249,15 +225,11 @@ struct TestArrayDimIterator
    void test_slices_const_impl()
    {
       array_type a(2, 2, 3);
-      a = { 1, 2,
-         3, 4,
+      a = {1, 2,  3,  4,
 
-         5, 6,
-         7, 8,
+           5, 6,  7,  8,
 
-         9, 10,
-         11, 12
-      };
+           9, 10, 11, 12};
 
       int s = 0;
       for (auto slice : slices(a))

@@ -28,7 +28,7 @@ Array<T, N, Config> concat(const Array<T, N, Config>& array1, const Array<T, N, 
       }
    }
 
-   auto shape = array1.shape();
+   auto shape  = array1.shape();
    shape[axis] = array1.shape()[axis] + array2.shape()[axis];
    Array<T, N, Config> r(shape);
 

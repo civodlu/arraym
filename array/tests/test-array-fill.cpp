@@ -11,7 +11,7 @@ struct TestArrayFill
       using array_type = Array<float, 2>;
       array_type array(3, 2);
 
-      array = { 1, 2, 3, 4, 5, 6 };
+      array = {1, 2, 3, 4, 5, 6};
       fill_value(array, [](array_type::value_type value) { return 2 * value; });
 
       TESTER_ASSERT(array(0, 0) == 2);
@@ -28,8 +28,7 @@ struct TestArrayFill
       using array_type = Array<float, 1>;
       array_type array(8);
 
-      array = { 1, 2, 3, 4, 5, 6, 7, 8 };
-      
+      array = {1, 2, 3, 4, 5, 6, 7, 8};
 
       auto ref = array.subarray(vector1ui(0), vector1ui(7), vector1ui(2));
       fill_value(ref, [](array_type::value_type value) { return 2 * value; });

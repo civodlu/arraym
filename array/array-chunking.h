@@ -27,13 +27,13 @@ public:
     */
    ArrayChunking_contiguous_base(const index_type& shape, const index_type& indexesOrder, ui32 nbElementsToAccessPerIter) : _shape(shape)
    {
-      _indexesOrder = indexesOrder;
+      _indexesOrder    = indexesOrder;
       ui32 nb_elements = 1;
       for (ui32 n = 0; n < _indexesOrder.size(); ++n)
       {
          nb_elements *= shape[n];
          _indexesOrderInv[_indexesOrder[n]] = n;
-         _sizeOrder[n] = shape[_indexesOrder[n]];
+         _sizeOrder[n]                      = shape[_indexesOrder[n]];
       }
 
       const auto maxAccessElements = shape[_indexesOrder[0]];
@@ -55,9 +55,9 @@ public:
    bool _accessElements()
    {
       ++_currentAccess;
-      if ( _currentAccess != 1)
+      if (_currentAccess != 1)
       {
-         Increment<0, false>::run( _iterator_index, _sizeOrder, _pointer_invalid, _nbElementsToAccessPerIter );
+         Increment<0, false>::run(_iterator_index, _sizeOrder, _pointer_invalid, _nbElementsToAccessPerIter);
       }
       return _currentAccess < _maxNbAccess;
    }
@@ -108,7 +108,7 @@ protected:
    struct Increment
    {
       FORCE_INLINE static void run(StaticVector<ui32, Array::RANK>& index, const StaticVector<ui32, Array::RANK>& size, bool& recomputeIterator,
-         ui32 nbElements)
+                                   ui32 nbElements)
       {
          index[I] += nbElements;
          if (index[I] == size[I])
@@ -135,15 +135,15 @@ protected:
    };
 
 protected:
-   bool       _pointer_invalid = true;
-   ui32       _nbElementsToAccessPerIter;   // this defines how many elements will be read during a single iteration
-   ui32       _maxNbAccess;                 // after this number of @p _accessElements calls, all elements will have been accessed
-   ui32       _currentAccess = 0;           // so far the current number of @p _accessElements calls
-   index_type _iterator_index;  // the current index
-   index_type _shape;           // shape of the mapped array
-   index_type _sizeOrder;       // the size, ordered by <_indexesOrder>
-   index_type _indexesOrder;    // the order of the traversal
-   index_type _indexesOrderInv; // the order of the traversal
+   bool _pointer_invalid = true;
+   ui32 _nbElementsToAccessPerIter; // this defines how many elements will be read during a single iteration
+   ui32 _maxNbAccess;               // after this number of @p _accessElements calls, all elements will have been accessed
+   ui32 _currentAccess = 0;         // so far the current number of @p _accessElements calls
+   index_type _iterator_index;      // the current index
+   index_type _shape;               // shape of the mapped array
+   index_type _sizeOrder;           // the size, ordered by <_indexesOrder>
+   index_type _indexesOrder;        // the order of the traversal
+   index_type _indexesOrderInv;     // the order of the traversal
 };
 
 DECLARE_NAMESPACE_NLL_END

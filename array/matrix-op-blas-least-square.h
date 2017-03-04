@@ -21,7 +21,7 @@ Matrix_BlasEnabled<T, 2, Config> least_square(const Array<T, 2, Config>& a, cons
 
    const blas::BlasInt lda = leading_dimension<T, Config>(a_cpy);
    const blas::BlasInt ldb = leading_dimension<T, Config>(b_cpy);
-   
+
    const auto m    = static_cast<blas::BlasInt>(a.rows());
    const auto n    = static_cast<blas::BlasInt>(a.columns());
    const auto nrhs = static_cast<blas::BlasInt>(b.columns());
