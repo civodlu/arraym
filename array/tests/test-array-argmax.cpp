@@ -103,9 +103,18 @@ struct TestArrayArg
       auto result = argmax(sub, 0) + vector2ui(0, 1);
       TESTER_ASSERT(array(result(0)) == 5);
    }
+
+   void test_axis_return_type()
+   {
+      using array_type = Array<float, 2>;
+      using return_type = axis_apply_fun_type<array_type::value_type, array_type::RANK, array_type::Config, details::adaptor_max>;
+
+      static_assert( std::is_same<array_type::value_type, return_type::value_type>::value, "unexpected type" );
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayArg);
+TESTER_TEST( test_axis_return_type );
 TESTER_TEST(test_simple_argmax);
 TESTER_TEST(test_simple_argmin);
 TESTER_TEST(test_simple_argmax_axis);
