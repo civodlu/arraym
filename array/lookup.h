@@ -35,7 +35,7 @@ Array<T, 1, typename Config::template rebind_dim<1>::other> loopkup(const Array<
    result_type r(indexes.shape()[0]);
    for (ui32 index = 0; index < indexes.shape()[0]; ++index)
    {
-      r(index) = array(indexes(index));
+      r( vector1ui{ index } ) = array( indexes( vector1ui{ index } ) );
    }
    return r;
 }
