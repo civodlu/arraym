@@ -104,6 +104,11 @@ struct TestArrayOpApply
 #ifdef WITH_CUDA
       test_array_apply_functions_sqr_impl<Array_cuda_column_major<float, 2>>();
 #endif
+
+      // TODO Cuda implementation
+      test_array_apply_functions_round_impl<Array<float, 2>>();
+      test_array_apply_functions_round_impl<Array_row_major_multislice<float, 2>>();
+      
    }
 
    template <class Array>
@@ -186,6 +191,23 @@ struct TestArrayOpApply
          {
             const auto expected = a1(x, y) * a1(x, y);
             const auto found    = a1_fun(x, y);
+            TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
+         }
+      }
+   }
+
+   template <class Array>
+   void test_array_apply_functions_round_impl()
+   {
+      Array a1(2, 3);
+      a1 = { 1.1, 2.6, 3.9, -0.1, -0.6, -0.9 };
+      const auto a1_fun = round<int>(a1);
+      for (size_t y = 0; y < a1.shape()[1]; ++y)
+      {
+         for (size_t x = 0; x < a1.shape()[0]; ++x)
+         {
+            const auto expected = std::round(a1(x, y));
+            const auto found = a1_fun(x, y);
             TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
          }
       }

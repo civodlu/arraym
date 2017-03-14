@@ -514,4 +514,5 @@ TESTER_TEST(testArray_mul_array);
 TESTER_TEST(testArray_matrix_memoryOrder);
 TESTER_TEST(testMatrix_transpose);
 TESTER_TEST(testMatrix_vector);
+
 TESTER_TEST_SUITE_END();

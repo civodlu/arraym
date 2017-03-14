@@ -822,6 +822,41 @@ struct TestArray
       TESTER_ASSERT(casted(0, 2) == 5);
       TESTER_ASSERT(casted(1, 2) == 6);
    }
+
+   void testArray1d()
+   {
+      using Array = NAMESPACE_NLL::Array<float, 1>;
+
+      Array test(3);
+      test = { 0, 1, 2 };
+      TESTER_ASSERT(test[0] == 0);
+      TESTER_ASSERT(test[1] == 1);
+      TESTER_ASSERT(test[2] == 2);
+
+      const Array& test_const = test;
+      TESTER_ASSERT(test_const[0] == 0);
+      TESTER_ASSERT(test_const[1] == 1);
+      TESTER_ASSERT(test_const[2] == 2);
+   }
+
+   void testArray_equal()
+   {
+      using Array1 = NAMESPACE_NLL::Array<float, 2>;
+      using Array2 = NAMESPACE_NLL::Array<int, 2>;
+
+      Array1 a1(2, 3);
+      a1 = { 1, 2, 3, 4, 5, 6 };
+
+      Array2 a2(2, 3);
+      a2 = { 1, 2, 3, 4, 5, 6 };
+
+      Array2 a3(2, 3);
+      a3 = { 1, 2, 3, 4, 5, 7 };
+
+      TESTER_ASSERT(a1 == a2);
+      TESTER_ASSERT(a3 != a2);
+
+   }
 };
 
 TESTER_TEST_SUITE(TestArray);
@@ -851,4 +886,6 @@ TESTER_TEST(testArray_processor_const_column);
 TESTER_TEST(testArray_processor_const_column2);
 TESTER_TEST(testStaticCast);
 TESTER_TEST(testStaticCast_slice);
+TESTER_TEST(testArray1d);
+TESTER_TEST(testArray_equal);
 TESTER_TEST_SUITE_END();

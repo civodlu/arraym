@@ -24,6 +24,12 @@ void _iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Confi
 
 template <class Array>
 class ArrayProcessor_contiguous_base;
+
+template <class T, size_t N, class Config>
+void write(const Array<T, N, Config>& array, std::ostream& f);
+
+template <class T, size_t N, class Config>
+void read(Array<T, N, Config>& array, std::istream& f);
 }
 
 /**
@@ -261,7 +267,7 @@ public:
    */
    void write(std::ostream& f) const
    {
-      ensure(0, "@TODO implement");
+      details::write(*this, f);
    }
 
    /**
@@ -269,7 +275,7 @@ public:
     */
    void read(std::istream& f)
    {
-      ensure(0, "@TODO implement");
+      details::read(*this, f);
    }
 
    /**
@@ -548,7 +554,7 @@ public:
       return SlicingArrayRef<slicing_dimension>(slice);
    }
 
-private:
+protected:
    void _move(array_type&& src)
    {
       if (this != &src)
@@ -854,4 +860,35 @@ typename Array::pointer_type array_base_memory(const Array& array)
    return details::GetBaseMemory<Array>()(array);
 }
 
+/**
+ @brief Test if the 2 arrays contain identical values
+ */
+template <class T1, size_t N, class ConfigT1, class T2, class ConfigT2>
+bool operator==(const Array<T1, N, ConfigT1>& a1, const Array<T2, N, ConfigT2>& a2)
+{
+   // TODO performance improvement: early stopping
+   bool same = true;
+
+   auto test_op2 = [&](T1 y, T2 x)
+   {
+      if (y != x)
+      {
+         same = false;
+      }
+   };
+
+   auto test = [&](const T1* y_pointer, ui32 y_stride, const T2* x_pointer, ui32 x_stride, ui32 nb_elements)
+   {
+      details::apply_naive2_const(y_pointer, y_stride, x_pointer, x_stride, nb_elements, test_op2);
+   };
+
+   iterate_constarray_constarray(a1, a2, test);
+   return same;
+}
+
+template <class T1, size_t N, class ConfigT1, class T2, class ConfigT2>
+bool operator!=(const Array<T1, N, ConfigT1>& a1, const Array<T2, N, ConfigT2>& a2)
+{
+   return !(a1 == a2);
+}
 DECLARE_NAMESPACE_NLL_END

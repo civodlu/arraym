@@ -81,7 +81,7 @@ class is_matrix<
 
 // any other type: no particular specialization
 template <class ArrayT, class Config>
-class ArrayTraits<ArrayT, Config, typename std::enable_if<Config::RANK != 2>::type> : public ArrayTraitsDefault<ArrayT, Config>
+class ArrayTraits<ArrayT, Config, typename std::enable_if<Config::RANK != 2 && Config::RANK != 1>::type> : public ArrayTraitsDefault<ArrayT, Config>
 {
 };
 
@@ -89,6 +89,24 @@ class ArrayTraits<ArrayT, Config, typename std::enable_if<Config::RANK != 2>::ty
 template <class ArrayT, class Config>
 class ArrayTraits<ArrayT, Config, typename std::enable_if<Config::RANK == 2 && (!is_matrix<ArrayT>::value)>::type> : public ArrayTraitsDefault<ArrayT, Config>
 {
+};
+
+// 1D array
+template <class ArrayT, class Config>
+class ArrayTraits<ArrayT, Config, typename std::enable_if<Config::RANK == 1>::type> : public ArrayTraitsDefault<ArrayT, Config>
+{
+public:
+   typename Config::value_type& operator[](size_t index)
+   {
+      auto& array = static_cast<ArrayT&>(*this);
+      return array(index);
+   }
+
+   const typename Config::value_type& operator[](size_t index) const
+   {
+      auto& array = static_cast<const ArrayT&>(*this);
+      return array(index);
+   }
 };
 
 // matrix type: create additional API

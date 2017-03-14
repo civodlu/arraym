@@ -2,6 +2,28 @@
 
 DECLARE_NAMESPACE_NLL
 
+namespace details
+{
+   /**
+   @brief Helper function for decltype. Doesn't do anything, doesn't have an implementation on purpose
+   */
+   template <class T>
+   T fake();
+}
+
+/**
+@brief compute the return type of a function applied to an array
+*/
+template <class T, size_t N, class Config, class Function>
+using function_return_type = decltype((details::fake<Function>())(Array<T, N, Config>()));
+
+/**
+@brief apply a function to an array. The type of the returned array depends on the function's return type
+ */
+template <class T, size_t N, class Config, class Function>
+using array_apply_fun_type =
+typename Array<T, N, Config>::template rebind<function_return_type<T, N, Config, Function>>::other;
+
 /**
  @brief return a copy of the array where each element is transformed by a given function @p f
 
@@ -38,6 +60,25 @@ Array<T, N, Config> constarray_apply_function_strided_array(const Array<T, N, Co
 
    static_assert(is_callable_with<Function, pointer_type, ui32, const_pointer_type, ui32, ui32>::value, "Op is not callable!");
    Array<T, N, Config> array_cpy(array.shape());
+   iterate_array_constarray(array_cpy, array, f);
+   return array_cpy;
+}
+
+/**
+@brief return a copy of the array where each element is transformed by a given function @p f
+
+@tparam Function must be callable (pointer_type a1_pointer, ui32 a1_stride, const_pointer_type a2_pointer, ui32 a2_stride, ui32 nb_elements)
+*/
+template <class T, size_t N, class Config, class Function>
+array_apply_fun_type<T, N, Config, Function> constarray_apply_function_strided_array_type_matched(const Array<T, N, Config>& array, Function& f)
+{
+   using array_type         = Array<T, N, Config>;
+   using array_type_return  = array_apply_fun_type<T, N, Config, Function>;
+   using pointer_type       = typename array_type_return::pointer_type;
+   using const_pointer_type = typename array_type::const_pointer_type;
+
+   static_assert(is_callable_with<Function, pointer_type, ui32, const_pointer_type, ui32, ui32>::value, "Op is not callable!");
+   array_type_return array_cpy(array.shape());
    iterate_array_constarray(array_cpy, array, f);
    return array_cpy;
 }
@@ -116,6 +157,16 @@ void log(T* output, ui32 output_stride, const T* input, ui32 input_stride, ui32 
    apply_fun_array_strided(output, output_stride, input, input_stride, nb_elements, op);
 }
 
+template <class T1, class T2>
+void round(T2* output, ui32 output_stride, const T1* input, ui32 input_stride, ui32 nb_elements)
+{
+   auto op = [](T1 value)->T2
+   {
+      return std::round(value);
+   };
+   apply_fun_array_strided(output, output_stride, input, input_stride, nb_elements, op);
+}
+
 //
 // TODO min, max, mean. Problems: how to combine multiple data segments?
 //
@@ -190,6 +241,23 @@ Array<T, N, Config> exp(const Array<T, N, Config>& array)
    void (*ptr)(T*, ui32, const T*, ui32, ui32) = &details::exp<T>;
    return constarray_apply_function_strided_array(array, ptr);
 }
+
+/**
+@brief Round to the nearest integer each array element
+
+@warning the return type must be able to contain the result else undefined behavior
+*/
+
+template <class T2, class T, size_t N, class Config>
+Array<T2, N, typename Config::template rebind<T2>::other> round(const Array<T, N, Config>& array)
+{
+   void(*ptr)(T2*, ui32, const T*, ui32, ui32) = &details::round<T, T2>;
+   return constarray_apply_function_strided_array_type_matched<T, N, Config, decltype(ptr)>(array, ptr);
+}
+
+// TODO implement saturate<T2, T1>
+
+// TODO implement cast<T2, T1>
 
 /**
 @brief return the min value contained in the array

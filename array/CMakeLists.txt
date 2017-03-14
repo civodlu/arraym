@@ -16,6 +16,7 @@ set(Headers array.h
             array-op-impl-naive.h
             array-op-impl-blas.h
             array-op.h
+			array-io.h
             matrix-op-impl-blas.h
             matrix-op-blas-inv.h
             matrix-op-blas-least-square.h
@@ -64,7 +65,7 @@ set(BLAS    wrapper-cblas.cpp
 set (CudaKernel cuda-kernel.cu
                 cuda-kernel.cuh
 				cuda-utils.h
-            allocator-cuda.h
+                allocator-cuda.h
 				cuda-utils.cpp
 				cuda-blas-wrapper.h
 				cuda-blas-wrapper.cpp

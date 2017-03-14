@@ -137,8 +137,8 @@ void gemm(bool trans_a, bool trans_b, T alpha, const Array<T, 2, Config>& opa, c
    using pointer_type       = typename Array<T, 2, Config3>::pointer_type;
    using const_pointer_type = typename Array<T, 2, Config3>::const_pointer_type;
 
-   core::blas::gemm<T>(order, trans_a_blas, trans_b_blas, m, n, k, alpha, array_base_memory(opa), lda, array_base_memory(opb), ldb, beta,
-                       array_base_memory(opc), ldc);
+   blas::gemm<T>(order, trans_a_blas, trans_b_blas, m, n, k, alpha, array_base_memory(opa), lda, array_base_memory(opb), ldb, beta,
+                 array_base_memory(opc), ldc);
 }
 
 template <class T, class Config, class Config2, class Config3>

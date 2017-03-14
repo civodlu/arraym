@@ -26,8 +26,8 @@ void lu(const Matrix_BlasEnabled<T, 2, Config>& a, Array<T, 2, Config>& l_out, A
    const auto ipiv_size    = std::min(m, n);
    std::unique_ptr<blas::BlasInt> IPIV(new blas::BlasInt[ipiv_size]);
 
-   const auto r = core::blas::getrf<T>(matrixOrder, m, n, &a_cpy(0, 0), lda, IPIV.get());
-   ensure(r == 0, "error! core::blas::getrf<T>=" << r);
+   const auto r = blas::getrf<T>(matrixOrder, m, n, &a_cpy(0, 0), lda, IPIV.get());
+   ensure(r == 0, "error! blas::getrf<T>=" << r);
 
    l_out = matrix_type(index_type(m, m));
    u_out = matrix_type(index_type(m, n));
@@ -53,7 +53,7 @@ void lu(const Matrix_BlasEnabled<T, 2, Config>& a, Array<T, 2, Config>& l_out, A
    // - <?getrf> seems to compute P * A = L * U not A = P * L * U, or is it because <?laswp> is not doing what I expect it should be?
    // Should test this on other implementations...
    const blas::BlasInt llda = leading_dimension<T, Config>(l_out);
-   const auto r2            = core::blas::laswp<T>(matrixOrder, m, &l_out(0, 0), llda, 1, ipiv_size, IPIV.get(), -1);
+   const auto r2            = blas::laswp<T>(matrixOrder, m, &l_out(0, 0), llda, 1, ipiv_size, IPIV.get(), -1);
    ensure(r2 == 0, "error laswp");
 }
 

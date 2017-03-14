@@ -1,5 +1,64 @@
 #pragma once
 
+#include <chrono>
+
+class Timer
+{
+public:
+   /**
+   @brief Instanciate the timer and start it
+   */
+   Timer()
+   {
+      start();
+      _end = _start;
+   }
+
+   /**
+   @brief restart the timer
+   */
+   void start()
+   {
+      _start = std::chrono::high_resolution_clock::now();
+   }
+
+   /**
+   @brief end the timer, return the time in seconds spent
+   */
+   void end()
+   {
+      _end = std::chrono::high_resolution_clock::now();
+   }
+
+   /**
+   @brief get the current time since the begining, return the time in seconds spent.
+   */
+   float getElapsedTime() const
+   {
+      auto c = std::chrono::high_resolution_clock::now();
+      return toSeconds(_start, c);
+   }
+
+   /**
+   @brief return the time in seconds spent since between starting and ending the timer. The timer needs to be ended before calling it.
+   */
+   float getTime() const
+   {
+      return toSeconds(_start, _end);
+   }
+
+private:
+   static float toSeconds(const std::chrono::high_resolution_clock::time_point& start, const std::chrono::high_resolution_clock::time_point& end)
+   {
+      const auto c = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+      return static_cast<float>(c / 1000.0f);
+   }
+
+private:
+   std::chrono::high_resolution_clock::time_point _start;
+   std::chrono::high_resolution_clock::time_point _end;
+};
+
 namespace details
 {
 //

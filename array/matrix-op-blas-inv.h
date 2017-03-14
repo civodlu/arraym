@@ -25,14 +25,14 @@ Matrix_BlasEnabled<T, 2, Config> inv_nothrow(const Array<T, 2, Config>& a)
    const auto memory_order = getMatrixMemoryOrder(a);
    const auto lda          = leading_dimension<T, Config>(i);
 
-   const auto r = core::blas::getrf<T>(memory_order, size, size, array_base_memory(i), lda, IPIV_ptr);
+   const auto r = blas::getrf<T>(memory_order, size, size, array_base_memory(i), lda, IPIV_ptr);
    if (r != 0)
    {
       // something is wrong... just return an empty array
       return matrix_type();
    }
 
-   const auto r2 = core::blas::getri<T>(memory_order, size, array_base_memory(i), lda, IPIV_ptr);
+   const auto r2 = blas::getri<T>(memory_order, size, array_base_memory(i), lda, IPIV_ptr);
    if (r2 != 0)
    {
       // something is wrong... just return an empty array

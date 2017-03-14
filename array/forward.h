@@ -95,11 +95,9 @@ TODO nice to have functions:
  - reshape
  - dot
  - split
- - enumerate
  - dimension iterators
  - reorder axis (swap or transpose)
  - std, var
- - histograms
 */
 
 #include <array/array-api.h>
@@ -121,6 +119,7 @@ TODO nice to have functions:
 #include "enumerate.h"
 #include "array-traits.h"
 #include "array.h"
+#include "array-io.h"
 #include "array-chunking.h"
 #include "array-processor.h"
 #include "array-fill.h"

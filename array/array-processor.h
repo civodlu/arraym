@@ -410,6 +410,7 @@ struct CompileError
 {
    static_assert(std::is_same<T, char>::value, "Compile error purpose for T!");
 };
+
 namespace impl
 {
 template <class Memory1, class Memory2, class Op, typename = typename std::enable_if<IsMemoryLayoutLinear<Memory1>::value>::type>
@@ -506,6 +507,20 @@ template <class T, class T2, size_t N, class Config, class Config2, class Op,
 void iterate_array_constarray(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op)
 {
    iterate_memory_constmemory(a1.getMemory(), a2.getMemory(), op);
+}
+
+/**
+@brief iterate const array & const array jointly
+@tparam Op must be callable using (const_pointer_type a1_pointer, ui32 a1_stride, const_pointer_type a2_pointer, ui32 a2_stride, ui32 nb_elements)
+@note this is only instantiated for linear memory
+*/
+template <class T, class T2, size_t N, class Config, class Config2, class Op,
+   typename = typename std::enable_if<IsArrayLayoutLinear<Array<T, N, Config>>::value>::type>
+   void iterate_constarray_constarray(const Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2, Op& op)
+{
+   iterate_memory_constmemory(
+      const_cast<Array<T, N, Config>&>(a1).getMemory(), // const_cast to save implementation: we are not modifying it
+      a2.getMemory(), op);
 }
 
 namespace details

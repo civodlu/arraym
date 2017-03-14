@@ -8,21 +8,6 @@
 
 DECLARE_NAMESPACE_NLL
 
-namespace details
-{
-   /**
-    @brief Helper function for decltype. Doesn't do anything, doesn't have an implementation on purpose
-    */
-   template <class T>
-   T fake();
-}
-
-/**
- @brief compute the return type of a function applied to an array
- */
-template <class T, size_t N, class Config, class Function>
-using function_return_type = decltype((details::fake<Function>())(Array<T, N, Config>()));
-
 /**
 @brief compute the expected return type of a function applied to an array along a given axis
 

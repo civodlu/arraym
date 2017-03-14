@@ -131,6 +131,52 @@ void copy_naive(T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, 
 }
 
 /**
+@brief Write a strided array to a stream
+*/
+template <class T>
+void write_naive(const T* y_pointer, ui32 y_stride, ui32 nb_elements, std::ostream& f)
+{
+   if (y_stride == 1)
+   {
+      // if no stride, we can write the whole buffer at once
+      const size_t size_bytes = nb_elements * sizeof(T);
+      f.write(reinterpret_cast<const char*>(y_pointer), size_bytes);
+   }
+   else
+   {
+      // else we need to individually write each element
+      const T* y_end = y_pointer + y_stride * nb_elements;
+      for (; y_pointer != y_end; y_pointer += y_stride)
+      {
+         f.write(reinterpret_cast<const char*>(y_pointer), sizeof(T));
+      }
+   }
+}
+
+/**
+@brief Read a strided array to a stream
+*/
+template <class T>
+void read_naive(T* y_pointer, ui32 y_stride, ui32 nb_elements, std::istream& f)
+{
+   if (y_stride == 1)
+   {
+      // if no stride, we can write the whole buffer at once
+      const size_t size_bytes = nb_elements * sizeof(T);
+      f.read(reinterpret_cast<char*>(y_pointer), size_bytes);
+   }
+   else
+   {
+      // else we need to individually write each element
+      T* y_end = y_pointer + y_stride * nb_elements;
+      for (; y_pointer != y_end; y_pointer += y_stride)
+      {
+         f.read(reinterpret_cast<char*>(y_pointer), sizeof(T));
+      }
+   }
+}
+
+/**
 @brief y = f(x)
 
 Apply a function on a strided array x and assign it to another strided array y
@@ -142,6 +188,21 @@ void apply_naive2(T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride
    for (; y_pointer != y_end; y_pointer += y_stride, x_pointer += x_stride)
    {
       *y_pointer = f(*x_pointer);
+   }
+}
+
+/**
+@brief f(y, x)
+
+Apply a function on a strided array x and assign it to another strided array y
+*/
+template <class T1, class T2, class F>
+void apply_naive2_const(const T1* y_pointer, ui32 y_stride, const T2* x_pointer, ui32 x_stride, ui32 nb_elements, F& f)
+{
+   const T1* y_end = y_pointer + y_stride * nb_elements;
+   for (; y_pointer != y_end; y_pointer += y_stride, x_pointer += x_stride)
+   {
+      f(*y_pointer, *x_pointer);
    }
 }
 
@@ -263,6 +324,12 @@ template <class T, typename = int, typename = typename std::enable_if<std::is_in
 bool equal(const T val1, const T val2, const T UNUSED(tolerance) = 0)
 {
    return val1 == val2;
+}
+
+template <class T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+T sqr(const T& v)
+{
+   return v * v;
 }
 
 DECLARE_NAMESPACE_NLL_END
