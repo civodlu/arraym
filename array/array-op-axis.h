@@ -9,13 +9,19 @@
 DECLARE_NAMESPACE_NLL
 
 /**
+@brief compute the return type of a function applied to an array
+*/
+template <class T, size_t N, class Config, class Function>
+using function_axis_return_type = decltype((details::fake<Function>())(Array<T, N, Config>()));
+
+/**
 @brief compute the expected return type of a function applied to an array along a given axis
 
 Not pretty but it works...
 */
 template <class T, size_t N, class Config, class Function>
 using axis_apply_fun_type =
-    typename Array<T, N, Config>::template rebind_dim<N - 1>::other::template rebind<function_return_type<T, N, Config, Function>>::other;
+typename Array<T, N, Config>::template rebind_dim<N - 1>::other::template rebind<function_axis_return_type<T, N, Config, Function>>::other;
 
 /**
 @brief Apply a "summarizing" function on the elements along <axis>

@@ -243,6 +243,75 @@ struct TestArrayDimIterator
       }
       TESTER_ASSERT(s == 3);
    }
+   
+   void test_values()
+   {
+      test_values_impl<Array_row_major<char, 2>>();
+      test_values_impl<Array_column_major<int, 2>>();
+      test_values_impl<Array_row_major_multislice<size_t, 2>>();
+   }
+
+   template <class array_type>
+   void test_values_impl()
+   {
+      // test access & l-value
+      array_type a(2, 3);
+      a = { 0, 1, 2, 3, 4, 5};
+
+      std::vector<int> count_values(6);
+
+      int s = 0;
+      for (auto& value : values(a))
+      {   
+         ++count_values[value];
+         ++s;
+
+         value += 2;
+      }
+      TESTER_ASSERT(s == a.size()); // iterated the number of array elements
+
+      // we have a count of exactly 1 of each value
+      TESTER_ASSERT(*std::min_element(count_values.begin(), count_values.end()) == 1);
+      TESTER_ASSERT(*std::max_element(count_values.begin(), count_values.end()) == 1);
+
+      TESTER_ASSERT(a(0, 0) == 2);
+      TESTER_ASSERT(a(1, 0) == 3);
+      TESTER_ASSERT(a(0, 1) == 4);
+      TESTER_ASSERT(a(1, 1) == 5);
+      TESTER_ASSERT(a(0, 2) == 6);
+      TESTER_ASSERT(a(1, 2) == 7);
+   }
+
+   void test_values_const()
+   {
+      test_values_const_impl<Array_row_major<char, 2>>();
+      test_values_const_impl<Array_column_major<int, 2>>();
+      test_values_const_impl<Array_row_major_multislice<size_t, 2>>();
+   }
+
+   template <class array_type>
+   void test_values_const_impl()
+   {
+      // test access & l-value
+      array_type a(2, 3);
+      a = { 0, 1, 2, 3, 4, 5 };
+
+      const array_type& a_cpy = a;
+
+      std::vector<int> count_values(6);
+
+      int s = 0;
+      for (auto& value : values(a_cpy))
+      {
+         ++count_values[value];
+         ++s;
+      }
+      TESTER_ASSERT(s == a.size()); // iterated the number of array elements
+
+      // we have a count of exactly 1 of each value
+      TESTER_ASSERT(*std::min_element(count_values.begin(), count_values.end()) == 1);
+      TESTER_ASSERT(*std::max_element(count_values.begin(), count_values.end()) == 1);
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayDimIterator);
@@ -256,4 +325,6 @@ TESTER_TEST(test_matrix_columns);
 TESTER_TEST(test_matrix_columns_const);
 TESTER_TEST(test_slices);
 TESTER_TEST(test_slices_const);
+TESTER_TEST(test_values);
+TESTER_TEST(test_values_const);
 TESTER_TEST_SUITE_END();

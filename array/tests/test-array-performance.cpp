@@ -74,6 +74,25 @@ struct TestArrayPerformance
       std::cout << "Max=" << timer.getElapsedTime() - constructionTime << std::endl;
    }
 
+   void test_values_iteration()
+   {
+      Timer timer;
+
+      auto a = create_max(shape);
+      
+      const float constructionTime = timer.getElapsedTime();
+      std::cout << "ConstructionTime=" << constructionTime << std::endl;
+
+      for (auto& value : values(a))
+      {
+         value *= value;
+      }
+
+      std::cout << "Values=" << timer.getElapsedTime() - constructionTime << std::endl;
+
+      std::cout << *(array_base_memory(a)+1) << std::endl;
+   }
+
    void test_iterator_dummy()
    {
       Timer timer;
@@ -168,6 +187,7 @@ TESTER_TEST(test_range_dummy);
 TESTER_TEST(test_range);
 TESTER_TEST(test_iterator_single);
 TESTER_TEST(test_iterator_max);
+TESTER_TEST(test_values_iteration);
 TESTER_TEST(test_iterator_dummy);
 TESTER_TEST(test_write_speed);
 TESTER_TEST(test_read_speed);

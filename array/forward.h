@@ -144,6 +144,8 @@ TODO nice to have functions:
 #include "lookup.h"
 #include "where.h"
 #include "array-dim-iterator.h"
+#include "vector-helpers.h"
+#include "matrix-op-diag.h"
 
 // BLAS based operations
 #include "matrix-op-impl-blas.h"

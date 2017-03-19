@@ -49,8 +49,23 @@ struct TestMatrixSvd
          }
       }
    }
+
+   void test_diag_args()
+   {
+      auto m = diag<float>(1.0f, 2.0f, 3.0f);
+      TESTER_ASSERT(m.shape() == vector2ui(3, 3));
+   }
+
+   void test_diag_vec()
+   {
+      auto vec = make_vector<float>(1.0f, 2.0f, 3.0f);
+      auto m = diag<float>(vec);
+      TESTER_ASSERT(m.shape() == vector2ui(3, 3));
+   }
 };
 
 TESTER_TEST_SUITE(TestMatrixSvd);
+TESTER_TEST(test_diag_args);
+TESTER_TEST(test_diag_vec);
 TESTER_TEST(test_random);
 TESTER_TEST_SUITE_END();

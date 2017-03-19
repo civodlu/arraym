@@ -181,8 +181,8 @@ void read_naive(T* y_pointer, ui32 y_stride, ui32 nb_elements, std::istream& f)
 
 Apply a function on a strided array x and assign it to another strided array y
 */
-template <class T, class F>
-void apply_naive2(T* y_pointer, ui32 y_stride, const T* x_pointer, ui32 x_stride, ui32 nb_elements, F& f)
+template <class T, class T2, class F>
+void apply_naive2(T* y_pointer, ui32 y_stride, const T2* x_pointer, ui32 x_stride, ui32 nb_elements, F& f)
 {
    const T* y_end = y_pointer + y_stride * nb_elements;
    for (; y_pointer != y_end; y_pointer += y_stride, x_pointer += x_stride)
@@ -330,6 +330,17 @@ template <class T, typename = typename std::enable_if<std::is_arithmetic<T>::val
 T sqr(const T& v)
 {
    return v * v;
+}
+
+/**
+@return if value > max return max
+        if value < min return min
+        else return value
+*/
+template <class Toutput, class Tinput, typename = typename std::enable_if<std::is_arithmetic<Tinput>::value>::type>
+Toutput saturate_value(const Tinput value, const Tinput min_value, const Tinput max_value)
+{
+   return static_cast<Toutput>((value < min_value) ? min_value : ((value > max_value) ? max_value : value));
 }
 
 DECLARE_NAMESPACE_NLL_END

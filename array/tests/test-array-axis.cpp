@@ -35,7 +35,7 @@ struct TestArrayAxis
    {
       {
          // test return type inference
-         using R = function_return_type<typename Array::value_type, Array::RANK, typename Array::Config, dummy_op>;
+         using R = function_axis_return_type<typename Array::value_type, Array::RANK, typename Array::Config, dummy_op>;
          static_assert(std::is_same<R, double>::value, "must have the same type!");
 
          dummy_op dummy;

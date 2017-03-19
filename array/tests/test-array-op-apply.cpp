@@ -108,7 +108,12 @@ struct TestArrayOpApply
       // TODO Cuda implementation
       test_array_apply_functions_round_impl<Array<float, 2>>();
       test_array_apply_functions_round_impl<Array_row_major_multislice<float, 2>>();
-      
+
+      test_array_apply_functions_saturate_impl<Array<float, 2>>();
+      test_array_apply_functions_saturate_impl<Array_row_major_multislice<float, 2>>();
+
+      test_array_apply_functions_cast_impl<Array<float, 2>>();
+      test_array_apply_functions_cast_impl<Array_row_major_multislice<float, 2>>();
    }
 
    template <class Array>
@@ -207,6 +212,49 @@ struct TestArrayOpApply
          for (size_t x = 0; x < a1.shape()[0]; ++x)
          {
             const auto expected = std::round(a1(x, y));
+            const auto found = a1_fun(x, y);
+            TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
+         }
+      }
+   }
+
+   template <class Array>
+   void test_array_apply_functions_saturate_impl()
+   {
+      Array a1(2, 3);
+      a1 = { 1.1, 2.6, 3.9, -0.1, -0.6, -0.9 };
+
+      NAMESPACE_NLL::Array<double, 2> expected_a1(2, 3);
+      expected_a1 = { 1.1, 2.6, 3.5, -0.1, -0.2, -0.2 };
+
+      const auto a1_fun = saturate<double, float>(a1, -0.2f, 3.5f);
+      for (size_t y = 0; y < a1.shape()[1]; ++y)
+      {
+         for (size_t x = 0; x < a1.shape()[0]; ++x)
+         {
+            const auto expected = expected_a1(x, y);
+            const auto found = a1_fun(x, y);
+            TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
+         }
+      }
+   }
+
+   template <class Array>
+   void test_array_apply_functions_cast_impl()
+   {
+      Array a1(2, 3);
+      a1 = { 1.1, 2.6, 3.9, -0.1, -0.6, -0.9 };
+      const auto a1_expected_fun = [](typename Array::value_type value)
+      {
+         return static_cast<int>(value);
+      };
+
+      const auto a1_fun = cast<int>(a1);
+      for (size_t y = 0; y < a1.shape()[1]; ++y)
+      {
+         for (size_t x = 0; x < a1.shape()[0]; ++x)
+         {
+            const auto expected = a1_expected_fun(a1(x, y));
             const auto found = a1_fun(x, y);
             TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
          }
@@ -315,10 +363,31 @@ struct TestArrayOpApply
       auto index = argmax(array);
       TESTER_ASSERT(index == 4);
    }
+
+   template <class T>
+   struct Functor
+   {
+      T operator()(float) const
+      {
+         return T(0);
+      }
+   };
+
+   void test_function_return_type()
+   {
+      auto f_int = [](float)->int
+      {
+         return int(0);
+      };
+
+      static_assert(std::is_same<int, function_return_type<float, decltype(f_int)>>::value, "wrong type!");
+      static_assert(std::is_same<int, function_return_type<float, Functor<int> >>::value, "wrong type!");
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayOpApply);
 TESTER_TEST(test_array_apply_function);
 TESTER_TEST(test_array_apply_functions);
 TESTER_TEST(test_array_argmax);
+TESTER_TEST(test_function_return_type);
 TESTER_TEST_SUITE_END();

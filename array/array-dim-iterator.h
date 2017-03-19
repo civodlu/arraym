@@ -78,6 +78,91 @@ private:
    iterator _begin;
    iterator _end;
 };
+
+template <class Proxy, class value_type>
+struct ArrayValueIterator
+{
+   ArrayValueIterator(Proxy* proxy) : _proxy(proxy)
+   {
+      // point to the first element
+      if (_proxy)
+      {
+         _proxy->accessSingleElement(_ptr);
+         _nbElements = static_cast<ui32>(_proxy->_array.size());
+      }
+   }
+
+   ArrayValueIterator& operator++()
+   {
+      _proxy->accessSingleElement(_ptr);
+      ++_nbElementRead;
+      return *this;
+   }
+
+   bool operator==(const ArrayValueIterator& UNUSED(other)) const
+   {
+      NLL_FAST_ASSERT(other._proxy == nullptr, "MUST be NULL, we are going through all the elements of the array");
+      return _nbElementRead == _nbElements;
+   }
+
+   bool operator!=(const ArrayValueIterator& other) const
+   {
+      return !operator==(other);
+   }
+
+   value_type& operator*()
+   {
+      return *_ptr;
+   }
+
+private:
+   Proxy*       _proxy = nullptr;
+   value_type*  _ptr = nullptr;
+   ui32         _nbElementRead = 0;
+   ui32         _nbElements = 0;
+};
+
+// this class is only designed to be called in the for(auto value : values(array))  (i.e., we go through all
+// the elements of the array in order
+template <class ArrayT>
+struct ArrayValueIterator_proxy
+{
+   using value_type = typename ArrayT::value_type;
+   using processor_type = ArrayProcessor_contiguous_byMemoryLocality<ArrayT>;
+   using iterator = ArrayValueIterator<processor_type, value_type>;
+   using const_iterator = ArrayValueIterator<processor_type, const value_type>;
+
+   ArrayValueIterator_proxy(ArrayT& array) : _processor(array, 1) // here we operate element by element
+   {}
+
+   ~ArrayValueIterator_proxy()
+   {}
+
+   iterator begin()
+   {
+      return iterator(&_processor);
+   }
+
+   /*
+   const_iterator begin() const
+   {
+      return const_iterator(&_processor);
+   }*/
+
+   iterator end()
+   {
+      return iterator(nullptr);  // this is a fake "end" as the processor knows when to stop
+   }
+
+   /*
+   const_iterator end() const
+   {
+      return const_iterator(nullptr);
+   }*/
+
+private:
+   processor_type _processor;
+};
 }
 
 /**
@@ -215,6 +300,21 @@ details::ArrayDimIterator_proxy<Array<T, N, Config>, 2> slices(Array<T, N, Confi
    using proxy_type      = details::ArrayDimIterator_proxy<Array<T, N, Config>, dim>;
    using iter_type       = typename proxy_type::iterator;
    return proxy_type(iter_type(&array, 0), iter_type(&array, array.shape()[dim]));
+}
+
+template <class T, size_t N, class Config>
+details::ArrayValueIterator_proxy<Array<T, N, Config>> values(Array<T, N, Config>& array)
+{
+   return details::ArrayValueIterator_proxy<Array<T, N, Config>>(array);
+}
+
+template <class T, size_t N, class Config>
+details::ArrayValueIterator_proxy<Array<T, N, Config>> values(const Array<T, N, Config>& array)
+{
+   // TODO losing constness here
+   // placeholder implementation. Needs to be properly implemented!
+   // We MUST revisit all these iterators: losing constness, non-const->const iterator conversion... 
+   return details::ArrayValueIterator_proxy<Array<T, N, Config>>(const_cast<Array<T, N, Config>&>(array));
 }
 
 DECLARE_NAMESPACE_NLL_END

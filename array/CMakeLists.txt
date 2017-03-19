@@ -24,6 +24,7 @@ set(Headers array.h
             matrix-op-impl-naive.h
             array-chunking.h
             matrix-op-identity.h
+			matrix-op-diag.h
             matrix-vector.h
             repmat.h
             op-naive.h
@@ -45,6 +46,7 @@ set(Headers array.h
 			array-dim-iterator.h
 			enumerate.h
 			array-op-logical.h
+			vector-helpers.h
 			${CMAKE_BINARY_DIR}/${LIBNAME}/config.h
 )
                
