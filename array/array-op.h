@@ -29,7 +29,7 @@ using function_return_type_applied = Array<
  @tparam Function must be callable with (T value)
  */
 template <class T, size_t N, class Config, class Function>
-function_return_type_applied<T, N, Config, Function> constarray_apply_function(const Array<T, N, Config>& array, Function& f)
+function_return_type_applied<T, N, Config, Function> constarray_apply_function(const Array<T, N, Config>& array, Function f)
 {
    using array_type = Array<T, N, Config>;
    using return_type = function_return_type_applied<T, N, Config, Function>;
@@ -134,7 +134,14 @@ void sqrt(T* output, ui32 output_stride, const T* input, ui32 input_stride, ui32
 template <class T>
 void sqr(T* output, ui32 output_stride, const T* input, ui32 input_stride, ui32 nb_elements)
 {
-   auto op = [](T value) { return value * value; };
+   auto op = [](T value) { return NAMESPACE_NLL::sqr(value); };
+   apply_fun_array_strided(output, output_stride, input, input_stride, nb_elements, op);
+}
+
+template <class T2, class T1>
+void norm2_elementwise(T2* output, ui32 output_stride, const T1* input, ui32 input_stride, ui32 nb_elements)
+{
+   auto op = [](T1 value)->T2 { return NAMESPACE_NLL::norm2(value); };
    apply_fun_array_strided(output, output_stride, input, input_stride, nb_elements, op);
 }
 
@@ -314,6 +321,24 @@ T max(const Array<T, N, Config>& array)
 }
 
 /**
+@brief return the min and max value contained in the array
+*/
+template <class T, size_t N, class Config>
+std::pair<T, T> minmax(const Array<T, N, Config>& array)
+{
+   T max_value = std::numeric_limits<T>::lowest();
+   T min_value = std::numeric_limits<T>::max();
+
+   auto f = [&](T value) {
+      max_value = std::max(max_value, value);
+      min_value = std::min(min_value, value);
+   };
+   constarray_apply_function_inplace(array, f);
+
+   return std::make_pair(min_value, max_value);
+}
+
+/**
 @brief return the mean value of all the elements contained in the array
 */
 template <class T, size_t N, class Config, class Accum = T>
@@ -334,17 +359,47 @@ Accum mean(const Array<T, N, Config>& array)
    return sum(array) / static_cast<T>(array.size());
 }
 
+/**
+@brief return the square of the L2 norm of an array
+*/
+template <class T, size_t N, class Config>
+typename PromoteFloating<T>::type norm2sqr(const Array<T, N, Config>& a1)
+{
+   using const_pointer_type = typename Array<T, N, Config>::const_pointer_type;
+   using return_type = typename PromoteFloating<T>::type;
+   return_type accum = 0;
+   auto op = [&](const_pointer_type ptr, ui32 stride, ui32 elements) { accum += details::norm2_naive_sqr<T, return_type>(ptr, stride, elements); };
+
+   iterate_constarray(a1, op);
+   return accum;
+}
+
+/**
+ @brief return the L2 norm of an array
+ */
 template <class T, size_t N, class Config>
 typename PromoteFloating<T>::type norm2(const Array<T, N, Config>& a1)
 {
-   using const_pointer_type = typename Array<T, N, Config>::const_pointer_type;
-   using return_type        = typename PromoteFloating<T>::type;
-   return_type accum        = 0;
-   auto op                  = [&](const_pointer_type ptr, ui32 stride, ui32 elements) { accum += details::norm2_naive_sqr(ptr, stride, elements); };
-
-   iterate_constarray(a1, op);
-   return std::sqrt(accum);
+   return std::sqrt(norm2sqr(a1));
 }
+
+
+/**
+@brief return the L2 norm of an array applied element by element
+
+  A = [a, b, v]
+  norm2_elementwise(A) = [norm2(a), norm2(b), norm2(c)]
+*/
+
+template <class T, size_t N, class Config>
+Array<typename PromoteFloating<T>::type, N, typename Config::template rebind<typename PromoteFloating<T>::type>::other>
+norm2_elementwise(const Array<T, N, Config>& array)
+{
+   using output_type = typename PromoteFloating<T>::type;
+   void(*ptr)(output_type*, ui32, const T*, ui32, ui32) = &details::norm2_elementwise<output_type, T>;
+   return constarray_apply_function_strided_array_type_matched<output_type>(array, ptr);
+}
+
 
 /**
  @brief Stack arrays of a same shape into a higher dimensional array

@@ -99,7 +99,7 @@ struct ArrayValueIterator
       return *this;
    }
 
-   bool operator==(const ArrayValueIterator& UNUSED(other)) const
+   bool operator==(const ArrayValueIterator& other) const
    {
       NLL_FAST_ASSERT(other._proxy == nullptr, "MUST be NULL, we are going through all the elements of the array");
       return _nbElementRead == _nbElements;

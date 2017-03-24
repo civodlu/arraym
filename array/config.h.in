@@ -104,3 +104,4 @@ DECLARE_NAMESPACE_NLL_END
 #pragma warning(disable:4503) // decorated names too long
 #pragma warning(disable:4512) // default assignment can't be generated
 #pragma warning(disable:4520) // multiple default constructor false positive
+#pragma warning(disable:4996) // _CRT_SECURE_NO_WARNINGS

@@ -31,6 +31,20 @@ TypeSum sum(const StaticVector<Type, N>& v)
 }
 
 /**
+ @brief round each element to the nearest integer
+*/
+template <class result_type, class T, size_t N>
+StaticVector<result_type, N> round(const StaticVector<T, N>& v)
+{
+   StaticVector<result_type, N> r(no_init_tag);
+   for (size_t n = 0; n < N; ++n)
+   {
+      r[n] = static_cast<result_type>(std::round(v[n]));
+   }
+   return r;
+}
+
+/**
 @ingroup core
 @brief Computes the outer product of two 3-vectors
 */
@@ -63,9 +77,9 @@ T norm2sqr(const StaticVector<T, N>& lhs)
 }
 
 template <class T, size_t N>
-T norm2(const StaticVector<T, N>& lhs)
+typename PromoteFloating<T>::type norm2(const StaticVector<T, N>& lhs)
 {
-   return static_cast<T>(std::sqrt(norm2sqr(lhs)));
+   return static_cast<PromoteFloating<T>::type>(std::sqrt(norm2sqr(lhs)));
 }
 
 template <class T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>

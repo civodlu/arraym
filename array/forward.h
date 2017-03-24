@@ -103,6 +103,7 @@ TODO nice to have functions:
 #include <array/array-api.h>
 #include "wrapper-common.h"
 
+#include "traits.h"
 #include "op-naive.h"
 #include "static-vector.h"
 #include "static-vector-math.h"
@@ -110,7 +111,6 @@ TODO nice to have functions:
 #include "cuda-utils.h"
 #include "cuda-kernel.cuh"
 #include "allocator-cuda.h"
-#include "traits.h"
 #include "index-mapper.h"
 #include "allocator-static.h"
 #include "memory-contiguous.h"

@@ -30,12 +30,23 @@ struct TestArrayOpApply
       Array a1(2, 3);
       a1 = {1, 2, 3, 4, 5, 6};
 
-      const auto a1_fun = constarray_apply_function(a1, f2x<typename Array::value_type>);
+      using other_type = typename Array::value_type;
+      
+      auto mul2 = [](typename Array::value_type value)
+      {
+         return static_cast<other_type>(value * 2);
+      };
+      
+      using return_type = function_return_type_applied<typename Array::value_type, Array::RANK, typename Array::Config, decltype(mul2)>;
+      using expected_type = typename Array::template rebind<other_type>::other;
+      static_assert(std::is_same<return_type, expected_type>::value, "must be the same type!");
+
+      const auto a1_fun = constarray_apply_function(a1, f2x<other_type>);
       for (size_t y = 0; y < a1.shape()[1]; ++y)
       {
          for (size_t x = 0; x < a1.shape()[0]; ++x)
          {
-            const auto expected = static_cast<typename Array::value_type>(a1(x, y) * 2);
+            const auto expected = static_cast<other_type>(a1(x, y) * 2);
             const auto found    = a1_fun(x, y);
             TESTER_ASSERT(std::abs(expected - found) < 1e-4f);
          }
@@ -114,6 +125,9 @@ struct TestArrayOpApply
 
       test_array_apply_functions_cast_impl<Array<float, 2>>();
       test_array_apply_functions_cast_impl<Array_row_major_multislice<float, 2>>();
+
+      test_array_apply_functions_minmax_impl<Array<float, 2>>();
+      test_array_apply_functions_minmax_impl<Array_row_major_multislice<float, 2>>();
    }
 
    template <class Array>
@@ -322,6 +336,16 @@ struct TestArrayOpApply
    }
 
    template <class Array>
+   void test_array_apply_functions_minmax_impl()
+   {
+      Array a1(2, 3);
+      a1 = { 2, 1, 3, 4, 5, 6 };
+      const auto a1_fun = minmax(a1);
+      TESTER_ASSERT(a1_fun.first == 1);
+      TESTER_ASSERT(a1_fun.second == 6);
+   }
+
+   template <class Array>
    void test_array_apply_functions_max_impl()
    {
       Array a1(2, 3);
@@ -383,6 +407,74 @@ struct TestArrayOpApply
       static_assert(std::is_same<int, function_return_type<float, decltype(f_int)>>::value, "wrong type!");
       static_assert(std::is_same<int, function_return_type<float, Functor<int> >>::value, "wrong type!");
    }
+
+   void test_sqr_vec()
+   {
+      using vector3f = StaticVector<int, 3>;
+      using array_type = Array<vector3f, 1>;
+
+      array_type array(3);
+      array =
+      {
+         vector3f(1, 2, 3), vector3f(4, 5, 6), vector3f(7, 8, 9)
+      };
+
+      const auto value_sqr = sqr(array);
+      TESTER_ASSERT(value_sqr.shape()[0] == 3);
+      TESTER_ASSERT(value_sqr[0] == vector3f(1 * 1, 2 * 2, 3 * 3));
+      TESTER_ASSERT(value_sqr[1] == vector3f(4 * 4, 5 * 5, 6 * 6));
+      TESTER_ASSERT(value_sqr[2] == vector3f(7 * 7, 8 * 8, 9 * 9));
+   }
+
+   void test_norm2_vec()
+   {
+      using vector3f = StaticVector<int, 3>;
+      using array_type = Array<vector3f, 1>;
+
+      array_type array(3);
+      array =
+      {
+         vector3f(1, 2, 3), vector3f(4, 5, 6), vector3f(7, 8, 9)
+      };
+
+      const double value = norm2(array);
+      const double expected = std::sqrt(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4 + 5 * 5 + 6 * 6 + 7 * 7 + 8 * 8 + 9 * 9);
+      TESTER_ASSERT(equal(expected, value, 1e-4));
+   }
+
+   void test_norm2sqr()
+   {
+      using array_type = Array<float, 1>;
+
+      array_type array(3);
+      array =
+      {
+         1, 2, 3
+      };
+
+      const float value = norm2sqr(array);
+      const float expected = 1 * 1 + 2 * 2 + 3 * 3;
+      TESTER_ASSERT(equal(expected, value));
+   }
+
+   void test_norm2_elementwise()
+   {
+      using vector3f = StaticVector<int, 3>;
+      using array_type = Array<vector3f, 1>;
+
+      array_type array(3);
+      array =
+      {
+         vector3f(1, 2, 3), vector3f(4, 5, 6), vector3f(7, 8, 9)
+      };
+
+      std::cout << norm2_elementwise(array) << std::endl;
+      const auto value = norm2_elementwise(array);
+      TESTER_ASSERT(value.shape() == vector1ui(3));
+      TESTER_ASSERT(equal<float>(value[0], std::sqrt(1.0f * 1 + 2 * 2 + 3 * 3), 1e-4f));
+      TESTER_ASSERT(equal<float>(value[1], std::sqrt(4.0f * 4 + 5 * 5 + 6 * 6), 1e-4f));
+      TESTER_ASSERT(equal<float>(value[2], std::sqrt(7.0f * 7 + 8 * 8 + 9 * 9), 1e-4f));
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayOpApply);
@@ -390,4 +482,8 @@ TESTER_TEST(test_array_apply_function);
 TESTER_TEST(test_array_apply_functions);
 TESTER_TEST(test_array_argmax);
 TESTER_TEST(test_function_return_type);
+TESTER_TEST(test_sqr_vec);
+TESTER_TEST(test_norm2_vec);
+TESTER_TEST(test_norm2sqr);
+TESTER_TEST(test_norm2_elementwise);
 TESTER_TEST_SUITE_END();

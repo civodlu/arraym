@@ -13,6 +13,12 @@
 
 DECLARE_NAMESPACE_NLL
 
+template <class T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+T norm2sqr(const T& v)
+{
+   return v * v;
+}
+
 namespace details
 {
 template <class T>
@@ -102,7 +108,7 @@ Accum norm2_naive_sqr(const T* v1, size_t stride_v1, size_t nb_elements)
    Accum accum  = 0;
    for (; v1 != end; v1 += stride_v1)
    {
-      accum += *v1 * *v1;
+      accum += norm2sqr(*v1);
    }
    return accum;
 }
