@@ -179,7 +179,7 @@ public:
 
    Array& operator=(const Array& other)
    {
-      _copy(other);
+      copy(other);
       return *this;
    }
 
@@ -188,7 +188,7 @@ public:
     */
    Array(const Array& other)
    {
-      _copy(other);
+      copy(other);
    }
 
    /**
@@ -554,6 +554,12 @@ public:
       return SlicingArrayRef<slicing_dimension>(slice);
    }
 
+   void copy(const array_type& src)
+   {
+      static_cast<traits_type&>(*this) = src; // make sure th base class is copied
+      _memory = src._memory;
+   }
+
 protected:
    void _move(array_type&& src)
    {
@@ -564,11 +570,7 @@ protected:
       }
    }
 
-   void _copy(const array_type& src)
-   {
-      static_cast<traits_type&>(*this) = src; // make sure th base class is copied
-      _memory                          = src._memory;
-   }
+   
 
 public:
    // TODO friend template class
@@ -652,6 +654,7 @@ template <class T, size_t N, class Config>
 class ArrayRef : public Array<T, N, Config>
 {
 public:
+   using Base               = Array<T, N, Config>;
    using array_type         = Array<T, N, Config>;
    using index_type         = typename array_type::index_type;
    using pointer_type       = typename array_type::pointer_type;
@@ -679,6 +682,11 @@ public:
       };
       iterate_array_constarray(*this, array, op);
       return *this;
+   }
+
+   ArrayRef& operator=(const ArrayRef& array)
+   {
+      return this->operator=(static_cast<const Base&>(array));
    }
 
    ArrayRef& operator=(T value)
