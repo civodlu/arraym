@@ -312,6 +312,116 @@ struct TestArrayDimIterator
       TESTER_ASSERT(*std::min_element(count_values.begin(), count_values.end()) == 1);
       TESTER_ASSERT(*std::max_element(count_values.begin(), count_values.end()) == 1);
    }
+
+   void test_matrix_column()
+   {
+      using matrix_type = Matrix<int>;
+      matrix_type a(2, 3);
+      
+      a = { 0, 1, 2, 3, 4, 5 };
+
+      {
+         auto c = column(a, 0);
+         TESTER_ASSERT(c.shape() == vector2ui(2, 1));
+         TESTER_ASSERT(c(0, 0) == 0);
+         TESTER_ASSERT(c(1, 0) == 3);
+      }
+
+      {
+         auto c = column(a, 1);
+         TESTER_ASSERT(c.shape() == vector2ui(2, 1));
+         TESTER_ASSERT(c(0, 0) == 1);
+         TESTER_ASSERT(c(1, 0) == 4);
+      }
+
+      {
+         auto c = column(a, 2);
+         TESTER_ASSERT(c.shape() == vector2ui(2, 1));
+         TESTER_ASSERT(c(0, 0) == 2);
+         TESTER_ASSERT(c(1, 0) == 5);
+      }
+
+      matrix_type c_new(2, 1);
+      c_new = { 10, 11 };
+      column(a, 0) = c_new;
+
+      TESTER_ASSERT(a(0, 0) == 10);
+      TESTER_ASSERT(a(1, 0) == 11);
+   }
+
+   void test_matrix_row()
+   {
+      using matrix_type = Matrix<int>;
+      matrix_type a(3, 2);
+
+      a = { 0, 1, 2, 3, 4, 5 };
+
+      {
+         auto c = row(a, 0);
+         TESTER_ASSERT(c.shape() == vector2ui(1, 2));
+         TESTER_ASSERT(c(0, 0) == 0);
+         TESTER_ASSERT(c(0, 1) == 1);
+      }
+
+      {
+         auto c = row(a, 1);
+         TESTER_ASSERT(c.shape() == vector2ui(1, 2));
+         TESTER_ASSERT(c(0, 0) == 2);
+         TESTER_ASSERT(c(0, 1) == 3);
+      }
+
+      {
+         auto c = row(a, 2);
+         TESTER_ASSERT(c.shape() == vector2ui(1, 2));
+         TESTER_ASSERT(c(0, 0) == 4);
+         TESTER_ASSERT(c(0, 1) == 5);
+      }
+
+      matrix_type c_new(1, 2);
+      c_new = { 10, 11 };
+      row(a, 0) = c_new;
+
+      TESTER_ASSERT(a(0, 0) == 10);
+      TESTER_ASSERT(a(0, 1) == 11);
+   }
+
+   void test_matrix_copy_rows()
+   {
+      using matrix_type = Matrix<int>;
+      matrix_type a(4, 2);
+
+      a = { 0, 1, 2, 3, 4, 5, 6, 7 };
+
+      auto a2 = rows_copy(a, make_stdvector<size_t>(0, 2, 3));
+      TESTER_ASSERT(a2.shape() == vector2ui(3, 2));
+      TESTER_ASSERT(a2(0, 0) == 0);
+      TESTER_ASSERT(a2(0, 1) == 1);
+
+      TESTER_ASSERT(a2(1, 0) == 4);
+      TESTER_ASSERT(a2(1, 1) == 5);
+
+      TESTER_ASSERT(a2(2, 0) == 6);
+      TESTER_ASSERT(a2(2, 1) == 7);
+   }
+
+   void test_matrix_copy_columns()
+   {
+      using matrix_type = Matrix<int>;
+      matrix_type a(2, 4);
+
+      a = { 0, 1, 2, 3, 4, 5, 6, 7 };
+
+      auto a2 = columns_copy(a, make_stdvector<size_t>(0, 2, 3));
+      TESTER_ASSERT(a2.shape() == vector2ui(2, 3));
+      TESTER_ASSERT(a2(0, 0) == 0);
+      TESTER_ASSERT(a2(1, 0) == 4);
+
+      TESTER_ASSERT(a2(0, 1) == 2);
+      TESTER_ASSERT(a2(1, 1) == 6);
+
+      TESTER_ASSERT(a2(0, 2) == 3);
+      TESTER_ASSERT(a2(1, 2) == 7);
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayDimIterator);
@@ -327,4 +437,8 @@ TESTER_TEST(test_slices);
 TESTER_TEST(test_slices_const);
 TESTER_TEST(test_values);
 TESTER_TEST(test_values_const);
+TESTER_TEST(test_matrix_column);
+TESTER_TEST(test_matrix_row);
+TESTER_TEST(test_matrix_copy_rows);
+TESTER_TEST(test_matrix_copy_columns);
 TESTER_TEST_SUITE_END();

@@ -46,7 +46,7 @@ if (${WITH_CUDA})
    find_package(CUDA REQUIRED)
    include_directories(${CUDA_INCLUDE_DIRS})
    include_directories(${CUDA_SDK_ROOT_DIR}/common/inc)
-   message(${CUDA_SDK_ROOT_DIR}/common/inc)
+   message("CUDA_TOOLKIT=" ${CUDA_SDK_ROOT_DIR}/common/inc)
 endif()
 
 # platform configuration
@@ -59,7 +59,7 @@ if (MSVC)
    add_compile_options(/fp:fast /fp:except- /openmp /MP /W4 /D${APPLICATION_PLATFORM})
 endif()
 
-add_definitions(-DPATH_TO_TEST_DATA="${PATH_TO_TEST_DATA}" -D_SCL_SECURE_NO_WARNINGS)
+add_definitions(-DPATH_TO_TEST_DATA=${PATH_TO_TEST_DATA} -D_SCL_SECURE_NO_WARNINGS)
 add_definitions(-DBOOST_ALL_DYN_LINK) #BOOST_ALL_DYN_LINK use the dynamic lib for boost
 
 

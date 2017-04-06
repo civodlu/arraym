@@ -236,9 +236,28 @@ struct TestMatrixCov
       TESTER_ASSERT(m(3, 0) == 4);
       TESTER_ASSERT(m(4, 0) == 5);
    }
+
+   void test_copy_as_matrix()
+   {
+      using vector3f = StaticVector<float, 3>;
+
+      std::vector<vector3f> values;
+      values.push_back(vector3f(1, 2, 3));
+      values.push_back(vector3f(4, 5, 6));
+
+      auto m = copy_as_matrix_row_major<float>(values);
+      TESTER_ASSERT(m.shape() == vector2ui(2, 3));
+      TESTER_ASSERT(m(0, 0) == 1);
+      TESTER_ASSERT(m(0, 1) == 2);
+      TESTER_ASSERT(m(0, 2) == 3);
+      TESTER_ASSERT(m(1, 0) == 4);
+      TESTER_ASSERT(m(1, 1) == 5);
+      TESTER_ASSERT(m(1, 2) == 6);
+   }
 };
 
 TESTER_TEST_SUITE(TestMatrixCov);
+TESTER_TEST(test_copy_as_matrix);
 TESTER_TEST(test_vector_asMatrix_rowMajor);
 TESTER_TEST(test_vector_asMatrix_colMajor);
 TESTER_TEST(test_vector_asArrayRowMajor);

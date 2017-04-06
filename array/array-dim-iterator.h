@@ -302,12 +302,18 @@ details::ArrayDimIterator_proxy<Array<T, N, Config>, 2> slices(Array<T, N, Confi
    return proxy_type(iter_type(&array, 0), iter_type(&array, array.shape()[dim]));
 }
 
+/**
+@brief Iterate on the values of an array
+*/
 template <class T, size_t N, class Config>
 details::ArrayValueIterator_proxy<Array<T, N, Config>> values(Array<T, N, Config>& array)
 {
    return details::ArrayValueIterator_proxy<Array<T, N, Config>>(array);
 }
 
+/**
+ @brief Iterate on the values of an array
+ */
 template <class T, size_t N, class Config>
 details::ArrayValueIterator_proxy<Array<T, N, Config>> values(const Array<T, N, Config>& array)
 {
@@ -315,6 +321,72 @@ details::ArrayValueIterator_proxy<Array<T, N, Config>> values(const Array<T, N, 
    // placeholder implementation. Needs to be properly implemented!
    // We MUST revisit all these iterators: losing constness, non-const->const iterator conversion... 
    return details::ArrayValueIterator_proxy<Array<T, N, Config>>(const_cast<Array<T, N, Config>&>(array));
+}
+
+/**
+ @brief return a reference of a column of a matrix
+ */
+template <class T, class Mapper, class Allocator, typename = typename std::enable_if<is_matrix<Matrix<T, Mapper, Allocator>>::value>::type>
+typename Matrix<T, Mapper, Allocator>::array_type_ref column(const Matrix<T, Mapper, Allocator>& array_c, ui32 col)
+{
+   using array_type = Matrix<T, Mapper, Allocator>;
+   using array_ref_type = ArrayRef<T, 2, typename array_type::Config>;
+ 
+   auto& array = const_cast<array_type&>(array_c); // TODO losing constness here. Must revisit the semantics of const arrays
+
+   StaticVector<ui32, 2> max = array.shape() - 1;
+   max[1] = col;
+   StaticVector<ui32, 2> min;
+   min[1] = col;
+
+   return array(min, max);
+}
+
+/**
+@brief return a reference of a row of a matrix
+*/
+template <class T, class Mapper, class Allocator, typename = typename std::enable_if<is_matrix<Matrix<T, Mapper, Allocator>>::value>::type>
+typename Matrix<T, Mapper, Allocator>::array_type_ref row(const Matrix<T, Mapper, Allocator>& array_c, ui32 row)
+{
+   using array_type = Matrix<T, Mapper, Allocator>;
+   using array_ref_type = ArrayRef<T, 2, typename array_type::Config>;
+
+   auto& array = const_cast<array_type&>(array_c); // TODO losing constness here. Must revisit the semantics of const arrays
+
+   StaticVector<ui32, 2> max = array.shape() - 1;
+   max[0] = row;
+   StaticVector<ui32, 2> min;
+   min[0] = row;
+
+   return array(min, max);
+}
+
+/**
+@brief copy rows of a matrix
+*/
+template <class T, class Mapper, class Allocator, class T2, typename = typename std::enable_if<is_matrix<Matrix<T, Mapper, Allocator>>::value>::type>
+Matrix<T, Mapper, Allocator> rows_copy(const Matrix<T, Mapper, Allocator>& array, const std::vector<T2>& row_ids)
+{
+   Matrix<T, Mapper, Allocator> cpy(row_ids.size(), array.columns());
+   for (auto it : enumerate(row_ids))
+   {
+      row(cpy, it.index) = row(array, *it);
+   }
+   return cpy;
+}
+
+/**
+@brief copy columns from a matrix
+*/
+template <class T, class Mapper, class Allocator, class T2, typename = typename std::enable_if<is_matrix<Matrix<T, Mapper, Allocator>>::value>::type>
+Matrix<T, Mapper, Allocator> columns_copy(const Matrix<T, Mapper, Allocator>& array, const std::vector<T2>& col_ids)
+{
+   Matrix<T, Mapper, Allocator> cpy(array.rows(), col_ids.size());
+   for (auto it : enumerate(col_ids))
+   {
+      column(cpy, it.index) = column(array, *it);
+   }
+   return cpy;
 }
 
 DECLARE_NAMESPACE_NLL_END

@@ -150,4 +150,37 @@ Array<T, N2, typename Config::template rebind_dim<N2>::other> as_array(const Arr
    return array;
 }
 
+/**
+ @brief import a matrix from 2D "array like" structure
+
+ This approach is slow as each element is accessed separately
+ */
+template <class T, class Points>
+Matrix_row_major<T> copy_as_matrix_row_major(const Points& values_by_row)
+{
+   using matrix_type = Matrix_row_major<T>;
+
+   const auto nb_rows = values_by_row.size();
+   if (!nb_rows)
+   {
+      return matrix_type();
+   }
+
+   const auto nb_columns = values_by_row[0].size();
+   if (!nb_columns)
+   {
+      return matrix_type();
+   }
+
+   matrix_type m(vector2ui{ nb_rows, nb_columns });
+   for (auto row : range(nb_rows))
+   {
+      for (auto column : range(nb_columns))
+      {
+         m(row, column) = static_cast<T>(values_by_row[row][column]);
+      }
+   }
+   return m;
+}
+
 DECLARE_NAMESPACE_NLL_END

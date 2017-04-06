@@ -51,7 +51,7 @@ Array_NaiveOperatorEnabled<T, N, Config1>& operator*=(Array<T, N, Config1>& lhs,
 }
 
 template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
-Array_NaiveOperatorEnabled<T, N, Config1> operator*(Array<T, N, Config1>& lhs, T2 value)
+Array_NaiveOperatorEnabled<T, N, Config1> operator*(const Array<T, N, Config1>& lhs, T2 value)
 {
    Array<T, N, Config1> cpy = lhs;
    cpy *= static_cast<T>(value);
@@ -89,7 +89,7 @@ Array_NaiveOperatorEnabled<T, N, Config1> operator-(const Array<T, N, Config1>& 
 }
 
 template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
-Array_NaiveOperatorEnabled<T, N, Config1> operator*(T2 value, Array<T, N, Config1>& rhs)
+Array_NaiveOperatorEnabled<T, N, Config1> operator*(T2 value, const Array<T, N, Config1>& rhs)
 {
    Array<T, N, Config1> cpy = rhs;
    cpy *= static_cast<T>(value);
