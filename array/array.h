@@ -246,6 +246,8 @@ public:
       return *this;
    }
 
+   Array& operator=(const const_array_type_ref& a1);
+
    /**
     @return the size of each dimension of the array
     */
@@ -538,6 +540,13 @@ public:
       return other(*this);
    }
 
+   template <class T2>
+   typename rebind<T2>::other cast() const
+   {
+      using other = typename rebind<T2>::other;
+      return other(*this);
+   }
+
    template <size_t slicing_dimension>
    using SlicingMemory = typename Memory::template slice_type<slicing_dimension>::type;
 
@@ -654,16 +663,22 @@ template <class T, size_t N, class Config>
 class ArrayRef : public Array<T, N, Config>
 {
 public:
-   using Base               = Array<T, N, Config>;
-   using array_type         = Array<T, N, Config>;
-   using index_type         = typename array_type::index_type;
-   using pointer_type       = typename array_type::pointer_type;
-   using const_pointer_type = typename array_type::const_pointer_type;
+   using Base                 = Array<T, N, Config>;
+   using array_type           = Array<T, N, Config>;
+   using const_array_type_ref = typename array_type::const_array_type_ref;
+   using index_type           = typename array_type::index_type;
+   using pointer_type         = typename array_type::pointer_type;
+   using const_pointer_type   = typename array_type::const_pointer_type;
 
    /**
     @brief Construct an array ref from an array
     */
-   explicit ArrayRef(array_type& array) : array_type(array, index_type(), array.shape(), index_type(1))
+   explicit ArrayRef(const array_type& array) : array_type(const_cast<array_type&>(array), index_type(), array.shape(), index_type(1))
+   {
+   }
+
+   // boost.python: just copy the reference
+   ArrayRef(const ArrayRef& array) : array_type(const_cast<ArrayRef&>(array), index_type(), array.shape(), index_type(1))
    {
    }
 
@@ -683,7 +698,19 @@ public:
       iterate_array_constarray(*this, array, op);
       return *this;
    }
-
+   
+   /*
+   ArrayRef& operator=(const const_array_type_ref& array)
+   {
+      ensure(array.shape() == this->shape(), "must have the same shape!");
+      auto op = [&](pointer_type y_pointer, ui32 y_stride, const_pointer_type x_pointer, ui32 x_stride, ui32 nb_elements)
+      {
+         details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
+      };
+      iterate_array_constarray(*this, array, op);
+      return *this;
+   }*/
+   
    ArrayRef& operator=(const ArrayRef& array)
    {
       return this->operator=(static_cast<const Base&>(array));
@@ -899,4 +926,21 @@ bool operator!=(const Array<T1, N, ConfigT1>& a1, const Array<T2, N, ConfigT2>& 
 {
    return !(a1 == a2);
 }
+
+template <class T, size_t N, class Config>
+Array<T, N, Config>& Array<T, N, Config>::operator=(const typename Array<T, N, Config>::const_array_type_ref& a1)
+{
+   if (a1.shape() != this->shape())
+   {
+      *this = Array<T, N, Config>(a1.shape());
+   }
+
+   auto op = [&](pointer_type y_pointer, ui32 y_stride, const_pointer_type x_pointer, ui32 x_stride, ui32 nb_elements)
+   {
+      details::copy_naive(y_pointer, y_stride, x_pointer, x_stride, nb_elements);
+   };
+   iterate_array_constarray(*this, a1, op);
+   return *this;
+}
+
 DECLARE_NAMESPACE_NLL_END

@@ -74,6 +74,14 @@ Array_NaiveOperatorEnabled<T, N, Config1> operator+(const Array<T, N, Config1>& 
 }
 
 template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
+Array_NaiveOperatorEnabled<T, N, Config1> operator+(T2 value, const Array<T, N, Config1>& lhs)
+{
+   Array<T, N, Config1> cpy = lhs;
+   cpy += static_cast<T>(value);
+   return cpy;
+}
+
+template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
 Array_NaiveOperatorEnabled<T, N, Config1>& operator-=(Array<T, N, Config1>& lhs, T2 value)
 {
    details::array_add_cte(lhs, static_cast<T>(-value));

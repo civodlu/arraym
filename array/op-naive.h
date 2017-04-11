@@ -64,7 +64,7 @@ void mul_naive(T* v1, size_t stride_v1, const T value, size_t size)
 template <class T>
 void div_naive(T* v1, size_t stride_v1, const T value, size_t size)
 {
-   NLL_FAST_ASSERT(value != 0, "div by 0");
+   NLL_FAST_ASSERT(value != T(0), "div by 0");
    const T* end = v1 + size * stride_v1;
    for (; v1 != end; v1 += stride_v1)
    {

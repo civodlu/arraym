@@ -76,6 +76,7 @@ struct TestArrayPerformance
 
    void test_values_iteration()
    {
+      srand(0);
       Timer timer;
 
       auto a = create_max(shape);
@@ -91,6 +92,87 @@ struct TestArrayPerformance
       std::cout << "Values=" << timer.getElapsedTime() - constructionTime << std::endl;
 
       std::cout << *(array_base_memory(a)+1) << std::endl;
+   }
+
+   
+   void test_values_iteration_iter()
+   {
+      srand(0);
+      Timer timer;
+
+      auto a = create_max(shape);
+
+      const float constructionTime = timer.getElapsedTime();
+      std::cout << "ConstructionTime=" << constructionTime << std::endl;
+
+      auto proxy = values(a);
+      auto end = proxy.end();
+      for (auto it = proxy.begin(); it != end; ++it)
+      {
+         *it *= *it;
+      }
+
+      std::cout << "Values=" << timer.getElapsedTime() - constructionTime << std::endl;
+
+      std::cout << *(array_base_memory(a) + 1) << std::endl;
+   }
+
+   void test_values_vector()
+   {
+      size_t nb_iter = 10;
+      std::vector<float> values_vec(100000000);
+      for (auto& value : values_vec)
+      {
+         value = generateUniformDistribution(-1.0f, 1.0f);
+      }
+
+      float sum = 0;
+
+      
+      Timer timerStditeration;
+      {
+         for (size_t n = 0; n < nb_iter; ++n)
+         {
+            for (auto& value : values_vec)
+            {
+               sum += value;
+            }
+         }
+      }
+      std::cout << "timerStditeration=" << timerStditeration.getElapsedTime() << std::endl;
+
+      Timer timerValuesIteration;
+      {
+         for (size_t n = 0; n < nb_iter; ++n)
+         {
+            for (auto& value : enumerate(values_vec))
+            {
+               sum += *value;
+            }
+         }
+      }
+      std::cout << "timerValuesIteration=" << timerValuesIteration.getElapsedTime() << std::endl;
+      
+      using array_type = Array<float, 1>;
+      array_type af(array_type::Memory(vector1ui(values_vec.size()), &values_vec[0]));
+      
+      //using array_type = Array<float, 2>;
+      //array_type af(array_type::Memory(vector2ui(values_vec.size(), 1), &values_vec[0]));
+
+      Timer timerArrayIteration;
+      {
+         for (size_t n = 0; n < nb_iter; ++n)
+         {
+            
+            for (auto& value : values(af))
+            {
+               sum += value;
+            }
+         }
+      }
+      std::cout << "timerArrayIteration=" << timerArrayIteration.getElapsedTime() << std::endl;
+
+      std::cout << sum << std::endl;
    }
 
    void test_iterator_dummy()
@@ -183,12 +265,16 @@ struct TestArrayPerformance
 };
 
 TESTER_TEST_SUITE(TestArrayPerformance);
+TESTER_TEST(test_values_vector);
+/*
 TESTER_TEST(test_range_dummy);
 TESTER_TEST(test_range);
 TESTER_TEST(test_iterator_single);
 TESTER_TEST(test_iterator_max);
 TESTER_TEST(test_values_iteration);
+TESTER_TEST(test_values_iteration_iter);
 TESTER_TEST(test_iterator_dummy);
 TESTER_TEST(test_write_speed);
 TESTER_TEST(test_read_speed);
+*/
 TESTER_TEST_SUITE_END();

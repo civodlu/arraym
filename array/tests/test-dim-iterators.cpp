@@ -8,7 +8,7 @@ DECLARE_NAMESPACE_NLL
 
 DECLARE_NAMESPACE_NLL_END
 
-struct TestArrayDimIterator
+struct TestDimIterator
 {
    void test_columns()
    {
@@ -412,6 +412,8 @@ struct TestArrayDimIterator
       a = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
       auto a2 = columns_copy(a, make_stdvector<size_t>(0, 2, 3));
+      std::cout << a2 << std::endl;
+
       TESTER_ASSERT(a2.shape() == vector2ui(2, 3));
       TESTER_ASSERT(a2(0, 0) == 0);
       TESTER_ASSERT(a2(1, 0) == 4);
@@ -424,7 +426,8 @@ struct TestArrayDimIterator
    }
 };
 
-TESTER_TEST_SUITE(TestArrayDimIterator);
+TESTER_TEST_SUITE(TestDimIterator);
+/*
 TESTER_TEST(test_columns);
 TESTER_TEST(test_columns_const);
 TESTER_TEST(test_rows);
@@ -440,5 +443,6 @@ TESTER_TEST(test_values_const);
 TESTER_TEST(test_matrix_column);
 TESTER_TEST(test_matrix_row);
 TESTER_TEST(test_matrix_copy_rows);
+*/
 TESTER_TEST(test_matrix_copy_columns);
 TESTER_TEST_SUITE_END();

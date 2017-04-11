@@ -95,7 +95,6 @@ TODO nice to have functions:
  - reshape
  - dot
  - split
- - dimension iterators
  - reorder axis (swap or transpose)
  - std, var
 */

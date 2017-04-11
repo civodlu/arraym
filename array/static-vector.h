@@ -151,7 +151,7 @@ public:
    }
 
    template <class T2>
-   StaticVector<T2, SIZE> staticCastTo() const
+   StaticVector<T2, SIZE> cast() const
    {
       StaticVector<T2, SIZE> casted;
       for (size_t n = 0; n < SIZE; ++n)

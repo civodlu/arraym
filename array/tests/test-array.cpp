@@ -799,7 +799,7 @@ struct TestArray
       Array m(2, 3);
       m = {1.1f, 2.0f, 3.6f, 4.9f, 5.0f, 6.0f};
 
-      const auto casted = m.staticCastTo<int>();
+      const auto casted = m.cast<int>();
       TESTER_ASSERT(casted(0, 0) == 1);
       TESTER_ASSERT(casted(1, 0) == 2);
       TESTER_ASSERT(casted(0, 1) == 3);
@@ -814,7 +814,7 @@ struct TestArray
       Array m(2, 3);
       m = {1.1f, 2.0f, 3.6f, 4.9f, 5.0f, 6.0f};
 
-      const auto casted = m.staticCastTo<int>();
+      const auto casted = m.cast<int>();
       TESTER_ASSERT(casted(0, 0) == 1);
       TESTER_ASSERT(casted(1, 0) == 2);
       TESTER_ASSERT(casted(0, 1) == 3);

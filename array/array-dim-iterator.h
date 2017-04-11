@@ -80,7 +80,7 @@ private:
 };
 
 template <class Proxy, class value_type>
-struct ArrayValueIterator
+struct ArrayValueIterator /*: std::iterator<std::input_iterator_tag, value_type>*/
 {
    ArrayValueIterator(Proxy* proxy) : _proxy(proxy)
    {
@@ -370,7 +370,10 @@ Matrix<T, Mapper, Allocator> rows_copy(const Matrix<T, Mapper, Allocator>& array
    Matrix<T, Mapper, Allocator> cpy(row_ids.size(), array.columns());
    for (auto it : enumerate(row_ids))
    {
-      row(cpy, it.index) = row(array, *it);
+      typename Matrix<T, Mapper, Allocator>::array_type_ref ref_left = row(cpy, it.index);
+      typename Matrix<T, Mapper, Allocator>::array_type_ref ref_right = row(array, *it);
+
+      ref_left = ref_right;
    }
    return cpy;
 }
@@ -384,7 +387,10 @@ Matrix<T, Mapper, Allocator> columns_copy(const Matrix<T, Mapper, Allocator>& ar
    Matrix<T, Mapper, Allocator> cpy(array.rows(), col_ids.size());
    for (auto it : enumerate(col_ids))
    {
-      column(cpy, it.index) = column(array, *it);
+      typename Matrix<T, Mapper, Allocator>::array_type_ref ref_left = column(cpy, it.index);
+      typename Matrix<T, Mapper, Allocator>::array_type_ref ref_right = column(array, *it);
+
+      ref_left = ref_right;
    }
    return cpy;
 }

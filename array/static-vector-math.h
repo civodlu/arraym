@@ -79,7 +79,7 @@ T norm2sqr(const StaticVector<T, N>& lhs)
 template <class T, size_t N>
 typename PromoteFloating<T>::type norm2(const StaticVector<T, N>& lhs)
 {
-   return static_cast<PromoteFloating<T>::type>(std::sqrt(norm2sqr(lhs)));
+   return static_cast<typename PromoteFloating<T>::type>(std::sqrt(norm2sqr(lhs)));
 }
 
 template <class T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>

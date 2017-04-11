@@ -501,6 +501,40 @@ struct TestArrayOp
       TESTER_ASSERT(r1(1, 0) == 6);
       TESTER_ASSERT(r1(2, 0) == 12);
    }
+
+   void test_add_cte()
+   {
+      using Array = Array<float, 2>;
+      
+      Array a1(3, 2);
+      a1 = { 0, 1, 2, 3, 4, 5 };
+
+      auto a2 = 1 + a1;
+      TESTER_ASSERT(a2.shape() == a1.shape());
+      TESTER_ASSERT(a2(0, 0) == a1(0, 0) + 1);
+      TESTER_ASSERT(a2(1, 0) == a1(1, 0) + 1);
+      TESTER_ASSERT(a2(2, 0) == a1(2, 0) + 1);
+      TESTER_ASSERT(a2(0, 1) == a1(0, 1) + 1);
+      TESTER_ASSERT(a2(1, 1) == a1(1, 1) + 1);
+      TESTER_ASSERT(a2(2, 1) == a1(2, 1) + 1);
+   }
+
+   void test_sub_cte()
+   {
+      using Array = Array<float, 2>;
+
+      Array a1(3, 2);
+      a1 = { 0, 1, 2, 3, 4, 5 };
+
+      auto a2 = a1 - 1;
+      TESTER_ASSERT(a2.shape() == a1.shape());
+      TESTER_ASSERT(a2(0, 0) == a1(0, 0) - 1);
+      TESTER_ASSERT(a2(1, 0) == a1(1, 0) - 1);
+      TESTER_ASSERT(a2(2, 0) == a1(2, 0) - 1);
+      TESTER_ASSERT(a2(0, 1) == a1(0, 1) - 1);
+      TESTER_ASSERT(a2(1, 1) == a1(1, 1) - 1);
+      TESTER_ASSERT(a2(2, 1) == a1(2, 1) - 1);
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayOp);
@@ -514,5 +548,6 @@ TESTER_TEST(testArray_mul_array);
 TESTER_TEST(testArray_matrix_memoryOrder);
 TESTER_TEST(testMatrix_transpose);
 TESTER_TEST(testMatrix_vector);
-
+TESTER_TEST(test_add_cte);
+TESTER_TEST(test_sub_cte);
 TESTER_TEST_SUITE_END();

@@ -173,6 +173,72 @@ struct TestArrayRef
       iterate_constarray(a1_const, sum);
       TESTER_ASSERT(value == 91);
    }
+
+   /*
+   // TODO fix!
+   void test_ref_copy_const_ref()
+   {
+      using array_type = Array<int, 1>;
+      array_type a1(4);
+      a1 = { 1, 2, 3, 4 };
+
+      array_type a2(a1.shape());
+      auto a2_ref = array_type::array_type_ref(a2);
+
+      auto const_a1 = array_type::const_array_type_ref(a1.asConst());
+      a2_ref = const_a1;
+
+      TESTER_ASSERT(a2.shape() == a1.shape());
+      TESTER_ASSERT(a2 == a1);
+   }*/
+
+   void test_copy_const_ref()
+   {
+      using array_type = Array<int, 1>;
+      array_type a1(4);
+      a1 = { 1, 2, 3, 4 };
+
+      array_type a2;
+      
+      auto const_a1 = array_type::const_array_type_ref(a1.asConst());
+      a2 = const_a1;
+
+      TESTER_ASSERT(a2.shape() == a1.shape());
+      TESTER_ASSERT(a2 == a1);
+   }
+
+   void test_copy_ref()
+   {
+      using array_type = Array<int, 1>;
+      array_type a1(4);
+      a1 = { 1, 2, 3, 4 };
+
+      array_type a2;
+
+      auto ref_a1 = array_type::array_type_ref(a1);
+      a2 = ref_a1;
+
+      TESTER_ASSERT(a2.shape() == a1.shape());
+      TESTER_ASSERT(a2 == a1);
+   }
+
+   void test_copy_construct_ref()
+   {
+      // expected to copy there reference, not the whole array (important for boost.python asArray)
+      using array_type = Array<int, 1>;
+      array_type a1(4);
+      a1 = { 1, 2, 3, 4 };
+
+      array_type::array_type_ref ref(a1);
+      array_type::array_type_ref ref2(ref);
+      TESTER_ASSERT(ref.shape() == ref2.shape());
+      TESTER_ASSERT(ref.shape() == a1.shape());
+
+      // make sure we are pointing to the same array
+      ref2[1] = 8;
+      TESTER_ASSERT(ref[1] == 8);
+      TESTER_ASSERT(a1[1] == 8);
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayRef);
@@ -183,4 +249,8 @@ TESTER_TEST(test_rebindMemory_contiguous);
 TESTER_TEST(test_rebindMemory_slice);
 TESTER_TEST(test_rebindArray_contiguous);
 TESTER_TEST(test_rebindArray_slice);
+//TESTER_TEST(test_ref_copy_const_ref);
+TESTER_TEST(test_copy_const_ref);
+TESTER_TEST(test_copy_ref);
+TESTER_TEST(test_copy_construct_ref);
 TESTER_TEST_SUITE_END();
