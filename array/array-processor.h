@@ -426,6 +426,11 @@ void _iterate_memory_constmemory_same_ordering(Memory1& a1, const Memory2& a2, c
    ensure(a1.shape() == a2.shape(), "must have the same shape!");
    ensure(same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
 
+   if (a1.size() == 0)
+   {
+      return;
+   }
+
    // we MUST use processors: data may not be contiguous or with stride...
    ConstMemoryProcessor_contiguous_byMemoryLocality<Memory2> processor_a2(a2, 0);
    MemoryProcessor_contiguous_byMemoryLocality<Memory1> processor_a1(a1, 0);
@@ -459,6 +464,11 @@ void _iterate_memory_constmemory_different_ordering(Memory1& a1, const Memory2& 
    ensure(Memory1::RANK == Memory2::RANK, "must have the same rank!");
    ensure(a1.shape() == a2.shape(), "must have the same shape!");
    ensure(!same_data_ordering_memory(a1, a2), "data must have a similar ordering!");
+
+   if (a1.size() == 0)
+   {
+      return;
+   }
 
    // we MUST use processors: data may not be contiguous or with stride...
    // additionally the order of dimensions are different, so map the a2 order

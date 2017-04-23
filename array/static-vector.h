@@ -12,7 +12,7 @@ const static No_init_tag no_init_tag;
 @ingroup core
 @brief implement static vectors. Memory is allocated on the heap. Memory is not shared accross instances.
 */
-template <class T, size_t SIZE>
+template <class T, size_t N>
 class StaticVector
 {
 public:
@@ -25,10 +25,7 @@ public:
    typedef T& reference;
    typedef const T& const_reference;
 
-   enum
-   {
-      sizeDef = SIZE
-   };
+   static const size_t SIZE = N;
 
    static_assert(std::is_trivially_copyable<T>::value, "must be trivial to copy");
 
@@ -276,5 +273,13 @@ using vector4ui = StaticVector<ui32, 4>;
 using vector3ui = StaticVector<ui32, 3>;
 using vector2ui = StaticVector<ui32, 2>;
 using vector1ui = StaticVector<ui32, 1>;
+
+template <class Type>
+struct is_static_vector : public std::false_type
+{};
+
+template <class T, size_t N>
+struct is_static_vector<StaticVector<T, N>> : public std::true_type
+{};
 
 DECLARE_NAMESPACE_NLL_END

@@ -857,6 +857,16 @@ struct TestArray
       TESTER_ASSERT(a3 != a2);
 
    }
+
+   void testArrayRef_baseMemory()
+   {
+      using Array2 = NAMESPACE_NLL::Array<int, 2>;
+      Array2 a2(2, 3);
+      a2 = { 1, 2, 3, 4, 5, 6 };
+
+      Array2::array_type_ref a2_ref(a2);
+      TESTER_ASSERT(NAMESPACE_NLL::array_base_memory(a2) == NAMESPACE_NLL::array_base_memory(a2_ref));
+   }
 };
 
 TESTER_TEST_SUITE(TestArray);
@@ -888,4 +898,5 @@ TESTER_TEST(testStaticCast);
 TESTER_TEST(testStaticCast_slice);
 TESTER_TEST(testArray1d);
 TESTER_TEST(testArray_equal);
+TESTER_TEST(testArrayRef_baseMemory);
 TESTER_TEST_SUITE_END();

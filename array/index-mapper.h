@@ -203,6 +203,12 @@ public:
       return _physicalStrides;
    }
 
+   // this is not part of the generic interface but can be specifically used for a memory/mapper
+   void _setPhysicalStrides(const index_type& physicalStrides)
+   {
+      _physicalStrides = physicalStrides;
+   }
+
    /**
     @brief slice an array following @p dimension at the position @p index
     */

@@ -285,12 +285,7 @@ public:
     */
    size_t size() const
    {
-      size_t s = 1;
-      for (int n = 0; n < N; ++n)
-      {
-         s *= _memory.shape()[n];
-      }
-      return s;
+      return _memory.size();
    }
 
    /**
@@ -878,6 +873,19 @@ struct GetBaseMemory<Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_conti
    }
 };
 
+template <class T, size_t N, class Allocator, class Mapper, class PointerType>
+struct GetBaseMemory<ArrayRef<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, Mapper, Allocator, PointerType>>>>
+{
+   using array_type = ArrayRef<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_contiguous<T, N, Mapper, Allocator, PointerType>>>;
+   using pointer_type = typename array_type::pointer_type;
+   using index_type = typename array_type::index_type;
+
+   pointer_type operator()(const array_type& array)
+   {
+      return array.getMemory().at(index_type());
+   }
+};
+
 //
 // TODO extend your custom types here
 //
@@ -892,6 +900,10 @@ struct GetBaseMemory<Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_conti
 template <class Array>
 typename Array::pointer_type array_base_memory(const Array& array)
 {
+   if (array.size() == 0)
+   {
+      return nullptr;
+   }
    return details::GetBaseMemory<Array>()(array);
 }
 

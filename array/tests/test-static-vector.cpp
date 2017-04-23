@@ -17,8 +17,17 @@ struct TestStaticVector
       TESTER_ASSERT(r[4] == 1);
       TESTER_ASSERT(r[5] == 2);
    }
+
+   void test_conversion()
+   {
+      StaticVector< ui8, 1> v_ui8(127);
+
+      StaticVector< float, 1> v_f(v_ui8);
+      TESTER_ASSERT(v_f[0] == 127);
+   }
 };
 
 TESTER_TEST_SUITE(TestStaticVector);
 TESTER_TEST(test_round);
+TESTER_TEST(test_conversion);
 TESTER_TEST_SUITE_END();

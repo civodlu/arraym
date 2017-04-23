@@ -91,6 +91,7 @@
 
 /*
 TODO nice to have functions:
+ - array<vector3f> * cte [...]
  - rand
  - reshape
  - dot

@@ -76,6 +76,12 @@ struct TestArrayTraits
       static_assert(std::is_same<tuple_split<tuple>::tail, std::tuple<const int, double, char>>::value, "error");
       static_assert(std::is_same<tuple_split<tuple>::head, float>::value, "error");
    }
+
+   void test_isStaticVector()
+   {
+      static_assert(is_static_vector<StaticVector<float, 4>>::value, "error!");
+      static_assert(!is_static_vector<float>::value, "error!");
+   }
 };
 
 // these are all static tests

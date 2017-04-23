@@ -509,6 +509,21 @@ public:
       return _indexMapper;
    }
 
+   IndexMapper& getIndexMapper()
+   {
+      return _indexMapper;
+   }
+
+   size_t size() const
+   {
+      size_t s = 1;
+      for (int n = 0; n < N; ++n)
+      {
+         s *= _shape[n];
+      }
+      return s;
+   }
+
 private:
    IndexMapper _indexMapper;
    index_type _shape;
