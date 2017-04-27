@@ -869,7 +869,7 @@ struct GetBaseMemory<Array<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_conti
 
    pointer_type operator()(const array_type& array)
    {
-      return array.getMemory().at(index_type());
+      return pointer_type(array.getMemory().at(index_type()));
    }
 };
 
@@ -882,7 +882,7 @@ struct GetBaseMemory<ArrayRef<T, N, ArrayTraitsConfig<T, N, Allocator, Memory_co
 
    pointer_type operator()(const array_type& array)
    {
-      return array.getMemory().at(index_type());
+      return pointer_type(array.getMemory().at(index_type()));
    }
 };
 
@@ -902,7 +902,7 @@ typename Array::pointer_type array_base_memory(const Array& array)
 {
    if (array.size() == 0)
    {
-      return nullptr;
+      return Array::pointer_type(nullptr);
    }
    return details::GetBaseMemory<Array>()(array);
 }
