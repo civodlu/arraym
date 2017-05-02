@@ -34,13 +34,21 @@
 
 #ifndef NLL_ASSERT_IMPL
 # define NLL_ASSERT_IMPL( _e, _s ) \
-          if ( ( _e ) == 0 ) {                                      \
-            std::stringstream ss_impl;                              \
-            ss_impl << _s;                                          \
-            std::cout << "------------" << std::endl;				     \
+          if ( ( _e ) == 0 ) {                                       \
+            std::stringstream ss_impl;                               \
+            ss_impl << _s;                                           \
+            std::cout << "------------" << std::endl;				 \
 	         std::cout << "Error : " << ss_impl.str() << std::endl;  \
 	         std::cout << "  Location : " << __FILE__ << std::endl;  \
 	         std::cout << "  Line     : " << __LINE__ << std::endl;  \
+            throw std::runtime_error( ss_impl.str() ); } 0    // 0 to force the ";"
+#endif
+
+#ifndef NLL_ASSERT_NOCOUT_IMPL
+# define NLL_ASSERT_NOCOUT_IMPL( _e, _s )                           \
+          if ( ( _e ) == 0 ) {                                      \
+            std::stringstream ss_impl;                              \
+            ss_impl << _s;                                          \
             throw std::runtime_error( ss_impl.str() ); } 0    // 0 to force the ";"
 #endif
 
@@ -60,6 +68,7 @@
 #endif
 
 #define ensure( _e, _s ) NLL_ASSERT_IMPL(_e, _s)
+#define ensure_nocout( _e, _s ) NLL_ASSERT_NOCOUT_IMPL(_e, _s)
 
 #include <sstream>
 #include <vector>

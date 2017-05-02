@@ -18,6 +18,21 @@ Matrix<T> identity(size_t rank)
 }
 
 /**
+@brief identity matrix
+*/
+template <class MatrixType>
+MatrixType identityMatrix(size_t rank)
+{
+   MatrixType m({rank, rank});
+   for (size_t n = 0; n < rank; ++n)
+   {
+      m(n, n) = 1;
+   }
+
+   return m;
+}
+
+/**
 @brief fill the matrix as identity
 */
 template <class T, class Config>

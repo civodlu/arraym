@@ -192,6 +192,35 @@ struct adaptor_count
 
    const Predicate& predicate;
 };
+
+/**
+@brief Simple adaptor for the stddev function
+
+The purpose is to simplify the API: let the compiler figure out what is the type of the array
+*/
+struct adaptor_stddev
+{
+   template <class T, size_t N, class Config>
+   T operator()(const Array<T, N, Config>& array) const
+   {
+      return stddev(array);
+   }
+};
+
+/**
+@brief Simple adaptor for the variance function
+
+The purpose is to simplify the API: let the compiler figure out what is the type of the array
+*/
+struct adaptor_variance
+{
+   template <class T, size_t N, class Config>
+   T operator()(const Array<T, N, Config>& array) const
+   {
+      return variance(array);
+   }
+};
+
 }
 
 /**
@@ -211,6 +240,26 @@ template <class T, size_t N, class Config>
 axis_apply_fun_type<T, N, Config, details::adaptor_sum> sum(const Array<T, N, Config>& array, size_t axis)
 {
    details::adaptor_sum f;
+   return constarray_axis_apply_function(array, axis, f);
+}
+
+/**
+@brief return the variance of all the elements contained in the array along a given axis
+*/
+template <class T, size_t N, class Config>
+axis_apply_fun_type<T, N, Config, details::adaptor_variance> variance(const Array<T, N, Config>& array, size_t axis)
+{
+   details::adaptor_variance f;
+   return constarray_axis_apply_function(array, axis, f);
+}
+
+/**
+@brief return the standard deviation of all the elements contained in the array along a given axis
+*/
+template <class T, size_t N, class Config>
+axis_apply_fun_type<T, N, Config, details::adaptor_stddev> stddev(const Array<T, N, Config>& array, size_t axis)
+{
+   details::adaptor_stddev f;
    return constarray_axis_apply_function(array, axis, f);
 }
 

@@ -80,6 +80,41 @@ Array_NaiveEnabled<T, N, Config>& array_div(Array<T, N, Config>& a1, T a2)
 }
 
 /**
+@brief Computes a1 /= a2, element by element
+*/
+template <class T, class T2, size_t N, class Config, class Config2>
+Array<T, N, Config>& array_div_elementwise(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2)
+{
+   ensure(a1.shape() == a2.shape(), "must have the same shape!");
+   auto op = &div_naive_elementwise<T, T2>;
+   iterate_array_constarray(a1, a2, op);
+   return a1;
+}
+
+/**
+@brief Computes a1 /= a2, element by element
+*/
+template <class T, class T2, size_t N, class Config, class Config2>
+Array<T, N, Config>& array_mul_elementwise_inplace(Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2)
+{
+   ensure(a1.shape() == a2.shape(), "must have the same shape!");
+   auto op = &mul_naive_elementwise<T, T2>;
+   iterate_array_constarray(a1, a2, op);
+   return a1;
+}
+
+/**
+@brief Computes a1 /= a2, element by element
+*/
+template <class T, class T2, size_t N, class Config, class Config2>
+Array<T, N, Config> array_mul_elementwise(const Array<T, N, Config>& a1, const Array<T2, N, Config2>& a2)
+{
+   auto copy = a1;
+   array_mul_elementwise_inplace(copy, a2);
+   return copy;
+}
+
+/**
  @brief Display matrices
  */
 template <class T, size_t N, class Config, typename = typename std::enable_if<is_matrix<Array<T, N, Config>>::value>::type>

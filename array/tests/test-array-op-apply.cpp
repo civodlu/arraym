@@ -475,9 +475,63 @@ struct TestArrayOpApply
       TESTER_ASSERT(equal<float>(value[1], std::sqrt(4.0f * 4 + 5 * 5 + 6 * 6), 1e-4f));
       TESTER_ASSERT(equal<float>(value[2], std::sqrt(7.0f * 7 + 8 * 8 + 9 * 9), 1e-4f));
    }
+
+   void test_stddev()
+   {
+      using array_type = Array<float, 2>;
+
+      array_type a(5, 1);
+      a = { 600, 470, 170, 430, 300 };
+
+      {
+         auto stddev_value = stddev(a);
+         TESTER_ASSERT(equal<float>(stddev_value, 147.323, 1e-3));
+      }
+
+      {
+         auto stddev_value = stddev(a, 0);
+         TESTER_ASSERT(stddev_value.shape() == vector1ui(1));
+         TESTER_ASSERT(equal<float>(stddev_value(0), 147.323, 1e-3));
+      }
+
+      {
+         auto variance_value = variance(a);
+         TESTER_ASSERT(equal<float>(variance_value, 147.323 * 147.323, 1e-1));
+      }
+
+      {
+         auto variance_value = variance(a, 0);
+         TESTER_ASSERT(variance_value.shape() == vector1ui(1));
+         TESTER_ASSERT(equal<float>(variance_value(0), 147.323 * 147.323, 1e-1));
+      }
+   }
+
+   void test_matrix_mean_add_conversion()
+   {
+      using array_type = Matrix_row_major<float>;
+
+      array_type m(2, 3);
+      m = { 1, 2, 3, 4, 5, 6 };
+
+      auto mean_value = mean(m, 0);
+      TESTER_ASSERT(mean_value.shape() == vector1ui(3));
+
+      auto copy = Vector<double>(mean_value);
+      Vector<double> copy2 = mean_value;
+      Vector<float> copy3;
+      copy3.copy(mean_value);
+
+      // Vector<float> copy4 = mean_value; // TODO: index mapper is different but compatible. Implement!
+      TESTER_ASSERT(norm2(copy2 - copy) < 1e-5f);
+      TESTER_ASSERT(norm2(copy3.cast<double>() - copy) < 1e-5f);
+      TESTER_ASSERT(equal<float>(copy(0), (1.0f + 4.0f) / 2, 1e-4f));
+      TESTER_ASSERT(equal<float>(copy(1), (2.0f + 5.0f) / 2, 1e-4f));
+      TESTER_ASSERT(equal<float>(copy(2), (3.0f + 6.0f) / 2, 1e-4f));
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayOpApply);
+TESTER_TEST(test_stddev);
 TESTER_TEST(test_array_apply_function);
 TESTER_TEST(test_array_apply_functions);
 TESTER_TEST(test_array_argmax);
@@ -486,4 +540,5 @@ TESTER_TEST(test_sqr_vec);
 TESTER_TEST(test_norm2_vec);
 TESTER_TEST(test_norm2sqr);
 TESTER_TEST(test_norm2_elementwise);
+TESTER_TEST(test_matrix_mean_add_conversion);
 TESTER_TEST_SUITE_END();

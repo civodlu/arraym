@@ -150,13 +150,9 @@ public:
     Each element will be static_cast to the array type
     */
    template <class T2, class Config2>
-   explicit Array(const Array<T2, N, Config2>& array) : Array(array.shape())
+   Array(const Array<T2, N, Config2>& array) : Array(array.shape())
    {
-      auto op = [&](pointer_type a1_pointer, ui32 a1_stride, typename Array<T2, N, Config2>::const_pointer_type a2_pointer, ui32 a2_stride, ui32 nb_elements) {
-         details::static_cast_naive(a1_pointer, a1_stride, a2_pointer, a2_stride, nb_elements);
-      };
-
-      _iterate_array_constarray(*this, array, op);
+      copy(array);
    }
 
    /**
@@ -564,6 +560,25 @@ public:
       _memory = src._memory;
    }
 
+   /**
+    @brief generic copy, iterate through each element
+    */
+   template <class T2, class Config2>
+   void copy(const Array<T2, N, Config2>& array)
+   {
+      if (shape() != array.shape())
+      {
+         *this = Array(array.shape());
+      }
+
+      auto op = [&](pointer_type a1_pointer, ui32 a1_stride, typename Array<T2, N, Config2>::const_pointer_type a2_pointer, ui32 a2_stride, ui32 nb_elements)
+      {
+         details::static_cast_naive(a1_pointer, a1_stride, a2_pointer, a2_stride, nb_elements);
+      };
+
+      _iterate_array_constarray(*this, array, op);
+   }
+
 protected:
    void _move(array_type&& src)
    {
@@ -588,9 +603,23 @@ public:
 template <class T, class Mapper = IndexMapper_contiguous_matrix_column_major, class Allocator = std::allocator<T>>
 using Matrix = Array<T, 2, ArrayTraitsConfig<T, 2, Allocator, Memory_contiguous<T, 2, Mapper, Allocator>>>;
 
+/**
+ @brief Stores the data in row-major format
+
+                 [1, 2, 3]
+  e.g., a matrix [4, 5, 6] will be stored in memory as [1 2 3 4 5 6 7 8 9]
+                 [7, 8, 9]
+ */
 template <class T, class Allocator = std::allocator<T>>
 using Matrix_row_major = Matrix<T, IndexMapper_contiguous_matrix_row_major, Allocator>;
 
+/**
+  @brief Stores the data in column-major format
+
+                 [1, 2, 3]
+  e.g., a matrix [4, 5, 6] will be stored in memory as [1 4 7 2 5 8 3 6 9]
+                 [7, 8, 9]
+*/
 template <class T, class Allocator = std::allocator<T>>
 using Matrix_column_major = Matrix<T, IndexMapper_contiguous_matrix_column_major, Allocator>;
 
@@ -953,6 +982,15 @@ Array<T, N, Config>& Array<T, N, Config>::operator=(const typename Array<T, N, C
    };
    iterate_array_constarray(*this, a1, op);
    return *this;
+}
+
+/**
+ @brief Convenience function to create a reference
+ */
+template <class T, size_t N, class Config>
+ArrayRef<T, N, Config> as_ref(Array<T, N, Config>& array)
+{
+   return ArrayRef<T, N, Config>(array);
 }
 
 DECLARE_NAMESPACE_NLL_END

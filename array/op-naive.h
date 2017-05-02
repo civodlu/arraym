@@ -73,6 +73,32 @@ void div_naive(T* v1, size_t stride_v1, const T value, size_t size)
 }
 
 /**
+ @brief Compute v1[e] /= v2[e] elementwise
+ */
+template <class T, class T2>
+void div_naive_elementwise(T* v1, size_t stride_v1, const T2* v2, size_t stride_v2, size_t size)
+{
+   const T* end = v1 + size * stride_v1;
+   for (; v1 != end; v1 += stride_v1, v2 += stride_v2)
+   {
+      *v1 /= *v2;
+   }
+}
+
+/**
+@brief Compute v1[e] *= v2[e] elementwise
+*/
+template <class T, class T2>
+void mul_naive_elementwise(T* v1, size_t stride_v1, const T2* v2, size_t stride_v2, size_t size)
+{
+   const T* end = v1 + size * stride_v1;
+   for (; v1 != end; v1 += stride_v1, v2 += stride_v2)
+   {
+      *v1 *= *v2;
+   }
+}
+
+/**
     @brief compute v1 += v2 * mul
     */
 template <class T>

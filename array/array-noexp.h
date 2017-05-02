@@ -111,11 +111,26 @@ Array_NaiveOperatorEnabled<T, N, Config1>& operator/=(Array<T, N, Config1>& lhs,
    return lhs;
 }
 
+template <class T, class T2, size_t N, class Config1, class Config2>
+Array_NaiveOperatorEnabled<T, N, Config1>& operator/=(Array<T, N, Config1>& lhs, const Array<T2, N, Config2>& rhs)
+{
+   details::array_div_elementwise(lhs, rhs);
+   return lhs;
+}
+
 template <class T, class T2, size_t N, class Config1, typename = typename std::enable_if<std::is_convertible<T2, T>::value>::type>
 Array_NaiveOperatorEnabled<T, N, Config1> operator/(Array<T, N, Config1>& lhs, T2 value)
 {
    Array<T, N, Config1> cpy = lhs;
    cpy /= static_cast<T>(value);
+   return cpy;
+}
+
+template <class T, class T2, size_t N, class Config1, class Config2>
+Array_NaiveOperatorEnabled<T, N, Config1> operator/(const Array<T, N, Config1>& lhs, const Array<T2, N, Config2>& rhs)
+{
+   Array<T, N, Config1> cpy = lhs;
+   cpy /= rhs;
    return cpy;
 }
 

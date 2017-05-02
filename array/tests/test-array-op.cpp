@@ -535,6 +535,98 @@ struct TestArrayOp
       TESTER_ASSERT(a2(1, 1) == a1(1, 1) - 1);
       TESTER_ASSERT(a2(2, 1) == a1(2, 1) - 1);
    }
+
+   void test_array_div_array()
+   {
+      using Arrayf = Array<float, 2>;
+      using Arrayd = Array<double, 2>;
+
+      Arrayf a1(3, 2);
+      a1 = { 0, 1, 2, 3, 4, 5 };
+
+      Arrayd a2(3, 2);
+      a2 = { 10, 11, 12, 13, 14, 15 };
+
+      Arrayf result = a1;
+      result = a1 / a2;
+
+      TESTER_ASSERT(result.shape() == a2.shape());
+      TESTER_ASSERT(equal<float>(result(0, 0), a1(0, 0) / a2(0, 0), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(1, 0), a1(1, 0) / a2(1, 0), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(2, 0), a1(2, 0) / a2(2, 0), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(0, 1), a1(0, 1) / a2(0, 1), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(1, 1), a1(1, 1) / a2(1, 1), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(2, 1), a1(2, 1) / a2(2, 1), 1e-5f));
+   }
+
+   void test_array_div_array_inplace()
+   {
+      using Arrayf = Array<float, 2>;
+      using Arrayd = Array<double, 2>;
+
+      Arrayf a1(3, 2);
+      a1 = { 0, 1, 2, 3, 4, 5 };
+
+      Arrayd a2(3, 2);
+      a2 = { 10, 11, 12, 13, 14, 15 };
+
+      Arrayf result = a1;
+      result /= a2;
+
+      TESTER_ASSERT(result.shape() == a2.shape());
+      TESTER_ASSERT(equal<float>(result(0, 0), a1(0, 0) / a2(0, 0), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(1, 0), a1(1, 0) / a2(1, 0), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(2, 0), a1(2, 0) / a2(2, 0), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(0, 1), a1(0, 1) / a2(0, 1), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(1, 1), a1(1, 1) / a2(1, 1), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(2, 1), a1(2, 1) / a2(2, 1), 1e-5f));
+   }
+
+   void test_array_mul_array_inplace()
+   {
+      using Arrayf = Array<float, 2>;
+      using Arrayd = Array<double, 2>;
+
+      Arrayf a1(3, 2);
+      a1 = { 0, 1, 2, 3, 4, 5 };
+
+      Arrayd a2(3, 2);
+      a2 = { 10, 11, 12, 13, 14, 15 };
+
+      Arrayf result = a1;
+      details::array_mul_elementwise_inplace(result, a2);
+
+      TESTER_ASSERT(result.shape() == a2.shape());
+      TESTER_ASSERT(equal<float>(result(0, 0), a1(0, 0) * a2(0, 0), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(1, 0), a1(1, 0) * a2(1, 0), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(2, 0), a1(2, 0) * a2(2, 0), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(0, 1), a1(0, 1) * a2(0, 1), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(1, 1), a1(1, 1) * a2(1, 1), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(2, 1), a1(2, 1) * a2(2, 1), 1e-5f));
+   }
+
+   void test_array_mul_array()
+   {
+      using Arrayf = Array<float, 2>;
+      using Arrayd = Array<double, 2>;
+
+      Arrayf a1(3, 2);
+      a1 = { 0, 1, 2, 3, 4, 5 };
+
+      Arrayd a2(3, 2);
+      a2 = { 10, 11, 12, 13, 14, 15 };
+
+      Arrayf result = a1;
+      result = details::array_mul_elementwise(a1, a2);
+
+      TESTER_ASSERT(result.shape() == a2.shape());
+      TESTER_ASSERT(equal<float>(result(0, 0), a1(0, 0) * a2(0, 0), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(1, 0), a1(1, 0) * a2(1, 0), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(2, 0), a1(2, 0) * a2(2, 0), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(0, 1), a1(0, 1) * a2(0, 1), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(1, 1), a1(1, 1) * a2(1, 1), 1e-5f));
+      TESTER_ASSERT(equal<float>(result(2, 1), a1(2, 1) * a2(2, 1), 1e-5f));
+   }
 };
 
 TESTER_TEST_SUITE(TestArrayOp);
@@ -550,4 +642,8 @@ TESTER_TEST(testMatrix_transpose);
 TESTER_TEST(testMatrix_vector);
 TESTER_TEST(test_add_cte);
 TESTER_TEST(test_sub_cte);
+TESTER_TEST(test_array_div_array);
+TESTER_TEST(test_array_div_array_inplace);
+TESTER_TEST(test_array_mul_array_inplace);
+TESTER_TEST(test_array_mul_array);
 TESTER_TEST_SUITE_END();

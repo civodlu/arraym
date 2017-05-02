@@ -189,7 +189,7 @@ public:
             return r;
          }
       }
-      ensure(0, "All BLAS function calls failed!");
+      ensure_nocout(0, "All BLAS function calls failed!");
    }
 
    template <BlasFunction F>

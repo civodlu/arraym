@@ -521,4 +521,31 @@ ui32 count(const Array<T, N, Config>& array, const Predicate& predicate)
    return c;
 }
 
+/**
+@brief return the variance of the elements in the array
+
+   Var(X) = E[(X-mean)^2]
+*/
+template <class T, size_t N, class Config, class Accum = T>
+Accum variance(const Array<T, N, Config>& array)
+{
+   auto mean_value = mean<T, N, Config, Accum>(array);
+
+   Accum accum = 0;
+   auto f = [&](T value) { accum += sqr(value - mean_value); };
+   constarray_apply_function_inplace(array, f);
+   return accum / array.size();
+}
+
+/**
+@brief return the variance of the elements in the array
+
+Stddev(X) = sqrt(E[(X-mean)^2])
+*/
+template <class T, size_t N, class Config, class Accum = T>
+Accum stddev(const Array<T, N, Config>& array)
+{
+   return std::sqrt(variance<T, N, Config, Accum>(array));
+}
+
 DECLARE_NAMESPACE_NLL_END
