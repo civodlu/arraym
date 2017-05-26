@@ -261,6 +261,16 @@ public:
    }
 
    /**
+   @brief serialize to a binary stream the array
+   */
+   void write(const std::string& path) const
+   {
+      std::ofstream f(path.c_str(), std::ios::binary);
+      ensure(f.good(), "can't open file=" << path);
+      this->write(f);
+   }
+
+   /**
     @brief serialize to a binary stream the array
    */
    void write(std::ostream& f) const
@@ -274,6 +284,16 @@ public:
    void read(std::istream& f)
    {
       details::read(*this, f);
+   }
+
+   /**
+   @brief serialize to a binary stream the array
+   */
+   void read(const std::string& path)
+   {
+      std::ifstream f(path.c_str(), std::ios::binary);
+      ensure(f.good(), "can't open file=" << path);
+      this->read(f);
    }
 
    /**

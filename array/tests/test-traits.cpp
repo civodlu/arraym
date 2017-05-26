@@ -80,6 +80,7 @@ struct TestArrayTraits
    void test_isStaticVector()
    {
       static_assert(is_static_vector<StaticVector<float, 4>>::value, "error!");
+      static_assert(is_static_vector<StaticVector<float, 3>>::value, "error!");
       static_assert(!is_static_vector<float>::value, "error!");
    }
 };

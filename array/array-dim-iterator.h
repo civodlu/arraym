@@ -395,4 +395,63 @@ Matrix<T, Mapper, Allocator> columns_copy(const Matrix<T, Mapper, Allocator>& ar
    return cpy;
 }
 
+/**
+@brief return a reference of a row of an array
+*/
+template <class T, size_t N, class Config, typename = typename std::enable_if<!is_matrix<Array<T, N, Config>>::value>::type>
+typename Array<T, N, Config>::array_type_ref row(const Array<T, N, Config>& array_c, ui32 row)
+{
+   static_assert(N >= 2, "must have at leas rank 2!");
+   using array_type = Array< T, N, Config>;
+   using array_ref_type = typename array_type::array_type_ref;
+
+   auto& array = const_cast<array_type&>(array_c); // TODO losing constness here. Must revisit the semantics of const arrays
+
+   StaticVector<ui32, N> max = array.shape() - 1;
+   max[1] = row;
+   StaticVector<ui32, N> min;
+   min[1] = row;
+
+   return array(min, max);
+}
+
+/**
+@brief return a reference of a column of an array
+*/
+template <class T, size_t N, class Config, typename = typename std::enable_if<!is_matrix<Array<T, N, Config>>::value>::type>
+typename Array<T, N, Config>::array_type_ref column(const Array<T, N, Config>& array_c, ui32 col)
+{
+   using array_type = Array< T, N, Config>;
+   using array_ref_type = typename array_type::array_type_ref;
+
+   auto& array = const_cast<array_type&>(array_c); // TODO losing constness here. Must revisit the semantics of const arrays
+
+   StaticVector<ui32, N> max = array.shape() - 1;
+   max[0] = col;
+   StaticVector<ui32, N> min;
+   min[0] = col;
+
+   return array(min, max);
+}
+
+/**
+@brief return a reference of a slice of an array
+*/
+template <class T, size_t N, class Config, typename = typename std::enable_if<!is_matrix<Array<T, N, Config>>::value>::type>
+typename Array<T, N, Config>::array_type_ref slice(const Array<T, N, Config>& array_c, ui32 slice)
+{
+   static_assert(N >= 3, "must have at leas rank 2!");
+   using array_type = Array< T, N, Config>;
+   using array_ref_type = typename array_type::array_type_ref;
+
+   auto& array = const_cast<array_type&>(array_c); // TODO losing constness here. Must revisit the semantics of const arrays
+
+   StaticVector<ui32, N> max = array.shape() - 1;
+   max[2] = slice;
+   StaticVector<ui32, N> min;
+   min[2] = slice;
+
+   return array(min, max);
+}
+
 DECLARE_NAMESPACE_NLL_END
