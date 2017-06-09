@@ -47,6 +47,7 @@ set(Headers array.h
 			enumerate.h
 			array-op-logical.h
 			vector-helpers.h
+			array-transpose.h
 			${CMAKE_BINARY_DIR}/${LIBNAME}/config.h
 )
                

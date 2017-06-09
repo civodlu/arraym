@@ -43,21 +43,4 @@ Matrix_NaiveEnabled<T, 2, Config> array_mul_array(const Array<T, 2, Config>& op1
 }
 }
 
-/**
- @brief Transpose a matrix
- */
-template <class T, class Config>
-Array<T, 2, Config> transpose(const Array<T, 2, Config>& m)
-{
-   Array<T, 2, Config> r({ m.shape()[1], m.shape()[0] });
-   for (size_t nx = 0; nx < r.shape()[1]; ++nx)
-   {
-      for (size_t ny = 0; ny < r.shape()[0]; ++ny)
-      {
-         r(ny, nx) = m(nx, ny);
-      }
-   }
-   return r;
-}
-
 DECLARE_NAMESPACE_NLL_END

@@ -136,6 +136,7 @@ TODO nice to have functions:
 #include "array-noexp.h"
 
 #include "matrix-op-impl-naive.h"
+#include "array-transpose.h"
 #include "matrix-op-identity.h"
 #include "matrix-vector.h"
 #include "repmat.h"
