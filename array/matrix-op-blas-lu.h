@@ -11,7 +11,7 @@ Compute L, U such that A = L * U, where:
 - U (m*n) is upper triangular (upper trapezoidal if m < n)
 */
 template <class T, class Config>
-void lu(const Matrix_BlasEnabled<T, 2, Config>& a, Array<T, 2, Config>& l_out, Array<T, 2, Config>& u_out)
+void lu(const Matrix_BlasEnabled<T, 2, Config>& a, Array<T, 2, Config>& l_out, Array<T, 2, Config>& u_out, ui32* nb_permutations = nullptr)
 {
    using matrix_type = Array<T, 2, Config>;
    using index_type  = typename matrix_type::index_type;
@@ -55,6 +55,19 @@ void lu(const Matrix_BlasEnabled<T, 2, Config>& a, Array<T, 2, Config>& l_out, A
    const blas::BlasInt llda = leading_dimension<T, Config>(l_out);
    const auto r2            = blas::laswp<T>(matrixOrder, m, &l_out(0, 0), llda, 1, ipiv_size, IPIV.get(), -1);
    ensure(r2 == 0, "error laswp");
+
+   if (nb_permutations)
+   {
+      // IPIV is a series of permutation vectors. if IPIV[i]=i, there is no permutation!
+      *nb_permutations = 0;
+      for (int n = 0; n < ipiv_size; ++n)
+      {
+         if (IPIV.get()[n] != n + 1)
+         {
+            ++(*nb_permutations);
+         }
+      }
+   }
 }
 
 DECLARE_NAMESPACE_NLL_END

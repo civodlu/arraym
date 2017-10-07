@@ -343,6 +343,17 @@ inline double absolute(double val)
 }
 
 /**
+ @ingroup core
+ @brief return 1 if value is >= 0, -1 otherwise
+ */
+template <class T>
+T sign(T value)
+{
+   static_assert(std::is_signed<T>::value, "must be a signed type!");
+   return value >= 0 ? T(1) : T(-1);
+}
+
+/**
 @ingroup core
 @brief test if 2 values are equal with a certain tolerance
 */

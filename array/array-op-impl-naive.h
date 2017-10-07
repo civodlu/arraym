@@ -156,9 +156,12 @@ std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
 
    o << "[";
 
+   const size_t max_nb_elements = 50;
+
    ConstArrayProcessor_contiguous_byDimension<Array<T, N, Config>> processor(array, 1);
    bool hasMoreElements = true;
-   while (hasMoreElements)
+   size_t nb_element = 0;
+   while (hasMoreElements && nb_element < max_nb_elements)
    {
       T const* ptr    = nullptr;
       hasMoreElements = processor.accessSingleElement(ptr);
@@ -172,6 +175,12 @@ std::ostream& operator<<(std::ostream& o, const Array<T, N, Config>& array)
       {
          o << ' ';
       }
+      ++nb_element;
+   }
+
+   if (nb_element >= max_nb_elements)
+   {
+      o << " ...";
    }
 
    o << "]";

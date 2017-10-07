@@ -528,6 +528,11 @@ private:
       // now deep copy...
       const ui32 this_linearSize  = _linearSize();
       const ui32 other_linearSize = other._sharedView ? other._sharedView->_linearSize() : other._linearSize();
+      if (other_linearSize == 0)
+      {
+         // empty other. Done!
+         return;
+      }
 
       using unconst_pointer = typename array_remove_const<pointer_type>::type;
 

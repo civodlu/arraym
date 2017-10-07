@@ -155,3 +155,5 @@ TODO nice to have functions:
 #include "matrix-op-blas-svd.h"
 #include "matrix-op-blas-lu.h"
 #include "matrix-op-blas-cov.h"
+#include "matrix-op-blas-det.h"
+#include "matrix-op-trace.h"

@@ -21,6 +21,8 @@ set(Headers array.h
             matrix-op-blas-inv.h
             matrix-op-blas-least-square.h
             matrix-op-blas-svd.h
+			matrix-op-blas-det.h
+			matrix-op-trace.h
             matrix-op-impl-naive.h
             array-chunking.h
             matrix-op-identity.h

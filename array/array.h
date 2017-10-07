@@ -962,6 +962,11 @@ typename Array::pointer_type array_base_memory(const Array& array)
 template <class T1, size_t N, class ConfigT1, class T2, class ConfigT2>
 bool operator==(const Array<T1, N, ConfigT1>& a1, const Array<T2, N, ConfigT2>& a2)
 {
+   if (a1.shape() != a2.shape())
+   {
+      return false;
+   }
+
    // TODO performance improvement: early stopping
    bool same = true;
 
