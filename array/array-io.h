@@ -48,7 +48,10 @@ namespace details
       f.write(reinterpret_cast<const char*>(&bytes_per_element), sizeof(bytes_per_element));
       f.write(reinterpret_cast<const char*>(array.shape().begin()), sizeof(ui32) * nb_dims);
 
-      write_data(array, f);
+      if (array.size())
+      {
+         write_data(array, f);
+      }
    }
 
    /**
@@ -101,7 +104,10 @@ namespace details
          array = Array<T, N, Config>(shape);
       }
 
-      read_data(array, f);
+      if (shape[0])
+      {
+         read_data(array, f);
+      }
    }
 }
 

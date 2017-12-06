@@ -502,6 +502,8 @@ private:
    {
       if (this != &other)
       {
+         _deallocateSlices(); // first if we have currently valid resources, destroy them!
+
          _indexMapper = other._indexMapper;
          _shape       = other._shape;
          _allocator   = other._allocator;
