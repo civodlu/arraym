@@ -404,7 +404,9 @@ norm2_elementwise(const Array<T, N, Config>& array)
 /**
  @brief Stack arrays of a same shape into a higher dimensional array
 
- Input arrays are stored at the last dimension
+ Input arrays are stored at the last dimension. For example:
+ stack([1, 2, 3], [4, 5, 6]) => [[1, 2, 3],
+                                 [4, 5, 6]]
  */
 template <class T, size_t N, class Config, typename... Other>
 Array<T, N + 1, typename Config::template rebind_dim<N + 1>::other> stack(const Array<T, N, Config>& array, const Other&... other)

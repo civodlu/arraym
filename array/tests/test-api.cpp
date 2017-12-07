@@ -269,11 +269,6 @@ struct TestArrayApi
       TESTER_ASSERT(norm2(sub_2x2 * sub_2x2_inv - identity<float>(2)) < 1e-4f);
    }
 
-   template <class T, class Config, size_t N>
-   void Test1(Array<T, N, Config>& lhs)
-   {
-   }
-
    void api_enumerate_rows()
    {
       array_type array(2, 3);
@@ -295,10 +290,12 @@ struct TestArrayApi
 
    void api_enumerate_vectors()
    {
+      // enumerate the values of a container and provide an index and an iterator
       std::vector<int> v = {1, 2, 3, 4};
       size_t index       = 0;
       for (auto it : enumerate(v))
       {
+         TESTER_ASSERT( it.index == index );
          *it *= 2;
          ++index;
       }
@@ -308,6 +305,83 @@ struct TestArrayApi
       TESTER_ASSERT(v[1] == 4);
       TESTER_ASSERT(v[2] == 6);
       TESTER_ASSERT(v[3] == 8);
+   }
+
+   void api_where()
+   {
+      // find the indexes of the array satisfying a condition
+      using Array = NAMESPACE_NLL::Array<int, 1>;
+      Array array( 6 );
+      array = { 2, 2, 3, 4, 5, 2 };
+
+      const auto indexes = where( array, []( int value )
+      {
+         return value == 2;
+      } );
+
+      TESTER_ASSERT( indexes.size() == 3 );
+      TESTER_ASSERT( indexes[ 0 ] == vector1ui( 0 ) );
+      TESTER_ASSERT( indexes[ 1 ] == vector1ui( 1 ) );
+      TESTER_ASSERT( indexes[ 2 ] == vector1ui( 5 ) );
+   }
+
+   void api_lookup()
+   {
+      // apply indexing on an array and collect the values
+      using Array = NAMESPACE_NLL::Array<int, 1>;
+      Array array( 6 );
+      array = { 5, 2, 3, 4, 1, 8 };
+
+      const auto indexes = where( array, []( int value )
+      {
+         return value > 3;
+      });
+
+      const auto values = lookup( array, indexes );
+      TESTER_ASSERT( values.shape() == vector1ui( 3 ) );
+      TESTER_ASSERT( values( 0 ) == 5 );
+      TESTER_ASSERT( values( 1 ) == 4 );
+      TESTER_ASSERT( values( 2 ) == 8 );
+   }
+
+   void api_repmat_duplicate()
+   {
+      // replicate an array
+      // for example:
+      //   repmat([1, 2, 3], {2}) => [1, 2, 3, 1, 2, 3]
+      //
+      using Array = NAMESPACE_NLL::Array<int, 1>;
+      Array array( 3 );
+      array = { 1, 2, 3 };
+
+      const auto array_2 = repmat( array, vector1ui{ 2 } );
+      TESTER_ASSERT( array_2.shape() == vector1ui( 6 ) );
+      TESTER_ASSERT( array_2(0) == 1 );
+      TESTER_ASSERT( array_2(1) == 2 );
+      TESTER_ASSERT( array_2(2) == 3 );
+      TESTER_ASSERT( array_2(3) == 1 );
+      TESTER_ASSERT( array_2(4) == 2 );
+      TESTER_ASSERT( array_2(5) == 3 );
+   }
+
+   void api_repmat_newaxis()
+   {
+      // replicate an array and create a new axis
+      // For example:
+      // repmat( [ 1, 2, 3 ], { 1, 2 } ) = >[[1, 2, 3],
+      //                                     [1, 2, 3]]
+      using Array = NAMESPACE_NLL::Array<int, 1>;
+      Array array( 3 );
+      array = { 1, 2, 3 };
+
+      const auto array_2 = repmat( array, vector2ui{ 1, 2 } );
+      TESTER_ASSERT( array_2.shape() == vector2ui( 3, 2 ) );
+      TESTER_ASSERT( array_2( 0, 0 ) == 1 );
+      TESTER_ASSERT( array_2( 1, 0 ) == 2 );
+      TESTER_ASSERT( array_2( 2, 0 ) == 3 );
+      TESTER_ASSERT( array_2( 0, 1 ) == 1 );
+      TESTER_ASSERT( array_2( 1, 1 ) == 2 );
+      TESTER_ASSERT( array_2( 2, 1 ) == 3 );
    }
 };
 
@@ -336,4 +410,8 @@ TESTER_TEST(api_op);
 TESTER_TEST(api_op_axis);
 TESTER_TEST(api_repmat);
 TESTER_TEST(api_dense_linear_algebra_subblocks);
+TESTER_TEST(api_where);
+TESTER_TEST(api_repmat_duplicate);
+TESTER_TEST( api_repmat_newaxis );
+TESTER_TEST( api_lookup );
 TESTER_TEST_SUITE_END();

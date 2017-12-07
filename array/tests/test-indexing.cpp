@@ -19,7 +19,7 @@ struct TestIndexing
       a = {1, 2, 3, 4, 5, 6};
 
       std::vector<vector2ui> indexes = {{0, 0}, {2, 0}, {2, 1}};
-      auto r                         = loopkup(a, indexes);
+      auto r = lookup( a, indexes );
       TESTER_ASSERT(r.shape() == vector1ui(3));
       TESTER_ASSERT(r(0) == 1);
       TESTER_ASSERT(r(1) == 3);
@@ -41,12 +41,11 @@ struct TestIndexing
       const Vector<vector2ui>& const_indexes = indexes;
       a( const_indexes( 0 ) );
       
-      auto r  = loopkup(a, indexes);
-      /*
+      auto r = lookup( a, indexes );
       TESTER_ASSERT(r.shape() == vector1ui(3));
       TESTER_ASSERT(r(0) == 1);
       TESTER_ASSERT(r(1) == 3);
-      TESTER_ASSERT(r(2) == 6);*/
+      TESTER_ASSERT(r(2) == 6);
    }
 };
 

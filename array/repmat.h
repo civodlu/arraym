@@ -2,6 +2,17 @@
 
 DECLARE_NAMESPACE_NLL
 
+/**
+ @brief replicate & create additional dimension for an array
+
+ This is similar to the matlab function to replicate dimensions or create new axes.
+
+ For example:
+ repmat([1, 2, 3], {1, 2}) => [[1, 2, 3]
+                               [1, 2, 3]]
+
+ repmat([1, 2, 3], {2}) => [1, 2, 3, 1, 2, 3]
+ */
 template <class T, size_t N, class Config, size_t N2>
 Array<T, N2, typename Config::template rebind_dim<N2>::other> repmat(const Array<T, N, Config>& array, const StaticVector<ui32, N2>& times)
 {

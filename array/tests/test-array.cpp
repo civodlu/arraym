@@ -899,4 +899,5 @@ TESTER_TEST(testStaticCast_slice);
 TESTER_TEST(testArray1d);
 TESTER_TEST(testArray_equal);
 TESTER_TEST(testArrayRef_baseMemory);
+TESTER_TEST(testArrayWhere);
 TESTER_TEST_SUITE_END();
