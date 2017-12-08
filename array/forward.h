@@ -76,10 +76,70 @@
  @page label_1 High level api
 
  @section label_2 Accessing elements
- @image html processor_column_major.png
+ Accessing elements can be done elements by elements. For example:
+ @code
+ Array<float, 2> array(2, 3);
+ 
+ // access element with individual coordinates
+ array(0, 0) = 42;
+
+ // access element with coordinates packed in a static vector
+ array(vector2ui{1, 1}) = 42;
+ @endcode
+
+ For convenience, arrays can be initialized following axis order (not memory order):
+ @code
+ Array<float, 2> array(3, 2);
+ array = {1, 2, 3,
+          4, 5, 6};
+ @endcode
+ 
+ However these methods are inefficient since they incur many overheads
+ (e.g., index calculation) and should be avoided in performance critical code.
+ More importantly, we need to be very careful in accessing the array elements
+ in a cache friendly manner which may not be done by hand easily. This is why most array operations are
+ done in blocks so that we can minimize indexing overhead and take advantage of SIMD operations. Array
+ access is abstracted using Processor concept which decides what is the most cache-friendly access
+ pattern.
+
  @section label_3 The processor
+ The processor is used to abstract how the array is accessed in order to minimize cache misses and enable
+ SIMD and GPU based operations. Array are commonly stored following row-major and column-major (e.g., image below).
+ Other access orders can be implemented.
+
+ @image html processor_column_major.png
+
  @section label_4 Value based semantic
+ We chose value based array semantic (as opposed to reference based semantics) as it is less prone to inattention errors.
+ This means that by default, we prefer copying arrays and avoid referencing arrays unless explicitly specified. However,
+ it is possible to reference arrays when performance is needed.
+
+ @code
+ Array<float, 2> array1(3, 2);
+ Array<float, 2> array2(3, 2);
+ 
+ // the array1 is fully copied
+ array2 = array1;
+ @endcode
+
+ The following code create a reference on the main array:
+ @code
+ Array<float, 2> array(3, 2);
+
+ // array_ref is a reference, if array
+ // is destroyed, the reference becomes invalid
+ auto array_ref = array({0, 0}, {1, 1});  
+
+ // at this point array_copy will have a copy of the referenced sub-array
+ Array<float, 2> array_copy = array_ref;
+ @endcode
+
  @section label_5 Common operations
+ Many common operations are defined:
+ - arithmetic (e.g., addition, multiplication, sum, mean)
+ - boolean (e.g., and, or, any)
+ - math (e.g., pow, sqrt, cos)
+
  @section label_6 Dense linear algebra
  @section label_7 Small array optimization
  @section label_8 Axis-based operations
@@ -96,8 +156,6 @@ TODO nice to have functions:
  - reshape
  - dot
  - split
- - reorder axis (swap or transpose)
- - std, var
 */
 
 #include <array/array-api.h>
