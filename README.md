@@ -78,11 +78,4 @@ void api_cuda_array()
 
 Tests are located in array/tests 
 
-## Authors
-
-* **Ludovic Sibille** - *Initial work*
-
-## License
-
-This project is licensed under the LGPLv3 License
 
